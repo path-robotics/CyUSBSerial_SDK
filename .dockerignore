@@ -1,0 +1,5 @@
+cmake-build-debug
+Dockerfile.base
+**/build
+**/install
+**/sandbox

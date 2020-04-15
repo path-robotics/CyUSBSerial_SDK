@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+set -e
+
+#=============================================================================
+echo "Removing udev rules for access to usb lasers"
+
+RULES_FILE=/etc/udev/rules.d/90-cyusb.rules
+
+rm ${RULES_FILE}
+
+echo "Removed ${RULES_FILE}"
+
+#=============================================================================
+#echo "Removing blacklist for ftdi_sio and usbserial"
+#
+#BLACKLIST_FILE=/etc/modprobe.d/ftd2xx-blacklist.conf
+#
+#rm ${BLACKLIST_FILE}
+#
+#echo "Removed ${BLACKLIST_FILE}"
+
+exit 0

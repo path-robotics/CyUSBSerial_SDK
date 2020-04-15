@@ -1,0 +1,40 @@
+#!/usr/bin/env sh
+
+set -e
+
+#=============================================================================
+echo "Generating udev rules for access to usb lasers"
+
+RULES_FILE=/etc/udev/rules.d/90-cyusb.rules
+#RUN_FILE=/usr/bin/CyUSBSerial.sh
+
+#echo '#!/bin/bash
+#pid=`pidof CyUSBSerialTestUtility`
+#
+#if [ "$pid" ]; then
+#    kill -s SIGUSR1 $pid
+#fi
+cat <<EOT >> ${RULES_FILE}
+#KERNEL=="*", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ACTION=="add", ATTR{idVendor}=="04b4", MODE+="666"
+#KERNEL=="*", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ACTION=="remove", TAG=="cyusb_dev"
+SUBSYSTEM=="usb", ATTR{idVendor}=="04b4", MODE:="0666", TAG+="uaccess", TAG+="udev-acl"
+EOT
+echo "Udev rules written to ${RULES_FILE}"
+ldconfig
+#=============================================================================
+#echo "Blacklisting ftdi_sio and usbserial kernel modules"
+#
+#BLACKLIST_FILE=/etc/modprobe.d/ftd2xx-blacklist.conf
+#
+#echo "# The ftdi_sio and usbserial modules conflict with ftd2xx" > ${BLACKLIST_FILE}
+#for i in ftdi_sio usbserial; do
+#  echo "blacklist $i" >> ${BLACKLIST_FILE}
+#  if [ -n "$(lsmod | grep $i)" ]; then
+#    echo "Unloading kernel module $i"
+#    rmmod $i
+#  fi
+#done
+#
+#echo "Blacklist written to ${BLACKLIST_FILE}"
+
+exit 0
