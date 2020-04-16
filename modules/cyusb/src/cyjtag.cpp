@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <CyUSBSerial/CyUSBCommon.h>
+#include <CyUSBSerial/CyUSBCommon.hpp>
 /*
  * This API enables the Jtag module
  */

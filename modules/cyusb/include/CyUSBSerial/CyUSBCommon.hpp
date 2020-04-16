@@ -1,22 +1,7 @@
-/*
- * Common header file of Cypress USB Serial 
- * Copyright (C) 2013 Cypress Semiconductor
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- */
 
+
+#ifndef PATH_CYPRESS_USB_SDK_CY_USB_COMMON_HPP
+#define PATH_CYPRESS_USB_SDK_CY_USB_COMMON_HPP
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -26,7 +11,7 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <libusb-1.0/libusb.h>
-#include <CyUSBSerial/CyUSBSerial.h>
+#include <CyUSBSerial/CyUSBSerial.hpp>
 #ifdef __x86_64__
 #pragma pack(1)
 #else
@@ -219,4 +204,4 @@ typedef enum CY_VENDOR_CMDS
 #define CY_PHDC_GET_STATUS_LEN 2
 #define CY_PHDC_CLR_FEATURE_WVALUE 0x1
 #define CY_PHDC_SET_FEATURE_WVALUE 0x0101
-
+#endif

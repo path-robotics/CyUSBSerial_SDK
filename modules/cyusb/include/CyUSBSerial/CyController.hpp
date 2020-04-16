@@ -2,7 +2,7 @@
 #ifndef PATH_CYPRESS_USB_SDK_CY_CONTRTOLLER_HPP
 #define PATH_CYPRESS_USB_SDK_CY_CONTRTOLLER_HPP
 
-#include <CyUSBSerial/CyUSBCommon.h>
+#include <CyUSBSerial/CyUSBCommon.hpp>
 #include <string>
 #include <memory>
 #include <vector>

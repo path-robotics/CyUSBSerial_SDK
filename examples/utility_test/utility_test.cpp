@@ -12,7 +12,7 @@
 #include <ctype.h>
 #include <iostream>
 
-#include <CyUSBSerial/CyUSBSerial.h>
+#include <CyUSBSerial/CyUSBSerial.hpp>
 #define CY_MAX_DEVICES 30
 #define CY_MAX_INTERFACES 4
 
