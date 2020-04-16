@@ -76,6 +76,7 @@ CyController::~CyController()
 
 bool CyController::initialize()
 {
+    clear_stored_devices();
     int numDevices = get_number_of_devices();
     if (numDevices > 0)
     {
@@ -192,7 +193,7 @@ bool CyController::open_working_device() const
 bool CyController::close_working_device() const
 {
     if (!is_initialized())
-        return false;
+        return true;
     if (mWorkingDevice)
     {
         if (is_working_device_open())
@@ -236,9 +237,9 @@ int CyController::number_of_stored_device() const
 
 void CyController::clear_stored_devices()
 {
+    close_working_device();
     mDeviceList.clear();
     mIsInitialized = false;
-    close_working_device();
     mWorkingDevice.reset();
 }
 
