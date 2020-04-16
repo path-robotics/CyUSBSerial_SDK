@@ -197,14 +197,14 @@ See Also
 * CyGetDeviceInfo
 * CyGetDeviceInfoVidPid
 */
-typedef enum _CY_DEVICE_CLASS : uint8_t{
+enum CY_DEVICE_CLASS : uint8_t{
 
     CY_CLASS_DISABLED = 0,              /*None or the interface is disabled */
     CY_CLASS_CDC = 0x02,                /*CDC ACM class*/
     CY_CLASS_PHDC = 0x0F,               /*PHDC class */
     CY_CLASS_VENDOR = 0xFF              /*VENDOR specific class*/
 
-} CY_DEVICE_CLASS;
+};
 
 /* Summary 
 Enumeration defining list of device types supported by USB Serial device in each interface.

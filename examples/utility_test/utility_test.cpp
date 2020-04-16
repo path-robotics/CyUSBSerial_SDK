@@ -1,6 +1,6 @@
 /*
  * Test utility
- * Copyright (C) 2013 Cypress Semiconductor
+ * Copyright (C) 2013  Cypress Semiconductor
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,21 +23,17 @@
 #include <getopt.h>
 #include <string.h>
 #include <signal.h>
-#include <stdint.h>
+
 #include <stdbool.h>
-#include <iostream>
 #include <unistd.h>
 #include <sys/time.h>
 #include <pthread.h>
 #include <ctype.h>
-#include <time.h>
+#include <iostream>
 
 #include <CyUSBSerial/CyUSBSerial.h>
 #define CY_MAX_DEVICES 30
 #define CY_MAX_INTERFACES 4
-#define I2C_TIMEOUT_MILLISECONDS   500
-
-void printListOfDevices (bool isPrint);
 
 typedef struct _CY_DEVICE_STRUCT {
     int deviceNumber;
@@ -50,47 +46,35 @@ typedef struct _CY_DEVICE_STRUCT {
 CY_DEVICE_STRUCT *glDevice;
 int i2cDeviceIndex[CY_MAX_DEVICES][CY_MAX_INTERFACES];
 unsigned char *deviceNumber = NULL;
-int cyDevices, i2cDevices = 0, numDevices = 0;
+int cyDevices, i2cDevices = 0;
+UINT8 numDevices = 0;
 int selectedDeviceNum = -1, selectedInterfaceNum = -1;
 bool exitApp = false;
-unsigned short pageAddress = -1;
+short pageAddress = -1;
 short readWriteLength = -1;
 bool deviceAddedRemoved = false;
+
+int i2cVerifyData (int deviceNumber, int interfaceNum);
+void printListOfDevices (bool isPrint);
+int spiVerifyData (int deviceNumber, int interfaceNum);
+
 int getUserInput()
 {
-    char userInput[6], x;
-    int output,i = 0;
-    bool isDigit = true;
-    x = getchar();
-    while (x != '\n'){
-        if (i < 5){
-            userInput[i] = x;
-            i++;
-        }
-        if (!isdigit(x))
-            isDigit = false;
-
-        x = getchar();
-    }
-    userInput[i] = '\0';
-    if (isDigit == false)
-        return -1;
-    output = atoi(userInput);
-    return output;
+    int n;
+    std::cin >> n;
+    std::cout << "you selected: " << n << std::endl;
+    return n;
 }
-void deviceHotPlug (int sig) {
 
+void deviceHotPlug (int sig) {
     CY_RETURN_STATUS rStatus;
     deviceAddedRemoved = true;
     selectedDeviceNum = -1;
     selectedInterfaceNum = -1;
     printf ("Device of interest Removed/Added \n");
-    uint8_t numDevices_;
-    rStatus = CyGetListofDevices (&numDevices_);
-    numDevices = static_cast<int>(numDevices_);
+    rStatus = CyGetListofDevices (&numDevices);
     if (rStatus != CY_SUCCESS) {
         printf ("CY:Error in Getting List of Devices: Error NO:<%d> \n", rStatus);
-        return;
     }
     printListOfDevices (false);
 }
@@ -118,7 +102,6 @@ void passNumber (int devicenumber, int interfacenumber) {
     CyClose(handle);
 
 }
-
 void passHandle (CY_HANDLE handle) {
 
     uint8_t value=5;
@@ -135,10 +118,9 @@ void passHandle (CY_HANDLE handle) {
     CyClose(handle);
 
 }
-
 int main (int argc, char **agrv)
 {
-    int index = 0, i, j, userInput;
+    int userInput;
     int tempSelectedDeviceNum, tempSelectedInterfaceNum, tempPageAddress, tempLength;
     CY_RETURN_STATUS rStatus;
     signal (SIGUSR1, deviceHotPlug);
@@ -152,17 +134,12 @@ int main (int argc, char **agrv)
         printf ("CY:Error in Doing library init Error NO:<%d> \n", rStatus);
         return rStatus;
     }
-    uint8_t numDevices_;
-    rStatus = CyGetListofDevices (&numDevices_);
+    rStatus = CyGetListofDevices (&numDevices);
     if (rStatus != CY_SUCCESS) {
         printf ("CY:Error in Getting List of Devices: Error NO:<%d> \n", rStatus);
         return rStatus;
     }
-    numDevices = static_cast<int>(numDevices_);
-    printf("Number of Decice:  %d ",numDevices);
     printListOfDevices(true);
-
-    printf ("-------------------------------------------------------------------\n");
 
 
 
@@ -179,8 +156,7 @@ int main (int argc, char **agrv)
     int	     indexNumber=0;
 
 
-    rStatus = CyGetListofDevices(&numDevices_);
-    numDevices = static_cast<int>(numDevices_);
+//    rStatus = CyGetListofDevices(&numDevices);
     printf("Number of Decice:  %d  \n:",numDevices);
     if ((rStatus != CY_SUCCESS) || (numDevices == 0))
     {
@@ -255,447 +231,170 @@ int main (int argc, char **agrv)
 
     printf(" GPIO 5 data: %d  \n", value);
 
-/*
-        // liquid lens I2C address 0x18
+    do {
 
-        CY_I2C_CONFIG cyI2CConfig;
-        CY_DATA_BUFFER cyDataBuffer;
-        CY_I2C_DATA_CONFIG cyI2CDataConfig;
-        unsigned char readBuffer[4096], writeBuffer[4096];
-        UINT32 timeout = 5000;
+        printf ("-------------------------------------------------------------------\n");
+        printf ("1: Print list of devices \n");
+        if (selectedDeviceNum != -1 && selectedInterfaceNum != -1){
+            printf ("2: Change device selection--selected device: [Device number %d] : [Interface No %d]",\
+                    selectedDeviceNum, selectedInterfaceNum);
+            if (glDevice[selectedDeviceNum].interfaceFunctionality[selectedInterfaceNum] == CY_TYPE_I2C)
+                printf (" : I2C\n");
+            else if (glDevice[selectedDeviceNum].interfaceFunctionality[selectedInterfaceNum] == CY_TYPE_SPI)
+                printf (" : SPI\n");
+            else
+                printf (" : NA\n");
 
-        cyI2CDataConfig.slaveAddress = 0x18;
-        cyI2CDataConfig.isNakBit = true;
-        cyI2CDataConfig.isStopBit = true;
-
-
-        memset(writeBuffer, 0x00, 4096);
-        cyDataBuffer.buffer = writeBuffer;
-
-        cyDataBuffer.buffer[0] = 0x00; // register 0
-        cyDataBuffer.buffer[1] = 0xff; //
-        cyDataBuffer.buffer[2] = 0x55; //
-
-        cyDataBuffer.length = 3;
-
-        rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-        if (rStatus != CY_SUCCESS)
-        {
-           printf("Setting liquid lens \n");
         }
+        else
+            printf ("2: Select device...No device selected !!\n");
 
-   */
-
-/*
-       // Open second device, test!!
-
-       rStatus = CyOpen (devicenumber[1], interfacenum[1], &handle2);
-       if (rStatus != CY_SUCCESS)
-       {
-           printf("I2C open fail \n");
-       }
-
-
-       printf("test \n");
-
-       passNumber(devicenumber[1], interfacenum[1]);
-
-
-
-       rStatus = CyOpen (devicenumber[1], interfacenum[1], &handle2);
-       if (rStatus != CY_SUCCESS)
-       {
-           printf("I2C two open fail here: %d  \n", rStatus);
-       }
-
-       passHandle(handle2);
-
-*/
-
-
-
-/*
-
-       //This section is to setup I2C communication
-
-       int value=5;
-
-       rStatus=CyGetGpioValue(handle, 5, &value);
-       if (rStatus != CY_SUCCESS)
-       {
-           printf("GPIO reading failed \n");
-       }
-
-       printf("Device 1 GPIO 5 data: %d  \n", value);
-
-
-       if(value==0)
-       {
-            rStatus=CySetGpioValue(handle, 5, 1);
-            if (rStatus != CY_SUCCESS)
-            {
-                printf("GPIO setting failed \n");
-            }
+        if (readWriteLength != -1 && pageAddress != -1){
+            printf ("3: Change Flash page address and length ...Entered is page address %d and length %d\n", pageAddress, readWriteLength);
+            printf ("4: Verify data\n5: Exit\n");
         }
+        else
+            printf ("3: Enter I2C/SPI Flash page address and length to write/read.\n4: Verify data\n5: Exit\n");
+        printf ("-------------------------------------------------------------------\n");
 
-        rStatus=CyGetGpioValue(handle, 5, &value);
-        if (rStatus != CY_SUCCESS)
-        {
-           printf("GPIO reading failed \n");
+        userInput = getUserInput();
+        if (userInput < 1 || userInput > 5){
+            printf ("Wrong selection code ... Enter again \n");
+            continue;
         }
+        std::cout << "user input " << userInput << std::endl;
+        switch (userInput){
+            case 1:
+                std::cout << " listing device " <<std::endl;
+                printListOfDevices(true);
+                std::cout << "done " << std::endl;
+                break;
+            case 2:
+                if (cyDevices == 0) {
+                    printf ("No device of interest connected ...!!\n");
+                    continue;
+                }
+                printf ("Enter Device number to be selected.. \n");
+                tempSelectedDeviceNum = getUserInput();
+                //printf ("Selected device number is %d \n",tempSelectedDeviceNum);
+                if (tempSelectedDeviceNum >= cyDevices || tempSelectedDeviceNum == -1){
+                    printf ("Wrong device selection \n");
+                    continue;
+                }
+                printf ("Enter interface number..\n");
+                tempSelectedInterfaceNum = getUserInput();
+                //printf ("Selected device number is %d %d\n",tempSelectedInterfaceNum, glDevice[tempSelectedDeviceNum].numInterface);
 
-        printf(" GPIO 5 data: %d  \n", value);
+                if (tempSelectedInterfaceNum >= glDevice[tempSelectedDeviceNum].numInterface ||
+                    tempSelectedInterfaceNum == -1) {
+                    printf ("Wrong interface Selection selection \n");
+                    continue;
+                }
+                if (glDevice[tempSelectedDeviceNum].interfaceFunctionality[tempSelectedInterfaceNum] == -1){
+                    printf ("Selected device does not have I2C or SPI !!! \n");
+                    continue;
+                }
+                if (deviceAddedRemoved == true) {
+                    printf ("Device of interest was added/removed .... Print and select from new list\n");
+                    continue;
+                }
+                selectedDeviceNum = tempSelectedDeviceNum;
+                selectedInterfaceNum = tempSelectedInterfaceNum;
+                //pageAddress = -1;
+                //readWriteLength = -1;
+                break;
+            case 3:
+                if (selectedDeviceNum == -1) {
+                    printf ("Select proper device!!! \n");
+                    continue;
+                }
+                if (selectedDeviceNum >= cyDevices){
+                    printf ("Select proper device!!! \n");
+                    continue;
+                }
+                if (glDevice[selectedDeviceNum].interfaceFunctionality[selectedInterfaceNum] == CY_TYPE_I2C){
+                    printf ("Enter Page address... (less than 256)\n");
+                    tempPageAddress = getUserInput();
+                    printf ("Enter length to read/write...(less than 64)\n");
+                    tempLength = getUserInput();
+                    if (deviceAddedRemoved == true) {
+                        printf ("Device of interest was added/removed .... Print and select from new list\n");
+                        continue;
+                    }
+                    if (tempPageAddress > 256){
+                        printf ("Invalid page address ..Enter page address less than 256 (1 bytes len)\n");
+                        continue;
+                    }
+                    if (tempLength < 0 || tempLength > 64){
+                        printf ("Invalid Length ..Enter length less than 64 bytes\n");
+                        continue;
+                    }
+                    pageAddress = tempPageAddress;
+                    readWriteLength = tempLength;
+                    break;
+                }
+                if (glDevice[selectedDeviceNum].interfaceFunctionality[selectedInterfaceNum] == CY_TYPE_SPI){
+                    printf ("Enter Page address... (less than 65536)\n");
+                    tempPageAddress = getUserInput();
+                    printf ("Enter length to read/write...(less than 256)\n");
+                    tempLength = getUserInput();
+                    if (deviceAddedRemoved == true) {
+                        printf ("Device of interest was added/removed .... Print and select from new list\n");
+                        continue;
+                    }
+                    if (tempPageAddress > 65536){
+                        printf ("Invalid page address ..Enter page address less than 65536 (1 bytes len)\n");
+                        continue;
+                    }
+                    if (tempLength < 0 || tempLength > 256){
+                        printf ("Invalid Length ..Enter length less than 256 bytes\n");
+                        continue;
+                    }
+                    pageAddress = tempPageAddress;
+                    readWriteLength = tempLength;
+                    break;
+                }
+            case 4:
+                if (selectedDeviceNum == -1) {
+                    printf ("Select proper device!!! \n");
+                    continue;
+                }
+                if (glDevice[selectedDeviceNum].interfaceFunctionality[selectedInterfaceNum] == -1){
+                    printf ("Selected device does not have I2C or SPI !!! \n");
+                    continue;
+                }
+                if ((pageAddress == -1) || (readWriteLength == -1)){
+                    printf ("Select proper page address and length !!! \n");
+                    continue;
+                }
+                if (glDevice[selectedDeviceNum].interfaceFunctionality[selectedInterfaceNum] == CY_TYPE_I2C){
+                    if (pageAddress > 256){
+                        printf ("Invalid Page address for I2C .. need to be less than 256\n");
+                        continue;
+                    }
+                    if (readWriteLength > 64){
+                        printf ("Invalid read write length for I2C .. need to be less than 64\n");
+                        continue;
+                    }
+                    printf ("Calling I2C \n");
+                    i2cVerifyData(glDevice[selectedDeviceNum].deviceNumber, selectedInterfaceNum);
+                }
+                if (glDevice[selectedDeviceNum].interfaceFunctionality[selectedInterfaceNum] == CY_TYPE_SPI){
+                    spiVerifyData(glDevice[selectedDeviceNum].deviceNumber, selectedInterfaceNum);
+                }
+                break;
 
-        time_t  StartTime = time(NULL);
-
-        value=0;
-
-        while(value==0)
-        {
-          rStatus=CyGetGpioValue(handle, 6, &value);
-          if (rStatus != CY_SUCCESS)
-           {
-           printf("GPIO reading failed \n");
-           }
+            case 5:
+                exitApp = true;
+                CyLibraryExit ();
+                break;
         }
-        printf(" GPIO 6 data: %d  \n", value);
-
-        rStatus=CyGetGpioValue(handle, 9, &value);
-        if (rStatus != CY_SUCCESS)
-        {
-           printf("GPIO reading failed \n");
-        }
-
-        printf(" GPIO 9 data: %d  \n", value);
-
-        if(value==0)
-        {
-            rStatus=CySetGpioValue(handle, 9, 1);
-            if (rStatus != CY_SUCCESS)
-            {
-                printf("GPIO setting failed \n");
-            }
-        }
-
-        rStatus=CyGetGpioValue(handle, 9, &value);
-        if (rStatus != CY_SUCCESS)
-        {
-           printf("GPIO reading failed \n");
-        }
-
-        printf(" GPIO 9 data: %d  \n", value);
-
-*/
-
-
-/*
-        //Trigger setting
-
-        CY_I2C_CONFIG cyI2CConfig;
-        CY_DATA_BUFFER cyDataBuffer;
-        CY_I2C_DATA_CONFIG cyI2CDataConfig;
-        unsigned char readBuffer[4096], writeBuffer[4096];
-        UINT32 timeout = 5000;
-
-        cyI2CDataConfig.slaveAddress = 0x1B;
-        cyI2CDataConfig.isNakBit = true;
-        cyI2CDataConfig.isStopBit = true;
-
-
-        memset(writeBuffer, 0x00, 4096);
-        cyDataBuffer.buffer = writeBuffer;
-
-        cyDataBuffer.buffer[0] = 0x92; // trigger out setting
-        cyDataBuffer.buffer[1] = 0x03; // selete trigger 2 (bit0=1)  enable (bit1=1) Not inverted (bit2=0) 00000-011
-        cyDataBuffer.buffer[2] = 0x00; // Not delay 4 bytes
-        cyDataBuffer.buffer[3] = 0x00;
-        cyDataBuffer.buffer[4] = 0x00;
-        cyDataBuffer.buffer[5] = 0x00;
-
-        cyDataBuffer.length = 6;
-
-        rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-        if (rStatus != CY_SUCCESS)
-        {
-           printf("Setting trigger \n");
-        }
-
-        sleep(0.5);
-*/
-
-
-    /*
-           // read LED current setting
-
-           memset(writeBuffer, 0x00, 4096);
-           cyDataBuffer.buffer = writeBuffer;
-
-           memset(readBuffer, 0x00, 4096);
-
-           cyDataBuffer.buffer[0] = 0x55; // read
-           cyDataBuffer.length = 1;
-
-           rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-           if (rStatus != CY_SUCCESS)
-           {
-              printf("Read LED Current \n");
-           }
-
-           cyDataBuffer.buffer = readBuffer;
-           cyDataBuffer.buffer[0] = 0;
-           cyDataBuffer.buffer[1] = 0;
-           cyDataBuffer.buffer[2] = 0;
-           cyDataBuffer.buffer[3] = 0;
-           cyDataBuffer.buffer[4] = 0;
-           cyDataBuffer.buffer[5] = 0;
-
-           cyDataBuffer.length = 6;
-
-           rStatus = CyI2cRead(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-           if (rStatus != CY_SUCCESS)
-           {
-              printf("Read LED Current \n");
-           }
-           printf("LED Current: R= %d , %d \n", cyDataBuffer.buffer[0], cyDataBuffer.buffer[1]);
-           printf("LED Current: G= %d , %d \n", cyDataBuffer.buffer[2], cyDataBuffer.buffer[3]);
-           printf("LED Current: B= %d , %d \n", cyDataBuffer.buffer[4], cyDataBuffer.buffer[5]);
-
-           // Write LED enabel, may not need to do it
-
-           memset(writeBuffer, 0x00, 4096);
-           cyDataBuffer.buffer = writeBuffer;
-
-           cyDataBuffer.buffer[0] = 0x52; // Write LED enable
-           cyDataBuffer.buffer[1] = 0x07; //
-
-           cyDataBuffer.length = 2;
-
-           rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-           if (rStatus != CY_SUCCESS)
-           {
-              printf("Write LED Enable \n");
-           }
-
-           sleep(1);
-
-
-           // For new projectors, they are already set to Max current in default
-
-           memset(writeBuffer, 0x00, 4096);
-           cyDataBuffer.buffer = writeBuffer;
-
-           cyDataBuffer.buffer[0] = 0x5C; // Setting LED max current
-           cyDataBuffer.buffer[1] = 0xFF; // R 0x03ff = 1023 low byte first then high byte
-           cyDataBuffer.buffer[2] = 0x03; // R
-           cyDataBuffer.buffer[3] = 0xFF; // G
-           cyDataBuffer.buffer[4] = 0x03; // G
-           cyDataBuffer.buffer[5] = 0xFF; // B
-           cyDataBuffer.buffer[6] = 0x03; // B
-
-           cyDataBuffer.length = 7;
-
-           rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-           if (rStatus != CY_SUCCESS)
-           {
-              printf("Setting LED Max Current \n");
-           }
-
-           sleep(1);
-
-
-           // not used
-
-           memset(writeBuffer, 0x00, 4096);
-           cyDataBuffer.buffer = writeBuffer;
-
-           cyDataBuffer.buffer[0] = 0x54; // LED current setting to tested stable value
-           cyDataBuffer.buffer[1] = 0x20; // R 0x02BC=700, low byte first then high byte
-           cyDataBuffer.buffer[2] = 0x03; // R
-           cyDataBuffer.buffer[3] = 0x20; // G 0x0320=800
-           cyDataBuffer.buffer[4] = 0x03; // G
-           cyDataBuffer.buffer[5] = 0x20; // B 0x02BC=700
-           cyDataBuffer.buffer[6] = 0x03; // B
-
-           cyDataBuffer.length = 7;
-
-           rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-           if (rStatus != CY_SUCCESS)
-           {
-              printf("Setting LED Current \n");
-           }
-
-           sleep(1);
-   */
-
-/*      test run here
-
-        memset(writeBuffer, 0x00, 4096);
-        cyDataBuffer.buffer = writeBuffer;
-
-        cyDataBuffer.buffer[0] = 0x05;  // Choose test pattern
-        cyDataBuffer.buffer[1] = 0x01;  // TestPatternGenerator
-
-        cyDataBuffer.length = 2;
-
-        rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-        if (rStatus != CY_SUCCESS)
-        {
-           printf("Setting solid image \n");
-        }
-
-        sleep(1);
-
-        memset(writeBuffer, 0x00, 4096);
-        cyDataBuffer.buffer = writeBuffer;
-
-        cyDataBuffer.buffer[0] = 0x0B; // Display solid image
-        cyDataBuffer.buffer[1] = 0x00; // No boarder
-        cyDataBuffer.buffer[2] = 0x60; // white
-
-        cyDataBuffer.length = 3;
-
-        rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-        if (rStatus != CY_SUCCESS)
-        {
-           printf("Setting solid white image \n");
-        }
-
-        sleep(5);
-
-
-        memset(writeBuffer, 0x00, 4096);
-        cyDataBuffer.buffer = writeBuffer;
-
-        cyDataBuffer.buffer[0] = 0x05;
-        cyDataBuffer.buffer[1] = 0x04; //display internal patterns
-        cyDataBuffer.length = 2;
-
-        rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-         if (rStatus != CY_SUCCESS)
-        {
-           printf("display internal pattern \n");
-        }
-
-        cyDataBuffer.buffer[0] = 0x9E;
-        cyDataBuffer.buffer[1] = 0x00;
-        cyDataBuffer.buffer[2] = 0x00; //display once
-        cyDataBuffer.length = 3;
-
-        rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-         if (rStatus != CY_SUCCESS)
-        {
-           printf("display once \n");
-        }
-
-        sleep(3);
-
-        memset(writeBuffer, 0x00, 4096);
-        cyDataBuffer.buffer = writeBuffer;
-
-        cyDataBuffer.buffer[0] = 0x05;  // Choose test pattern
-        cyDataBuffer.buffer[1] = 0x01;  // TestPatternGenerator
-
-        cyDataBuffer.length = 2;
-
-        rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-        if (rStatus != CY_SUCCESS)
-        {
-           printf("Setting solid image \n");
-        }
-
-
-        memset(writeBuffer, 0x00, 4096);
-        cyDataBuffer.buffer = writeBuffer;
-
-        cyDataBuffer.buffer[0] = 0x0B; // Display solid image
-        cyDataBuffer.buffer[1] = 0x00; // No boarder
-        cyDataBuffer.buffer[2] = 0x70; // white
-
-
-        cyDataBuffer.length = 3;
-
-        rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-        if (rStatus != CY_SUCCESS)
-        {
-           printf("Setting solid blue image \n");
-        }
-
-
-
-        memset(writeBuffer, 0x00, 4096);
-        cyDataBuffer.buffer = writeBuffer;
-
-        cyDataBuffer.buffer[0] = 0x05; // Display HDMI
-        cyDataBuffer.buffer[1] = 0x00; //
-
-        cyDataBuffer.length = 2;
-
-        rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-        if (rStatus != CY_SUCCESS)
-        {
-           printf("Setting HDMI \n");
-        }
-
-        sleep(5);
-
-
-        memset(writeBuffer, 0x00, 4096);
-        cyDataBuffer.buffer = writeBuffer;
-
-        cyDataBuffer.buffer[0] = 0x05;
-        cyDataBuffer.buffer[1] = 0x04; //display internal patterns
-        cyDataBuffer.length = 2;
-
-        rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-         if (rStatus != CY_SUCCESS)
-        {
-           printf("display internal pattern \n");
-        }
-
-        memset(writeBuffer, 0x00, 4096);
-        cyDataBuffer.buffer = writeBuffer;
-        cyDataBuffer.buffer[0] = 0x9E;
-        cyDataBuffer.buffer[1] = 0x00;
-        cyDataBuffer.buffer[2] = 0x00; //display once
-        cyDataBuffer.length = 3;
-
-        rStatus = CyI2cWrite(handle, &cyI2CDataConfig, &cyDataBuffer, timeout);
-
-         if (rStatus != CY_SUCCESS)
-        {
-           printf("display once \n");
-        }
-
-
-        // finish job, close I2C communcation to projector
-
-        rStatus=CySetGpioValue(handle, 5, 0);
-        rStatus=CySetGpioValue(handle, 9, 0);
-
- */
+    }while (exitApp == false);
     CyLibraryExit ();
     free (glDevice);
     CyClose (handle);
     CyClose (handle2);
-
-
-
-
+    return CY_SUCCESS;
 }
 int spiWriteEnable (CY_HANDLE handle)
 {
@@ -712,10 +411,6 @@ int spiWriteEnable (CY_HANDLE handle)
 
     wr_data = 0x06; /* Write enable */
     status = CySpiReadWrite (handle, &readBuf, &writeBuf, 5000);
-    if (status != CY_SUCCESS)
-    {
-        return status;
-    }
     return status;
 }
 //Helper functions for doing data transfer to/from SPI flash
@@ -754,7 +449,7 @@ int spiVerifyData (int deviceNumber, int interfaceNum)
     CY_HANDLE handle;
     bool isVerify = true;
     unsigned char wbuffer[256 + 4], rbuffer[256 + 4];
-    int rStatus, length;
+    int rStatus;
 
     memset (rbuffer, 0x00, 256);
     memset (wbuffer, 0x00, 256);
@@ -845,7 +540,7 @@ int i2cVerifyData (int deviceNumber, int interfaceNum)
     bool isVerify = true;
     int loopCount = 100, i;
     CY_RETURN_STATUS rStatus;
-    unsigned char bytesPending = 0, address[2], wbuffer[66], rbuffer[66];
+    unsigned char address[2], wbuffer[66], rbuffer[66];
     CY_I2C_DATA_CONFIG i2cDataConfig;
 
     memset (wbuffer, 0, 66);
@@ -914,9 +609,9 @@ int i2cVerifyData (int deviceNumber, int interfaceNum)
 
     printf ("\n Data that is read from i2c ...\n");
     printf ("\n-----------------------------------------------------------------\n");
-    for (rStatus = 0; rStatus < length; rStatus++){
-        printf ("%x ", rbuffer[rStatus]);
-        if (rbuffer[rStatus] != wbuffer[rStatus + 2]){
+    for (i = 0; i < length; i++){
+        printf ("%x ", rbuffer[i]);
+        if (rbuffer[i] != wbuffer[i + 2]){
             isVerify = false;
         }
     }
@@ -927,6 +622,7 @@ int i2cVerifyData (int deviceNumber, int interfaceNum)
         printf ("Data verified successfully \n");
 
     CyClose (handle);
+    return CY_SUCCESS;
 }
 bool isCypressDevice (int deviceNum) {
     CY_HANDLE handle;
@@ -950,24 +646,28 @@ bool isCypressDevice (int deviceNum) {
 }
 void printListOfDevices (bool isPrint)
 {
-    int  index_i = 0, index_j = 0, i, j, countOfDevice = 0, devNum;
-    int length, index = 0, numInterfaces, interfaceNum;
-    bool set1 = false;
-
-    unsigned char deviceID[CY_MAX_DEVICES];
-    unsigned char functionality[64];
+    std::cout << __LINE__ <<std::endl;
+    int i, j, devNum;
+    std::cout << __LINE__ <<std::endl;
+    int index = 0, numInterfaces, interfaceNum;
+    std::cout << __LINE__ <<std::endl;
+    char functionality[64];
+    std::cout << __LINE__ <<std::endl;
     CY_DEVICE_INFO deviceInfo;
-    CY_DEVICE_CLASS deviceClass[CY_MAX_INTERFACES];
-    CY_DEVICE_TYPE  deviceType[CY_MAX_INTERFACES];
+    std::cout << __LINE__ <<std::endl;
     CY_RETURN_STATUS rStatus;
-
+    std::cout << __LINE__ <<std::endl;
     deviceAddedRemoved = false;
+    std::cout << __LINE__ <<std::endl;
     CyGetListofDevices (&numDevices);
-    //printf ("The number of devices is %d \n", numDevices);
+    std::cout << __LINE__ <<std::endl;
+    printf ("The number of devices is %d \n", numDevices);
+    std::cout << __LINE__ <<std::endl;
     for (i = 0; i < numDevices; i++){
         for (j = 0; j< CY_MAX_INTERFACES; j++)
             glDevice[i].interfaceFunctionality[j] = -1;
     }
+    std::cout << __LINE__ <<std::endl;
     if (isPrint){
         printf ("\n\n---------------------------------------------------------------------------------\n");
         printf ("Device Number | VID | PID | INTERFACE NUMBER | FUNCTIONALITY \n");

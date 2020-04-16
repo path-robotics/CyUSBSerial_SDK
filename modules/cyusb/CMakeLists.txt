@@ -11,6 +11,7 @@ add_library(${component} SHARED
         src/cyphdc.cpp
         src/cyspi.cpp
         src/cyuart.cpp
+        src/CyController.cpp
     )
 
 add_library(${PROJECT_NAME}::${component} ALIAS ${component})

@@ -2,24 +2,12 @@ cmake_minimum_required(VERSION 3.14.0)
 project(CyUSBSerial VERSION 1.0.0 LANGUAGES  C CXX)
 
 set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-
-
+option(BUILD_EXAMPLES "Build the examples" OFF)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "possible configurations" FORCE)
 
-#### ---[ Find universal dependencies
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
 
-# # ---[ Include pkgconfig
-# include(FindPkgConfig)
-#add_definitions(-D)
-# ---[ Release/Debug specific flags
-if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    add_definitions("-DBOOST_DISABLE_ASSERTS -DEIGEN_NO_DEBUG ")
-    #  add_compile_options(-std=c++17    -fopenmp) # -msse2 -O3 -mfpmath=sse )
-
-endif()
-
-IF( NOT CMAKE_BUILD_TYPE )
+IF( NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "build type default to RelWithDebInfo, set to Release to improve performance" FORCE)
 ENDIF()
 
@@ -27,26 +15,20 @@ set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
         "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Maintainer."
         FORCE)
 
-
-
-# Set the default c++ standard
-# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-
 set(CMAKE_CXX_STANDARD 14)
-# Building the libraries and executables
-# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-# This variable will accumulate a list of components
-# as the sub-directories are traversed
 set(components)
 
-#add_subdirectory(third_party)
+
 add_subdirectory(modules/cyusb)
+
+if(BUILD_EXAMPLES)
 add_subdirectory(examples/utility_test)
+add_subdirectory(examples/controller)
+endif()
+
 if(NOT CMAKE_BUILD_TYPE MATCHES .*Rel.*)
-    #add_subdirectory(apps)
-    #add_subdirectory(examples)
+
 endif()
 
 message("${PROJECT_NAME} configured components:")
