@@ -87,7 +87,7 @@ bool CyController::initialize()
             auto rStatus = CyGetDeviceInfo(DeviceIdx, &mDeviceList.back().info);
             if (rStatus != CY_SUCCESS)
             {
-                std::cerr << "CyUSBSerial Error: " << error_message(rStatus) << " " << __FILE__ << " : " << __LINE__ << std::endl;
+                // std::cerr << "CyUSBSerial Error: " << error_message(rStatus) << " " << __FILE__ << " : " << __LINE__ << std::endl;
                 mDeviceList.pop_back();
                 continue;
             }
