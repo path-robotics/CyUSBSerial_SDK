@@ -11,11 +11,11 @@ int main (int argc, char **agrv)
     controller.set_working_device_by_serial(serial);
 
     std::cout << "::::::::::::::::::::::::GPIO Value for GPIO 5 ::::::::::::::::::::::::::::::::" << std::endl;
-    std::cout << controller.get_gpio_value(2) <<std::endl;
+    std::cout << controller.get_gpio_value(5) <<std::endl;
     
     controller.switch_gpio_state(5);
     std::cout << "::::::::::::::::::::::::GPIO Value for GPIO 5 ::::::::::::::::::::::::::::::::" << std::endl;
-    std::cout << controller.get_gpio_value(2) <<std::endl;
+    std::cout << controller.get_gpio_value(5) <<std::endl;
 
     return 0;
 }
