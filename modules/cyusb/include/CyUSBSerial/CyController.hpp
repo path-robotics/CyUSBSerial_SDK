@@ -57,7 +57,6 @@ namespace cyusb {
         bool mIsInitialized;
         std::string mDesiredSerial;
         std::shared_ptr<Device> mWorkingDevice;
-        std::vector<Device> mDeviceList;
     public:
         CyController();
 
