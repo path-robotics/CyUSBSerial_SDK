@@ -6,8 +6,25 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <mutex>
 
 namespace cyusb {
+
+
+    struct Device {
+        Device() = default;
+        uint8_t device_number;
+        uint8_t interface_number;
+        std::string serial;
+        std::vector<int> interface_functions;
+        bool is_i2c{false};
+        bool is_spi{false};
+        CY_DEVICE_INFO info;
+        CY_HANDLE handle;
+        bool is_open{false};
+        mutable std::mutex device_mutex;
+    };
+
 
     class CyController
     {
@@ -35,34 +52,24 @@ namespace cyusb {
 	}                                                                     
 
     public:
-        struct Device {
-            Device() = default;
-            uint8_t device_number;
-            uint8_t interface_number;
-            std::string serial;
-            std::vector<int> interface_functions;
-            bool is_i2c{false};
-            bool is_spi{false};
-            CY_DEVICE_INFO info;
-            CY_HANDLE handle;
-            bool is_open{false};
-        };
 
     protected:
         bool mIsInitialized;
         std::string mDesiredSerial;
-        std::unique_ptr<Device> mWorkingDevice;
+        std::shared_ptr<Device> mWorkingDevice;
         std::vector<Device> mDeviceList;
     public:
         CyController();
+
+        CyController(std::shared_ptr<Device> device);
 
         ~CyController();
 
         bool initialize();
 
-        std::unique_ptr<Device> get_working_device();
+        std::shared_ptr<Device> get_working_device();
 
-        void set_working_device(std::unique_ptr<Device> wd);
+        void set_working_device(std::shared_ptr<Device> wd);
 
         void set_desired_serial(const std::string &desired_serial);
 

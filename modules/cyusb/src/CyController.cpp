@@ -55,6 +55,9 @@ struct RefCounter
         return *this;
     }
 };
+
+
+
 } // namespace detail
 
 static detail::RefCounter g_cy_object_counter;
@@ -68,7 +71,11 @@ CyController::CyController() : mWorkingDevice{nullptr},
 {
     ++g_cy_object_counter;
 }
-
+CyController::CyController(std::shared_ptr<Device> device) :mWorkingDevice{std::move(device)},
+                                                            mIsInitialized{true}
+{
+    ++g_cy_object_counter;
+}
 CyController::~CyController()
 {
     --g_cy_object_counter;
@@ -114,9 +121,9 @@ bool CyController::initialize()
     return mIsInitialized = false;
 }
 
-std::unique_ptr<CyController::Device> CyController::get_working_device()
+std::shared_ptr<CyController::Device> CyController::get_working_device()
 {
-    return std::move(mWorkingDevice);
+    return mWorkingDevice;
 }
 
 void CyController::set_working_device(std::unique_ptr<Device> wd)
@@ -196,7 +203,7 @@ bool CyController::close_working_device() const
         return true;
     if (mWorkingDevice)
     {
-        if (is_working_device_open())
+        if (is_working_device_open() && mWorkingDevice.use_count() == 1)
         {
             auto rStatus = CyClose(mWorkingDevice->handle);
             if (rStatus != CY_SUCCESS)
@@ -208,6 +215,9 @@ bool CyController::close_working_device() const
                 return false;
             }
             mWorkingDevice->is_open = false;
+        } else
+        {
+            mWorkingDevice
         }
     }
     return true;
