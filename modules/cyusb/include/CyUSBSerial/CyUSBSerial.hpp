@@ -43,8 +43,8 @@
     #define CYWINEXPORT //CppCALLCONVEN
     #define WINCALLCONVEN
     #define LINUXCALLCONVEN
-    #ifndef BOOL
-        typedef bool BOOL;
+    #ifndef CyBOOL
+        typedef bool CyBOOL;
     #endif
 #endif
 /*************************************************************************************/
@@ -97,8 +97,8 @@ Cypress USB Serial driver library.
 #ifndef UINT16
     typedef unsigned short UINT16;
 #endif
-#ifndef CHAR
-    typedef char CHAR;
+#ifndef CyCHAR
+    typedef char CyCHAR;
 #endif
 #ifndef UCHAR
     typedef unsigned char UCHAR;
@@ -371,8 +371,8 @@ typedef struct _CY_I2C_CONFIG{
 
     UINT32 frequency;               /* I2C clock frequency 1KHz to 400KHz*/
     UINT8 slaveAddress;             /* Slave address of the I2C module, when it is configured as slave*/
-    BOOL isMaster;                  /* true- Master , false- slave*/
-    BOOL isClockStretch;            /* true- Stretch clock in case of no data availability 
+    CyBOOL isMaster;                  /* true- Master , false- slave*/
+    CyBOOL isClockStretch;            /* true- Stretch clock in case of no data availability
                                         (Valid only for slave mode)
                                        false- Do not Stretch clock*/ 
 } CY_I2C_CONFIG,*PCY_I2C_CONFIG;
@@ -393,8 +393,8 @@ See Also
 typedef struct _CY_I2C_DATA_CONFIG 
 {
     UCHAR slaveAddress;     /*Slave address the master will communicate with*/
-    BOOL isStopBit;         /*Set when stop bit is used*/
-    BOOL isNakBit;          /*Set when I2C master wants to NAK the slave after read
+    CyBOOL isStopBit;         /*Set when stop bit is used*/
+    CyBOOL isNakBit;          /*Set when I2C master wants to NAK the slave after read
                               Applicable only when doing I2C read*/
 } CY_I2C_DATA_CONFIG, *PCY_I2C_DATA_CONFIG;
 
@@ -456,23 +456,23 @@ typedef struct _CY_SPI_CONFIG
 
     CY_SPI_PROTOCOL protocol ;                      /*SPI Protocols to be used as defined in CY_SPI_PROTOCOL*/
 
-    BOOL isMsbFirst;                                /*false -> least significant bit is sent out first
+    CyBOOL isMsbFirst;                                /*false -> least significant bit is sent out first
                                                     true -> most significant bit is sent out first */
 
-    BOOL isMaster;                                  /*false --> Slave mode selected: 
+    CyBOOL isMaster;                                  /*false --> Slave mode selected:
                                                      true --> Master mode selected*/
 
-    BOOL isContinuousMode;                          /*true - Slave select line is not asserted i.e 
+    CyBOOL isContinuousMode;                          /*true - Slave select line is not asserted i.e
                                                     de-asserted for every word.
                                                     false- Slave select line is always asserted*/
 
-    BOOL isSelectPrecede;                           /*Valid only in TI mode.
+    CyBOOL isSelectPrecede;                           /*Valid only in TI mode.
                                                     true - The start pulse precedes the first data
                                                     false - The start pulse is in sync with first data. */
     
-    BOOL isCpha;                                    /*false - Clock phase is 0; true - Clock phase is 1. */
+    CyBOOL isCpha;                                    /*false - Clock phase is 0; true - Clock phase is 1. */
     
-    BOOL isCpol;                                    /*false - Clock polarity is 0;true - Clock polarity is 1.*/     
+    CyBOOL isCpol;                                    /*false - Clock polarity is 0;true - Clock polarity is 1.*/
 
 }CY_SPI_CONFIG,*PCY_SPI_CONFIG;
 
@@ -588,7 +588,7 @@ typedef struct _CY_UART_CONFIG {
     UINT8 dataWidth;                        /*Data width: valid values 7 or 8*/    
     CY_UART_STOP_BIT stopBits;              /*Number of stop bits to be used 1 or 2*/
     CY_UART_PARITY_MODE parityMode;         /*UART parity mode as defined in CY_UART_PARITY_MODE*/
-    BOOL isDropOnRxErrors;                  /*Whether to ignore framing as well as parity errors and receive data */
+    CyBOOL isDropOnRxErrors;                  /*Whether to ignore framing as well as parity errors and receive data */
 
 } CY_UART_CONFIG,*PCY_UART_CONFIG;
 
@@ -1544,7 +1544,7 @@ CYWINEXPORT CY_RETURN_STATUS  WINCALLCONVEN CyI2cWrite (
 */
 CYWINEXPORT CY_RETURN_STATUS CyI2cReset(
                                         CY_HANDLE handle, /*Valid device handle*/
-                                        BOOL resetMode    /*Reset mode*/
+                                        CyBOOL resetMode    /*Reset mode*/
                                         );
 
 /***********************************************************************************************/

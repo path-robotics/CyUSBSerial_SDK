@@ -24,13 +24,13 @@ typedef struct
     UINT32 frequency;           /* Frequency of operation. Only valid values are
                                    100KHz and 400KHz. */
     UINT8 sAddress;             /* Slave address to be used when in slave mode. */
-    BOOL isMsbFirst;            /* Whether to transmit most significant bit first. */
-    BOOL isMaster;              /* Whether to block is to be configured as a master:
+    CyBOOL isMsbFirst;            /* Whether to transmit most significant bit first. */
+    CyBOOL isMaster;              /* Whether to block is to be configured as a master:
                                    CyTrue - The block functions as I2C master;
                                    CyFalse - The block functions as I2C slave. */
-    BOOL sIgnore;               /* Ignore general call in slave mode. */
-    BOOL clockStretch;          /* Wheteher to stretch clock in case of no FIFO availability. */
-    BOOL isLoopback;            /* Whether to loop back TX data to RX. Valid only
+    CyBOOL sIgnore;               /* Ignore general call in slave mode. */
+    CyBOOL clockStretch;          /* Wheteher to stretch clock in case of no FIFO availability. */
+    CyBOOL isLoopback;            /* Whether to loop back TX data to RX. Valid only
                                    for debug purposes. */
     UCHAR reserved[6];          /*Reserved for future use*/
 } CyUsI2cConfig_t;
@@ -386,7 +386,7 @@ CY_RETURN_STATUS CyI2cWrite (
     UINT16 wValue = 0, wIndex, wLength, bytesPending = 0;
     UINT8 bmRequestType, bmRequest;
     UINT16 scbIndex = 0;
-    BOOL mode = CY_I2C_MODE_WRITE;
+    CyBOOL mode = CY_I2C_MODE_WRITE;
     UINT32 elapsedTime;
     if (handle == NULL){
         CY_DEBUG_PRINT_ERROR ("CY:Error invalid handle.. Function is %s \n", __func__);
@@ -556,7 +556,7 @@ CY_RETURN_STATUS CyI2cGetStatus (
  */
 CY_RETURN_STATUS CyI2cReset (
         CY_HANDLE handle,
-        BOOL resetMode
+        CyBOOL resetMode
         )
 {
     int rStatus;

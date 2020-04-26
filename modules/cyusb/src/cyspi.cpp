@@ -36,13 +36,13 @@ typedef struct
     UINT8 dataWidth;
     UCHAR mode;
     UCHAR xferMode;
-    BOOL isMsbFirst;
-    BOOL isMaster;
-    BOOL isContinuous;
-    BOOL isSelectPrecede;
-    BOOL cpha;
-    BOOL cpol;
-    BOOL isLoopback;
+    CyBOOL isMsbFirst;
+    CyBOOL isMaster;
+    CyBOOL isContinuous;
+    CyBOOL isSelectPrecede;
+    CyBOOL cpha;
+    CyBOOL cpol;
+    CyBOOL isLoopback;
     UCHAR reserver[2];
 } CyUsSpiConfig_t;
 #pragma pack()
