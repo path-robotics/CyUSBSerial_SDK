@@ -1,5 +1,7 @@
 cmake-build-debug
-Dockerfile.base
+Dockerfile*
 **/build
 **/install
 **/sandbox
+.gitignore
+.idea
