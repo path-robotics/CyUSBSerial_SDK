@@ -1,0 +1,33 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - GIT_COMMIT=$(git rev-parse --short HEAD)
+      - GIT_BRANCH=${GIT_BRANCH:=$CODEBUILD_WEBHOOK_HEAD_REF}
+      - GIT_BRANCH=${GIT_BRANCH#refs/heads/}
+      - |
+        GIT_BRANCH=${GIT_BRANCH:=$(
+          for i in $(git branch -r | sed 's|origin/||'); do
+            if expr "$CODEBUILD_SOURCE_VERSION" : $i > /dev/null; then
+              echo $i
+              break
+            fi
+          done
+        )}
+      - GIT_BRANCH=${GIT_BRANCH?"Unable to determine git branch"}
+      - echo "Building ${GIT_BRANCH}(${GIT_COMMIT})"
+  build:
+    commands:
+      - docker build -t docker-image .
+  post_build:
+    commands:
+      - |
+        if expr "${GIT_BRANCH}" : "${INSTALLER_BRANCH}"; then
+          id=$(docker create docker-image)
+          docker cp $id:/app/build/.deb .
+          INSTALLER=$(cat .deb)
+          docker cp $id:/app/build/${INSTALLER} .
+          docker rm -v $id
+          $(aws ecr get-login --no-include-email --region us-east-2)
+          aws s3 cp ${INSTALLER} ${INSTALLER_BUCKET_URL}/${INSTALLER}
+        fi
