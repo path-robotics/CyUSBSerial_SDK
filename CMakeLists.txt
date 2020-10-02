@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14.0)
-project(CyUSBSerial VERSION 1.0.1 LANGUAGES C CXX)
+project(CyUSBSerial VERSION 1.0.2 LANGUAGES C CXX)
 
 set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 option(BUILD_EXAMPLES "Build the examples" OFF)
@@ -56,7 +56,7 @@ set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Library for Cypress USB Serial Drivers.")
 set(CPACK_PACKAGE_CONTACT "developers@path-robotics.com")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "/usr")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libusb-1.0-0-dev (>= 2:1.0.9)")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libusb-1.0-0-dev (>= 2:1.0.9), udev")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/deb/postinst;${CMAKE_CURRENT_SOURCE_DIR}/deb/postrm")
 
 include(CPack)
