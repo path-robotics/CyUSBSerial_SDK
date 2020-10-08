@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14.0)
-project(CyUSBSerial VERSION 1.0.3 LANGUAGES C CXX)
+project(CyUSBSerial VERSION 1.0.4 LANGUAGES C CXX)
 
 set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 option(BUILD_EXAMPLES "Build the examples" OFF)
@@ -7,7 +7,7 @@ option(BUILD_EXAMPLES "Build the examples" OFF)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release FORCE)
+  set(CMAKE_BUILD_TYPE Release)
 endif()
 
 set(CMAKE_CXX_STANDARD 14)
