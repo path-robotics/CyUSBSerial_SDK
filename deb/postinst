@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
+
+# Based on rules written by V. Radhakrishnan ( rk@atr-labs.com )
+
 set -e
 #=============================================================================
 echo "Generating udev rules for access to usb lasers"
