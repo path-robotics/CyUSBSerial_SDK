@@ -11,6 +11,10 @@ rm ${RULES_FILE}
 
 echo "Removed ${RULES_FILE}"
 
+echo "Removing ldconf file."
+rm /etc/ld.so.conf.d/cyusbserial.conf
+ldconfig
+
 #=============================================================================
 #echo "Removing blacklist for ftdi_sio and usbserial"
 #
