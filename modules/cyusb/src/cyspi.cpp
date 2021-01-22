@@ -37,13 +37,13 @@ typedef struct
   UINT8 dataWidth;
   UCHAR mode;
   UCHAR xferMode;
-  CyBOOL isMsbFirst;
-  CyBOOL isMaster;
-  CyBOOL isContinuous;
-  CyBOOL isSelectPrecede;
-  CyBOOL cpha;
-  CyBOOL cpol;
-  CyBOOL isLoopback;
+  BOOL isMsbFirst;
+  BOOL isMaster;
+  BOOL isContinuous;
+  BOOL isSelectPrecede;
+  BOOL cpha;
+  BOOL cpol;
+  BOOL isLoopback;
   UCHAR reserver[2];
 } CyUsSpiConfig_t;
 #pragma pack()
@@ -149,8 +149,8 @@ CY_RETURN_STATUS CyGetSpiConfig(
   }
 }
 /*
-   This API sets SPI config of the device for that 
-   interface  
+   This API sets SPI config of the device for that
+   interface
  */
 CY_RETURN_STATUS CySetSpiConfig(
     CY_HANDLE handle,
@@ -287,8 +287,8 @@ CY_RETURN_STATUS CySpiReset(CY_HANDLE handle)
   return CY_SUCCESS;
 }
 /*
-   This API reads SPI data from the specified interface of the device 
-   interface  
+   This API reads SPI data from the specified interface of the device
+   interface
  */
 
 static void LIBUSB_CALL spi_read_cb(struct libusb_transfer* transfer)
@@ -511,7 +511,7 @@ CY_RETURN_STATUS CySpiWrite(
 } /*
     API to wrap up the data
   */
-void spiCollectData(void* inputParameters)
+void* spiCollectData(void* inputParameters)
 {
   UINT32 readLength = 0, length;
   CY_DATA_BUFFER readBuffer;
@@ -562,7 +562,7 @@ void spiCollectData(void* inputParameters)
   inputData->rStatus = rStatus;
 }
 /*
- * Api used to do read as well as write on spi 
+ * Api used to do read as well as write on spi
  */
 CY_RETURN_STATUS CySpiReadWrite(CY_HANDLE handle,
                                 CY_DATA_BUFFER* readBuffer,
@@ -623,7 +623,8 @@ CY_RETURN_STATUS CySpiReadWrite(CY_HANDLE handle,
   wLength = 0;
   if (pthread_mutex_trylock(&device->writeLock) == 0)
   {
-    rStatus = static_cast<CY_RETURN_STATUS>(libusb_control_transfer(devHandle, bmRequestType, bmRequest, wValue, wIndex, NULL, wLength, 5000));
+    rStatus = static_cast<CY_RETURN_STATUS>(
+        libusb_control_transfer(devHandle, bmRequestType, bmRequest, wValue, wIndex, NULL, wLength, 5000));
     if (rStatus)
     {
       CY_DEBUG_PRINT_ERROR("CY:Error Sending spi read write vendor command failed ... Libusb error is %d\n", rStatus);
@@ -652,7 +653,7 @@ CY_RETURN_STATUS CySpiReadWrite(CY_HANDLE handle,
       threadParameter.readBuffer = readBuffer->buffer;
       threadParameter.length = readBuffer->length;
       threadParameter.ioTimeout = ioTimeout;
-      ret = pthread_create(&readThreadID, NULL, reinterpret_cast<void* (*)(void*)>(spiCollectData), (void*)&threadParameter);
+      ret = pthread_create(&readThreadID, NULL, spiCollectData, (void*)&threadParameter);
       if (ret)
       {
         CY_DEBUG_PRINT_ERROR("CY:Error in creating read thread ... Reading failed \n");
@@ -671,7 +672,7 @@ CY_RETURN_STATUS CySpiReadWrite(CY_HANDLE handle,
     threadParameter.readBuffer = readBuffer->buffer;
     threadParameter.length = readBuffer->length;
     threadParameter.ioTimeout = ioTimeout;
-    ret = pthread_create(&readThreadID, NULL, reinterpret_cast<void* (*)(void*)>(spiCollectData), (void*)&threadParameter);
+    ret = pthread_create(&readThreadID, NULL, spiCollectData, (void*)&threadParameter);
     if (ret)
     {
       CY_DEBUG_PRINT_ERROR("CY:Error in creating read thread ... Reading failed \n");

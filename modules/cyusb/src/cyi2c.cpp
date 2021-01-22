@@ -21,18 +21,18 @@
 #pragma pack(1)
 typedef struct
 {
-  UINT32 frequency;    /* Frequency of operation. Only valid values are
+  UINT32 frequency;  /* Frequency of operation. Only valid values are
                                    100KHz and 400KHz. */
-  UINT8 sAddress;      /* Slave address to be used when in slave mode. */
-  CyBOOL isMsbFirst;   /* Whether to transmit most significant bit first. */
-  CyBOOL isMaster;     /* Whether to block is to be configured as a master:
+  UINT8 sAddress;    /* Slave address to be used when in slave mode. */
+  BOOL isMsbFirst;   /* Whether to transmit most significant bit first. */
+  BOOL isMaster;     /* Whether to block is to be configured as a master:
                                    CyTrue - The block functions as I2C master;
                                    CyFalse - The block functions as I2C slave. */
-  CyBOOL sIgnore;      /* Ignore general call in slave mode. */
-  CyBOOL clockStretch; /* Wheteher to stretch clock in case of no FIFO availability. */
-  CyBOOL isLoopback;   /* Whether to loop back TX data to RX. Valid only
+  BOOL sIgnore;      /* Ignore general call in slave mode. */
+  BOOL clockStretch; /* Wheteher to stretch clock in case of no FIFO availability. */
+  BOOL isLoopback;   /* Whether to loop back TX data to RX. Valid only
                                    for debug purposes. */
-  UCHAR reserved[6];   /*Reserved for future use*/
+  UCHAR reserved[6]; /*Reserved for future use*/
 } CyUsI2cConfig_t;
 #pragma pack()
 #ifdef CY_I2C_ENABLE_PRECISE_TIMING
@@ -169,8 +169,8 @@ CY_RETURN_STATUS CyGetI2cConfig(
   }
 }
 /*
-   This API sets I2C config of the device for that 
-   interface  
+   This API sets I2C config of the device for that
+   interface
  */
 CY_RETURN_STATUS CySetI2cConfig(
     CY_HANDLE handle,
@@ -252,8 +252,8 @@ CY_RETURN_STATUS CySetI2cConfig(
   }
 }
 /*
-   This API reads I2C data from the specified interface of the device 
-   interface  
+   This API reads I2C data from the specified interface of the device
+   interface
  */
 CY_RETURN_STATUS CyI2cRead(
     CY_HANDLE handle,
@@ -404,7 +404,7 @@ CY_RETURN_STATUS CyI2cRead(
   }
 }
 /*
-   This API writes I2C data into the specified interface of the device 
+   This API writes I2C data into the specified interface of the device
  */
 CY_RETURN_STATUS CyI2cWrite(
     CY_HANDLE handle,
@@ -419,7 +419,7 @@ CY_RETURN_STATUS CyI2cWrite(
   UINT16 wValue = 0, wIndex, wLength, bytesPending = 0;
   UINT8 bmRequestType, bmRequest;
   UINT16 scbIndex = 0;
-  CyBOOL mode = CY_I2C_MODE_WRITE;
+  BOOL mode = CY_I2C_MODE_WRITE;
   UINT32 elapsedTime;
   if (handle == NULL)
   {
@@ -605,7 +605,7 @@ CY_RETURN_STATUS CyI2cGetStatus(
  */
 CY_RETURN_STATUS CyI2cReset(
     CY_HANDLE handle,
-    CyBOOL resetMode)
+    BOOL resetMode)
 {
   int rStatus;
   CY_DEVICE* device;

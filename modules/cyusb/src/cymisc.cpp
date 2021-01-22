@@ -585,7 +585,7 @@ CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CyReadUserFlash(
   }
 }
 /*
-   This Api is used to get the signature of the device. It would be CYUS when we are in actual device mode 
+   This Api is used to get the signature of the device. It would be CYUS when we are in actual device mode
    and CYBL when we are bootloader modeñ
  */
 CY_RETURN_STATUS CyGetSignature(

@@ -39,7 +39,7 @@ typedef struct
 #pragma pack()
 #define MAX_DEVICE_EP_SIZE 64
 /*
-There is no way in the current library architecture 
+There is no way in the current library architecture
 Data Queue size can exceed 4 Max EP size Pages.
 */
 #define NO_DATA_QUEUE_PAGES 4
@@ -179,8 +179,8 @@ void AddDataToQueue(
   }
 }
 
-/* 
-   This API gets the current UART configuration of the 
+/*
+   This API gets the current UART configuration of the
    device.Such as GPIO's assigned, flowcontrol, BaudRate
    etc.
  */
@@ -228,7 +228,8 @@ CY_RETURN_STATUS CyGetUartConfig(
   {
     uartConfig->dataWidth = localUartConfig.dataWidth;
     uartConfig->baudRate = localUartConfig.baudRate;
-    uartConfig->stopBits = static_cast<CY_UART_STOP_BIT>(localUartConfig.stopBits);
+    uartConfig->stopBits =
+        static_cast<CY_UART_STOP_BIT>(localUartConfig.stopBits);
     uartConfig->parityMode = (CY_UART_PARITY_MODE)localUartConfig.parity;
     ;
     uartConfig->isDropOnRxErrors = localUartConfig.rxIgnoreError;
@@ -242,8 +243,8 @@ CY_RETURN_STATUS CyGetUartConfig(
     return CY_ERROR_REQUEST_FAILED;
   }
 }
-/* 
-   This API sets the current UART configuration of the 
+/*
+   This API sets the current UART configuration of the
    device.Such as GPIO's assigned, flowcontrol, BaudRate
    etc.
  */
@@ -318,7 +319,7 @@ CY_RETURN_STATUS CySetUartConfig(
   }
 }
 /*
-   This Api writes the Data to UART block of the 
+   This Api writes the Data to UART block of the
    device.
  */
 CY_RETURN_STATUS CyUartWrite(
@@ -383,7 +384,7 @@ CY_RETURN_STATUS CyUartWrite(
   }
 }
 /*
-   This Api Reads the Data from UART block of the 
+   This Api Reads the Data from UART block of the
    device.
  */
 CY_RETURN_STATUS CyUartRead(
@@ -551,7 +552,7 @@ CY_RETURN_STATUS CyUartSetHwFlowControl(
   return CY_SUCCESS;
 }
 /*
-Api gets the current flow control mode 
+Api gets the current flow control mode
 */
 CY_RETURN_STATUS CyUartGetHwFlowControl(
     CY_HANDLE handle,
@@ -578,7 +579,7 @@ CY_RETURN_STATUS CyUartGetHwFlowControl(
   (*mode) = device->uartFlowControlMode;
   return CY_SUCCESS;
 }
-/* The API is used to break 
+/* The API is used to break
 */
 CYWINEXPORT CY_RETURN_STATUS CyUartSetBreak(
     CY_HANDLE handle, /*Valid handle to communicate with device*/

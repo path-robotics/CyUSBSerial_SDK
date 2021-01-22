@@ -189,7 +189,7 @@ CY_RETURN_STATUS CyJtagWrite(
   }
 }
 /*
-   This API is used to read JTAG data from device interface  
+   This API is used to read JTAG data from device interface
  */
 CY_RETURN_STATUS CyJtagRead(
     CY_HANDLE handle,

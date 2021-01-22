@@ -39,12 +39,12 @@
 #define WINCALLCONVEN
 #define LINUXCALLCONVEN
 #endif
-#else                /*Linux and MAC*/
-#define CYWINEXPORT  //CppCALLCONVEN
+#else /*Linux and MAC*/
+#define CYWINEXPORT CppCALLCONVEN
 #define WINCALLCONVEN
 #define LINUXCALLCONVEN
-#ifndef CyBOOL
-typedef bool CyBOOL;
+#ifndef BOOL
+typedef bool BOOL;
 #endif
 #endif
 /*************************************************************************************/
@@ -52,7 +52,7 @@ typedef bool CyBOOL;
 /*************************************************************************************/
 
 /*@@Constants
-This section contains details of the all the constants 
+This section contains details of the all the constants
 that are part of Cypress USB Serial driver library.
 */
 #define CY_STRING_DESCRIPTOR_SIZE 256 /*String descriptor size */
@@ -84,7 +84,7 @@ This section contains USB Serial library version information.
 /*************************************************************************************/
 
 /*@@Data Types
-This section defines the data types that are used by 
+This section defines the data types that are used by
 Cypress USB Serial driver library.
 */
 #ifndef UINT32
@@ -96,14 +96,14 @@ typedef unsigned char UINT8;
 #ifndef UINT16
 typedef unsigned short UINT16;
 #endif
-#ifndef CyCHAR
-typedef char CyCHAR;
+#ifndef CHAR
+typedef char CHAR;
 #endif
 #ifndef UCHAR
 typedef unsigned char UCHAR;
 #endif
 
-/* Summary 
+/* Summary
    CyUSB Device Handle.
 
    Description
@@ -116,12 +116,12 @@ typedef unsigned char UCHAR;
 typedef void* CY_HANDLE;
 
 /*
-Summary 
+Summary
 Function pointer for getting async error/success notification on UART/SPI
- 
+
 Description
-This function pointer that will be passed to CySetEventNotification and get 
-a callback with a 2 byte value bit map that reports error/events triggered during UART/SPI transaction. 
+This function pointer that will be passed to CySetEventNotification and get
+a callback with a 2 byte value bit map that reports error/events triggered during UART/SPI transaction.
 The bit map is defined in CY_CALLBACK_EVENTS.
 
 See also
@@ -130,7 +130,7 @@ See also
 typedef void (*CY_EVENT_NOTIFICATION_CB_FN)(UINT16 eventsNotified);
 
 /*
-Summary 
+Summary
 This structure is used to hold VID and PID of USB device
 
 Description
@@ -147,7 +147,7 @@ typedef struct _CY_VID_PID
 
 } CY_VID_PID, *PCY_VID_PID;
 
-/* Summary 
+/* Summary
 This structure is used to hold version information of the library.
 
 Description
@@ -167,10 +167,10 @@ typedef struct _CY_LIBRARY_VERSION
 
 /*
 Summary
-This structure is used to hold firmware version of the USB Serial device. 
+This structure is used to hold firmware version of the USB Serial device.
 
 Description
-This structure holds the version information of the USB serial device. 
+This structure holds the version information of the USB serial device.
 It has major version, minor version, patch number and build number.
 
 See Also
@@ -185,7 +185,7 @@ typedef struct _CY_FIRMWARE_VERSION
 
 } CY_FIRMWARE_VERSION, *PCY_FIRMWARE_VERSION;
 
-/* Summary 
+/* Summary
 Enumeration defining list of USB device classes supported by USB Serial device.
 
 Description
@@ -196,7 +196,7 @@ See Also
 * CyGetDeviceInfo
 * CyGetDeviceInfoVidPid
 */
-enum CY_DEVICE_CLASS : uint8_t
+typedef enum _CY_DEVICE_CLASS
 {
 
   CY_CLASS_DISABLED = 0, /*None or the interface is disabled */
@@ -204,15 +204,15 @@ enum CY_DEVICE_CLASS : uint8_t
   CY_CLASS_PHDC = 0x0F,  /*PHDC class */
   CY_CLASS_VENDOR = 0xFF /*VENDOR specific class*/
 
-};
+} CY_DEVICE_CLASS;
 
-/* Summary 
+/* Summary
 Enumeration defining list of device types supported by USB Serial device in each interface.
 
 Description
-This is the list of device types supported by USB Serial device when the interface type is 
-configured as CY_CLASS_VENDOR. The interface type can be queried from the device by using CyGetDeviceInfo 
-and CyGetDeviceInfoVidPid APIs. 
+This is the list of device types supported by USB Serial device when the interface type is
+configured as CY_CLASS_VENDOR. The interface type can be queried from the device by using CyGetDeviceInfo
+and CyGetDeviceInfoVidPid APIs.
 
 The member of CY_DEVICE_INFO structure contains the interface type.
 
@@ -233,13 +233,13 @@ typedef enum _CY_DEVICE_TYPE
 
 } CY_DEVICE_TYPE;
 
-/* Summary 
+/* Summary
 This enumeration type defines the available device serial blocks.
 
 Description
-USB Serial device has up to two configurable serial blocks. UART, SPI, I2C or JTAG functionality can be 
-configured and used in these serial block. Windows driver binds to a serial block rather than the entire device. 
-So, it is essential to find out which serial block to which current communications are directed. These enumeration 
+USB Serial device has up to two configurable serial blocks. UART, SPI, I2C or JTAG functionality can be
+configured and used in these serial block. Windows driver binds to a serial block rather than the entire device.
+So, it is essential to find out which serial block to which current communications are directed. These enumeration
 structure provides the possible SERIAL BLOCK Options.
 
 This enumration data type is a member of CY_DEVICE_INFO structure.
@@ -260,14 +260,14 @@ typedef enum _CY_DEVICE_SERIAL_BLOCK
 
 } CY_DEVICE_SERIAL_BLOCK;
 
-/* Summary 
+/* Summary
 Structure to hold information of the device connected to host.
 
 Description
 The structure holds the information about device currently connected to host. The information
 can be obtained by using CyGetDeviceInfo and CyGetDeviceInfoVidPid APIs.
 
-The information includes VID, PID, number of interfaces, string descriptors, device type 
+The information includes VID, PID, number of interfaces, string descriptors, device type
 and device class supported by each interface. Device type is valid only if the interface is CY_CLASS_VENDOR.
 
 See Also
@@ -297,13 +297,13 @@ typedef struct _CY_DEVICE_INFO
 
 } CY_DEVICE_INFO, *PCY_DEVICE_INFO;
 
-/* Summary 
-This structure is used to hold data buffer information. 
+/* Summary
+This structure is used to hold data buffer information.
 
 Description
-This strucuture is used by all the data transaction APIs in the library to perform read, write 
+This strucuture is used by all the data transaction APIs in the library to perform read, write
 operations.
-Before using a variable of this strucutre users need to initialize various members appropriately. 
+Before using a variable of this strucutre users need to initialize various members appropriately.
 
 See Also
 * CyUartRead
@@ -322,11 +322,11 @@ typedef struct _CY_DATA_BUFFER
 
 } CY_DATA_BUFFER, *PCY_DATA_BUFFER;
 
-/* Summary 
+/* Summary
 Enumeration defining return status of  USB serial library APIs
 
 Description
-The enumeration CY_RETURN_STATUS holds the different return status of all the 
+The enumeration CY_RETURN_STATUS holds the different return status of all the
 APIs supported by USB Serial library.
 */
 typedef enum _CY_RETURN_STATUS
@@ -357,12 +357,12 @@ typedef enum _CY_RETURN_STATUS
   CY_ERROR_STATUS_MONITOR_EXIST        /*API Failed because the SPI/UART status monitor thread already exists*/
 } CY_RETURN_STATUS;
 
-/* Summary 
+/* Summary
 This structure is used to store configuration of I2C module.
 
 Description
-The structure contains parameters that are used in configuring I2C module of 
-Cypress USB Serial device. CyGetI2cConfig and CySetI2cConfig APIs can be used to 
+The structure contains parameters that are used in configuring I2C module of
+Cypress USB Serial device. CyGetI2cConfig and CySetI2cConfig APIs can be used to
 retrieve and configure I2C module respectively.
 
 See Also
@@ -371,21 +371,21 @@ See Also
 */
 typedef struct _CY_I2C_CONFIG
 {
-  UINT32 frequency;      /* I2C clock frequency 1KHz to 400KHz*/
-  UINT8 slaveAddress;    /* Slave address of the I2C module, when it is configured as slave*/
-  CyBOOL isMaster;       /* true- Master , false- slave*/
-  CyBOOL isClockStretch; /* true- Stretch clock in case of no data availability
+  UINT32 frequency;    /* I2C clock frequency 1KHz to 400KHz*/
+  UINT8 slaveAddress;  /* Slave address of the I2C module, when it is configured as slave*/
+  BOOL isMaster;       /* true- Master , false- slave*/
+  BOOL isClockStretch; /* true- Stretch clock in case of no data availability
                                         (Valid only for slave mode)
                                        false- Do not Stretch clock*/
 } CY_I2C_CONFIG, *PCY_I2C_CONFIG;
 
-/* Summary 
+/* Summary
 This structure is used to configure each I2C data transaction.
 
 Description
-This structure defines parameters that are used for configuring 
-I2C module during each data transaction. Which includes setting slave address 
-(when device is in I2C slave mode), stopbit (to enable or disable) and 
+This structure defines parameters that are used for configuring
+I2C module during each data transaction. Which includes setting slave address
+(when device is in I2C slave mode), stopbit (to enable or disable) and
 Nak bit (to enable or disable).
 
 See Also
@@ -395,47 +395,47 @@ See Also
 typedef struct _CY_I2C_DATA_CONFIG
 {
   UCHAR slaveAddress; /*Slave address the master will communicate with*/
-  CyBOOL isStopBit;   /*Set when stop bit is used*/
-  CyBOOL isNakBit;    /*Set when I2C master wants to NAK the slave after read
+  BOOL isStopBit;     /*Set when stop bit is used*/
+  BOOL isNakBit;      /*Set when I2C master wants to NAK the slave after read
                               Applicable only when doing I2C read*/
 } CY_I2C_DATA_CONFIG, *PCY_I2C_DATA_CONFIG;
 
-/* Summary 
+/* Summary
 Enumeration defining SPI protocol types supported by USB Serial SPI module.
 
 Description
-These are the different protocols supported by USB-Serial SPI module. 
+These are the different protocols supported by USB-Serial SPI module.
 
 See Also
 * CY_SPI_CONFIG
 * CyGetSpiConfig
 * CySetSpiConfig
 */
-enum CY_SPI_PROTOCOL : uint8_t
+typedef enum _CY_SPI_PROTOCOL
 {
 
   CY_SPI_MOTOROLA = 0, /*In master mode, when not transmitting data (SELECT is inactive), SCLK is stable at CPOL.
-                            In slave mode, when not selected, SCLK is ignored; i.e. it can be either stable or clocking. 
+                            In slave mode, when not selected, SCLK is ignored; i.e. it can be either stable or clocking.
                             In master mode, when there is no data to transmit (TX FIFO is empty), SELECT is inactive.
                             */
   CY_SPI_TI,           /*In master mode, when not transmitting data, SCLK is stable at '0'.
-                            In slave mode, when not selected, SCLK is ignored - i.e. it can be either stable or clocking. 
-                            In master mode, when there is no data to transmit (TX FIFO is empty), SELECT is inactive - 
+                            In slave mode, when not selected, SCLK is ignored - i.e. it can be either stable or clocking.
+                            In master mode, when there is no data to transmit (TX FIFO is empty), SELECT is inactive -
                             i.e. no pulse is generated.
                             *** It supports only mode 1 whose polarity values are
                             CPOL = 0
                             CPHA = 1
                             */
   CY_SPI_NS            /*In master mode, when not transmitting data, SCLK is stable at '0'. In slave mode,
-                            when not selected, SCLK is ignored; i.e. it can be either stable or clocking. 
-                            In master mode, when there is no data to transmit (TX FIFO is empty), SELECT is inactive. 
+                            when not selected, SCLK is ignored; i.e. it can be either stable or clocking.
+                            In master mode, when there is no data to transmit (TX FIFO is empty), SELECT is inactive.
                             *** It supports only mode 0 whose polarity values are
                             CPOL = 0
                             CPHA = 0
                             */
-};
+} CY_SPI_PROTOCOL;
 
-/* Summary 
+/* Summary
 This structure is used to configure the SPI module of USB Serial device.
 
 Description
@@ -450,7 +450,7 @@ See Also
 typedef struct _CY_SPI_CONFIG
 {
   UINT32 frequency; /*SPI clock frequency.
-                                                     ** IMPORTANT: The frequency range supported by SPI module is 
+                                                     ** IMPORTANT: The frequency range supported by SPI module is
                                                         1000(1KHz) to 3000000(3MHz)
                                                      */
 
@@ -458,23 +458,23 @@ typedef struct _CY_SPI_CONFIG
 
   CY_SPI_PROTOCOL protocol; /*SPI Protocols to be used as defined in CY_SPI_PROTOCOL*/
 
-  CyBOOL isMsbFirst; /*false -> least significant bit is sent out first
+  BOOL isMsbFirst; /*false -> least significant bit is sent out first
                                                     true -> most significant bit is sent out first */
 
-  CyBOOL isMaster; /*false --> Slave mode selected:
+  BOOL isMaster; /*false --> Slave mode selected:
                                                      true --> Master mode selected*/
 
-  CyBOOL isContinuousMode; /*true - Slave select line is not asserted i.e
+  BOOL isContinuousMode; /*true - Slave select line is not asserted i.e
                                                     de-asserted for every word.
                                                     false- Slave select line is always asserted*/
 
-  CyBOOL isSelectPrecede; /*Valid only in TI mode.
+  BOOL isSelectPrecede; /*Valid only in TI mode.
                                                     true - The start pulse precedes the first data
                                                     false - The start pulse is in sync with first data. */
 
-  CyBOOL isCpha; /*false - Clock phase is 0; true - Clock phase is 1. */
+  BOOL isCpha; /*false - Clock phase is 0; true - Clock phase is 1. */
 
-  CyBOOL isCpol; /*false - Clock polarity is 0;true - Clock polarity is 1.*/
+  BOOL isCpol; /*false - Clock polarity is 0;true - Clock polarity is 1.*/
 
 } CY_SPI_CONFIG, *PCY_SPI_CONFIG;
 
@@ -579,8 +579,8 @@ Summary
 Structure holds configuration of UART module of USB Serial device.
 
 Description
-This structure defines parameters used for configuring the UART module. 
-CySetUartConfig and CyGetUartConfig APIs are used to configure and retrieve 
+This structure defines parameters used for configuring the UART module.
+CySetUartConfig and CyGetUartConfig APIs are used to configure and retrieve
 the UART configuration information.
 
 See Also
@@ -593,7 +593,7 @@ typedef struct _CY_UART_CONFIG
   UINT8 dataWidth;                /*Data width: valid values 7 or 8*/
   CY_UART_STOP_BIT stopBits;      /*Number of stop bits to be used 1 or 2*/
   CY_UART_PARITY_MODE parityMode; /*UART parity mode as defined in CY_UART_PARITY_MODE*/
-  CyBOOL isDropOnRxErrors;        /*Whether to ignore framing as well as parity errors and receive data */
+  BOOL isDropOnRxErrors;          /*Whether to ignore framing as well as parity errors and receive data */
 
 } CY_UART_CONFIG, *PCY_UART_CONFIG;
 
@@ -634,7 +634,7 @@ typedef enum _CY_CALLBACK_EVENTS
 /*************************************************************************************/
 
 /*@@USB Initialization API
-This section has all the APIs that handle device initialization and 
+This section has all the APIs that handle device initialization and
 fetching information about the device connected.
 */
 
@@ -662,17 +662,17 @@ CYWINEXPORT CY_RETURN_STATUS LINUXCALLCONVEN CyLibraryInit();
 /*
    Summary
    This API is used to free the library.
-   
+
    Description
-   The API is used to free the library and should be called 
+   The API is used to free the library and should be called
    when exiting the application.
 
    Note: This API is used only in Linux and Mac library.
-    
+
    Return Value
    * CY_SUCCESS on success
    * CY_ERROR_REQUEST_FAILED on failure
-   
+
    See Also
    * CyOpen
    * CyClose
@@ -695,7 +695,7 @@ CYWINEXPORT CY_RETURN_STATUS LINUXCALLCONVEN CyLibraryExit();
    called during device discovery in the application.
 
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_DEVICE_NOT_FOUND if there are no devices attached.
    * CY_ERROR_REQUEST_FAILED if library was not initialized.
 
@@ -712,13 +712,13 @@ CYWINEXPORT CY_RETURN_STATUS CyGetListofDevices(
 /*
    Summary
    This API retrieves the device information of a USB device.
-   
+
    Description
-   This API retrieves information about a device connected to host. In order to 
-   get the device information on particular device user needs to provide the device number. 
+   This API retrieves information about a device connected to host. In order to
+   get the device information on particular device user needs to provide the device number.
    To identify the device of interest, the application needs to loop through all devices connected
    and obtain the information.
-   
+
    Return Value
    * CY_SUCCESS on success
    * CY_ERROR_REQUEST_FAILED if library is not initialized (Only for Linux and Mac).
@@ -726,7 +726,7 @@ CYWINEXPORT CY_RETURN_STATUS CyGetListofDevices(
    * CY_ERROR_DEVICE_INFO_FETCH_FAILED if failed to fetch device information.
    * CY_ERROR_ACCESS_DENIED if access is denied by operating system.
    * CY_ERROR_DEVICE_NOT_FOUND if specified device number is invalid.
-    
+
    See Also
    * CY_DEVICE_INFO
    * CY_DEVICE_TYPE
@@ -743,15 +743,15 @@ CYWINEXPORT CY_RETURN_STATUS CyGetDeviceInfo(
 
 /*
    Summary
-   This API is used to retrieve the information of all devices with specified Vendor ID and Product ID. 
-   
+   This API is used to retrieve the information of all devices with specified Vendor ID and Product ID.
+
    Description
    For a given VID and PID, the API returns deviceIdList and deviceInfoList.
    The deviceIdList contains the device numbers of all the devices with specified VID and PID.
    Using deviceInfoList application can identify the device of interest.
    Information that is provided includes interface number, string descriptor, deviceType and deviceClass.
-   
-   
+
+
    Return Value
    * CY_SUCCESS on success else error codes as defined in the enumeration CY_RETURN_STATUS.
    * CY_ERROR_REQUEST_FAILED on if library is not initialized (Only for Linux and Mac)
@@ -759,7 +759,7 @@ CYWINEXPORT CY_RETURN_STATUS CyGetDeviceInfo(
    * CY_ERROR_DEVICE_INFO_FETCH_FAILED if failed to fetch device information.
    * CY_ERROR_ACCESS_DENIED if access is denied by operating system.
    * CY_ERROR_DEVICE_NOT_FOUND if specified device number is invalid.
-   
+
    See Also
    * CY_DEVICE_INFO
    * CY_DEVICE_CLASS
@@ -781,13 +781,13 @@ CYWINEXPORT CY_RETURN_STATUS CyGetDeviceInfoVidPid(
 /*
    Summary
    This API is used to open the USB Serial device.
-   
+
    Description
    This API is used to open USB Serial device based on the device number.
-   
-   Note: The argument interfaceNum is used on Linux and Mac OS while obtaining handle for specific 
+
+   Note: The argument interfaceNum is used on Linux and Mac OS while obtaining handle for specific
    interface. In Windows family of operating systems, this argument should be set to zero.
-   
+
    Return Value
    * CY_SUCCESS on success
    * CY_ERROR_REQUEST_FAILED on if library is not initialized (Only for Linux and Mac)
@@ -796,7 +796,7 @@ CYWINEXPORT CY_RETURN_STATUS CyGetDeviceInfoVidPid(
    * CY_ERROR_ACCESS_DENIED if access is denied by operating system.
    * CY_ERROR_ALLOCATION_FAILED if memory allocation was failed.
    * CY_ERROR_DEVICE_NOT_FOUND if specified device number is invalid.
-   
+
    See Also
    * CyGetListofDevices
    * CyGetDeviceInfoVidPid
@@ -812,18 +812,18 @@ CYWINEXPORT CY_RETURN_STATUS CyOpen(
 /*
    Summary
    This API closes the specified device handle and releases all resources associated with it.
-   
+
    Description
-   This API closes the device handle and releases all the resources allocated internally in the 
+   This API closes the device handle and releases all the resources allocated internally in the
    library. This API should be invoked using a valid device handle and upon successful return
    of CyOpen.
-   
+
    Return Value
    * CY_SUCCESS on success.
    * CY_ERROR_INVALID_HANDLE if handle is invalid in case of Linux/Mac.
    * CY_ERROR_INVALID_PARAMETER if handle is invalid in case of Windows.
    * CY_ERROR_REQUEST_FAILED on error in case of library being not initialized (Only for Linux and Mac).
-   
+
    See Also
    * CyOpen
 */
@@ -834,18 +834,18 @@ CYWINEXPORT CY_RETURN_STATUS CyClose(
 /*
    Summary
    This API is used to power cycle the host port.
-   
+
    Description
    This API will power cycle the upstream port. It will reenumerate the device after the power cycle.
-   
+
    Note: This API is not supported on Linux and Mac
-   
+
    Return Value
    * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid in case of Linux/Mac.
    * CY_ERROR_INVALID_PARAMETER if handle is invalid in case of Windows.
    * CY_ERROR_REQUEST_FAILED on error if request was failed by driver.
-   
+
    See Also
    * CyResetDevice
 */
@@ -865,19 +865,19 @@ CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CyCyclePort(
 
 /*
    Summary
-   This API sets the value of a GPIO. 
-   
+   This API sets the value of a GPIO.
+
    Description
    This API is used to set the value of a GPIO. It can only set the value of a
    GPIO that is configured as an output.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
    * CY_ERROR_REQUEST_FAILED on error when request is failed by USB Serial device.
-   
+
    See Also
    * CyGetGpioValue
 */
@@ -890,18 +890,18 @@ CYWINEXPORT CY_RETURN_STATUS CySetGpioValue(
 /*
    Summary
    This API retrieves the value of a GPIO.
-   
+
    Description
    This API retrieves the value of a GPIO.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
-   * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range and 
+   * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range and
      also when handle is invalid in case of Windows.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
    * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device.
-   
+
    See Also
    * CySetGpioValue
 */
@@ -913,21 +913,21 @@ CYWINEXPORT CY_RETURN_STATUS CyGetGpioValue(
 
 /*
    Summary
-   This API is used to register a callback for error/event notifications 
+   This API is used to register a callback for error/event notifications
    during UART/SPI data transfers.
-   
+
    Description
-   The API is used to register a callback for error/event notifications while 
-   doing data transfer on UART or SPI. A callback will be issued based on the 
+   The API is used to register a callback for error/event notifications while
+   doing data transfer on UART or SPI. A callback will be issued based on the
    error/events sent by the device.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
    * CY_ERROR_STATUS_MONITOR_EXIST if notification callback is already registered.
-    
+
    See Also
    * CY_CALLBACK_EVENTS
    * CY_EVENT_NOTIFICATION_CB_FN
@@ -941,16 +941,16 @@ CYWINEXPORT CY_RETURN_STATUS CySetEventNotification(
 /*
    Summary
    The API is used to unregister the event callback.
-   
+
    Description
    The API is used to unregister the event callback.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_REQUEST_FAILED if API is called before registering callback.
-   
+
    See Also
    * CySetEventNotification
 */
@@ -961,15 +961,15 @@ CYWINEXPORT CY_RETURN_STATUS CyAbortEventNotification(
 /*
    Summary
    This API retrieves the version of USB Serial library.
-   
+
    Description
    This API retrieves the version of USB Serial library.
-   
+
    Return Value
    * CY_SUCCESS
-   
+
    See Also
-   * CyGetFirmwareVersion 
+   * CyGetFirmwareVersion
 */
 CYWINEXPORT CY_RETURN_STATUS CyGetLibraryVersion(
     CY_HANDLE handle,           /*Valid device handle*/
@@ -979,17 +979,17 @@ CYWINEXPORT CY_RETURN_STATUS CyGetLibraryVersion(
 /*
    Summary
    This API retrieves the firmware version of the USB Serial device.
-   
+
    Description
    This API retrieves the firmware version of the USB Serial device.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
    * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device.
-   
+
    See Also
    * CyGetLibraryVersion
 */
@@ -1001,18 +1001,18 @@ CYWINEXPORT CY_RETURN_STATUS CyGetFirmwareVersion(
 /*
    Summary
    This API resets the device by sending a vendor request.
-   
+
    Description
    The API will reset the device by sending a vendor request to the firmware. The device
    will be re-enumerated.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
    * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device.
-   
+
    See Also
    * CyCyclePort
 */
@@ -1023,23 +1023,23 @@ CYWINEXPORT CY_RETURN_STATUS CyResetDevice(
 /*
    Summary
    The API writes to the user flash area on the USB Serial device.
-   
+
    Description
    The API programs user flash area. The total space available is 512 bytes.
    The flash area address offset is from 0x0000 to 0x00200 and should be written
    page wise (page size is 128 bytes).
-   On return, transferCount parameter in CY_DATA_BUFFER will specify the number of bytes actually 
+   On return, transferCount parameter in CY_DATA_BUFFER will specify the number of bytes actually
    programmed.
-   
+
    Note: Length and page address needs to be 128 bytes aligned.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
    * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device.
-   
+
    See Also
    * CyReadUserFlash
 */
@@ -1053,23 +1053,23 @@ CYWINEXPORT CY_RETURN_STATUS CyProgUserFlash(
 /*
    Summary
    The API reads from the flash address specified.
-   
+
    Description
    Read from user flash area.The total space available is 512 bytes.
    The flash area address offset is from 0x0000 to 0x00200 and should be read
    page wise (page size is 128 bytes).
-   On return transferCount parameter in CY_DATA_BUFFER will specify the number of bytes actually 
+   On return transferCount parameter in CY_DATA_BUFFER will specify the number of bytes actually
    read.
-   
+
    Note: Length and page address needs to be 128 bytes aligned.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
    * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device.
-   
+
    See Also
    * CyProgUserFlash
 */
@@ -1083,12 +1083,12 @@ CYWINEXPORT CY_RETURN_STATUS CyReadUserFlash(
 /*
    Summary
    This API retrieves the signature of the device firmware.
-   
+
    Description
    This API retrieves the signature of the device firmware.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
@@ -1111,21 +1111,21 @@ CYWINEXPORT CY_RETURN_STATUS CyGetSignature(
 /*
    Summary
    This API retrieves the UART configuration from the USB Serial device.
-   
+
    Description
    This API retrieves the UART configuration from the USB Serial device.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
-   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is 
+   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is
      not UART.
-   
+
    See Also
    * CY_UART_CONFIG
-   * CySetUartConfig 
+   * CySetUartConfig
 */
 CYWINEXPORT CY_RETURN_STATUS CyGetUartConfig(
     CY_HANDLE handle,          /*Valid device handle*/
@@ -1135,23 +1135,23 @@ CYWINEXPORT CY_RETURN_STATUS CyGetUartConfig(
 /*
    Summary
    This API sets the UART configuration of USB Serial device.
-   
+
    Description
    This API sets the UART configuration of USB Serial device.
-   
+
    Note: Using this API during an active transaction of UART may result in data loss.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
-   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is 
+   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is
    not UART.
-   
+
    See Also
    * CY_UART_CONFIG
-   * CyGetUartConfig 
+   * CyGetUartConfig
 */
 CYWINEXPORT CY_RETURN_STATUS CySetUartConfig(
     CY_HANDLE handle,          /*Valid device handle*/
@@ -1161,12 +1161,12 @@ CYWINEXPORT CY_RETURN_STATUS CySetUartConfig(
 /*
    Summary
    This API reads data from UART device.
-   
+
    Description
-   This API is used to read data from UART device. User needs to initialize the readBuffer with buffer pointer, 
-   number of bytes to read before invoking this API. 
+   This API is used to read data from UART device. User needs to initialize the readBuffer with buffer pointer,
+   number of bytes to read before invoking this API.
    On return the transferCount parameter in CY_DATA_BUFFER will contain the number of bytes read.
-   
+
    Return Value
    * CY_SUCCESS on success.
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
@@ -1177,7 +1177,7 @@ CYWINEXPORT CY_RETURN_STATUS CySetUartConfig(
    * CY_ERROR_DEVICE_NOT_FOUND if device was disconnected.
    * CY_ERROR_BUFFER_OVERFLOW if data received from USB Serial device is more than requested.
    * CY_ERROR_ALLOCATION_FAILED if transaction transmit buffer allocation was failed (Only in Windows).
-   
+
    See Also
    * CY_DATA_BUFFER
    * CyUartWrite
@@ -1191,13 +1191,13 @@ CYWINEXPORT CY_RETURN_STATUS CyUartRead(
 /*
    Summary
    This API writes the data to UART device.
-   
+
    Description
-   This API writes the data to UART device. User need to initialize the 
+   This API writes the data to UART device. User need to initialize the
    writeBuffer with buffer pointer, number of bytes to write before invoking the API.
-   On return the transferCount parameter in CY_DATA_BUFFER will contain the number 
+   On return the transferCount parameter in CY_DATA_BUFFER will contain the number
    of bytes written.
-   
+
    Return Value
    * CY_SUCCESS on success.
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
@@ -1208,7 +1208,7 @@ CYWINEXPORT CY_RETURN_STATUS CyUartRead(
    * CY_ERROR_DEVICE_NOT_FOUND if device was disconnected.
    * CY_ERROR_BUFFER_OVERFLOW if data received from USB Serial device is more than requested.
    * CY_ERROR_ALLOCATION_FAILED if transaction transmit buffer allocation was failed (Only in Windows).
-   
+
    See Also
    * CY_DATA_BUFFER
    * CyUartRead
@@ -1222,18 +1222,18 @@ CYWINEXPORT CY_RETURN_STATUS CyUartWrite(
 /*
    Summary
    This API enables hardware flow control.
-   
+
    Description
    This API enables hardware flow control.
-   
+
    Return Value
    * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE on error if handle is invalid in case of Linux/Mac.
    * CY_ERROR_INVALID_PARAMETER on error if specified parameters are invalid or out of range.
-   * CY_ERROR_IO_TIMEOUT on error if request was timed out.   
-   * CY_ERROR_REQUEST_FAILED on error if request was failed by device or if device type 
+   * CY_ERROR_IO_TIMEOUT on error if request was timed out.
+   * CY_ERROR_REQUEST_FAILED on error if request was failed by device or if device type
      is not UART.
-   
+
    See Also
    * CyUartGetHwFlowControl
 */
@@ -1245,18 +1245,18 @@ CYWINEXPORT CY_RETURN_STATUS CyUartSetHwFlowControl(
 /*
    Summary
    This API retrieves the current hardware flow control status.
-   
+
    Description
    This API retrieves the current hardware flow control status.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
-   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is 
+   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is
      not UART.
-   
+
    See Also
    * CyUartSetHwFlowControl
 */
@@ -1268,18 +1268,18 @@ CYWINEXPORT CY_RETURN_STATUS CyUartGetHwFlowControl(
 /*
    Summary
    This API sets RTS signal in UART module.
-   
+
    Description
    This API is used to set the RTS pin to logical low..
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
-   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is 
+   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is
      not UART.
-   
+
    See Also
    * CyUartClearRts
    * CyUartSetDtr
@@ -1292,18 +1292,18 @@ CYWINEXPORT CY_RETURN_STATUS CyUartSetRts(
 /*
    Summary
    This API can be used to clear RTS signal in UART module.
-   
+
    Description
    This API used clear the RTS. It sets the RTS pin to logical high.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
-   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is 
+   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is
      not UART.
-   
+
    See Also
    * CyUartSetRts
    * CyUartSetDtr
@@ -1316,18 +1316,18 @@ CYWINEXPORT CY_RETURN_STATUS CyUartClearRts(
 /*
    Summary
    This API sets DTR signal in UART.
-   
+
    Description
    This API used set the DTR. It sets the DTR pin to logical low.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
-   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is 
+   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is
      not UART.
-   
+
    See Also
    * CyUartClearRts
    * CyUartSetRts
@@ -1340,18 +1340,18 @@ CYWINEXPORT CY_RETURN_STATUS CyUartSetDtr(
 /*
    Summary
    This API can be used to clear DTR signal in UART.
-   
+
    Description
    This API can be used clear the DTR. It sets the DTR pin to logical high.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
-   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is 
+   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is
      not UART.
-   
+
    See Also
    * CyUartSetRts
    * CyUartSetDtr
@@ -1364,18 +1364,18 @@ CYWINEXPORT CY_RETURN_STATUS CyUartClearDtr(
 /*
    Summary
    This API can be used to set break timeout value .
-   
+
    Description
    This API can be used to set break timeout value .
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
-   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is 
+   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is
      not UART.
-   
+
    See Also
    * CyUartSetFlowControl
 */
@@ -1390,28 +1390,28 @@ CYWINEXPORT CY_RETURN_STATUS CyUartSetBreak(
 
 /*@@I2C API
 
-  These set of APIs provide an interface to configure I2C module and do 
+  These set of APIs provide an interface to configure I2C module and do
   read/write on the I2C device connected to USB Serial device.
 */
 
 /*
    Summary
    This API retrieves the configuration of I2C module of USB Serial device.
-   
+
    Description
    This API retrieves the configuration of I2C module of USB Serial device.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
-   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is 
+   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is
      not I2C.
-   
+
    See Also
    * CY_I2C_CONFIG
-   * CySetI2cConfig 
+   * CySetI2cConfig
 */
 CYWINEXPORT CY_RETURN_STATUS CyGetI2cConfig(
     CY_HANDLE handle,        /*Valid device handle*/
@@ -1421,23 +1421,23 @@ CYWINEXPORT CY_RETURN_STATUS CyGetI2cConfig(
 /*
    Summary
    This API configures the I2C module of USB Serial device.
-   
+
    Description
    This API configures the I2C module of USB Serial device.
-   
+
    Note: Using this API during an active transaction of I2C may result in data loss.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
-   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is 
+   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is
      not I2C.
-   
+
    See Also
    * CY_I2C_CONFIG
-   * CySetI2cConfig 
+   * CySetI2cConfig
 */
 CYWINEXPORT CY_RETURN_STATUS CySetI2cConfig(
     CY_HANDLE handle,        /*Valid device handle*/
@@ -1447,17 +1447,17 @@ CYWINEXPORT CY_RETURN_STATUS CySetI2cConfig(
 /*
    Summary
    This API reads data from the USB Serial I2C module.
-   
+
    Description
    This API provides an interface to read data from the I2C device
-   connected to USB Serial. 
-   
+   connected to USB Serial.
+
    The readBuffer parameter needs to be initialized with buffer pointer, number of bytes to be read
-   before invoking the API. On return, the transferCount field will contain the number of bytes 
+   before invoking the API. On return, the transferCount field will contain the number of bytes
    read back from device.
-   CY_I2C_DATA_CONFIG structure specifies parameters such as setting stop bit, NAK and 
+   CY_I2C_DATA_CONFIG structure specifies parameters such as setting stop bit, NAK and
    slave address of the I2C device.
-   
+
    Return Value
    * CY_SUCCESS on success.
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
@@ -1472,7 +1472,7 @@ CYWINEXPORT CY_RETURN_STATUS CySetI2cConfig(
    * CY_ERROR_I2C_ARBITRATION_ERROR if a I2C bus arbitration error occured.
    * CY_ERROR_I2C_BUS_ERROR if there was any I2C bus error while an on going transaction.
    * CY_ERROR_I2C_STOP_BIT_SET if stop bit was set by I2C master.
-   
+
    See Also
    * CY_DATA_BUFFER
    * CY_DATA_CONFIG
@@ -1488,15 +1488,15 @@ CYWINEXPORT CY_RETURN_STATUS CyI2cRead(
 /*
    Summary
    This API writes data to USB Serial I2C module .
-   
+
    Description
    This API provides an interface to write data to the I2C device
    connected to USB Serial.
    The writeBuffer parameter needs to be initialized with buffer pointer, number of bytes to be written
-   before invoking the API. On return, transferCount field contains number of bytes actually written to the device. 
+   before invoking the API. On return, transferCount field contains number of bytes actually written to the device.
    CY_I2C_DATA_CONFIG structure specifies parameter such as setting stop bit, Nak and slave address
    of the I2C device being communicated when USB Serial is master.
-   
+
    Return Value
    * CY_SUCCESS on success.
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
@@ -1512,7 +1512,7 @@ CYWINEXPORT CY_RETURN_STATUS CyI2cRead(
    * CY_ERROR_I2C_ARBITRATION_ERROR if a I2C bus arbitration error occured.
    * CY_ERROR_I2C_BUS_ERROR if there was any I2C bus error while an on going transaction.
    * CY_ERROR_I2C_STOP_BIT_SET if stop bit was set by I2C master.
-   
+
    See Also
    * CY_DATA_BUFFER
    * CY_DATA_CONFIG
@@ -1528,28 +1528,28 @@ CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CyI2cWrite(
 /*
    Summary
    This API resets the I2C module in USB Serial device.
-   
+
    Description
    This API resets the I2C module whenever there is an error in data transaction.
-   
+
    If resetMode = 0 the I2C read module will be reset.
    If resetMode = 1 the I2C write module will be reset.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
-   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is 
+   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is
      not I2C.
-   
+
    See Also
    * CyI2CRead
    * CyI2CWrite
 */
 CYWINEXPORT CY_RETURN_STATUS CyI2cReset(
     CY_HANDLE handle, /*Valid device handle*/
-    CyBOOL resetMode  /*Reset mode*/
+    BOOL resetMode    /*Reset mode*/
 );
 
 /***********************************************************************************************/
@@ -1564,21 +1564,21 @@ CYWINEXPORT CY_RETURN_STATUS CyI2cReset(
 /*
    Summary
    This API retrieves the configuration of SPI module of USB Serial device.
-   
+
    Description
    This API retrieves the configuration of SPI module of USB Serial device.
-   
+
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
-   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is 
+   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is
      not SPI.
-   
+
    See Also
    * CY_SPI_CONFIG
-   * CySetSpiConfig 
+   * CySetSpiConfig
 */
 CYWINEXPORT CY_RETURN_STATUS CyGetSpiConfig(
     CY_HANDLE handle,        /*Valid device handle*/
@@ -1588,20 +1588,20 @@ CYWINEXPORT CY_RETURN_STATUS CyGetSpiConfig(
 /*
    Summary
    This API sets the configuration of the SPI module on USB Serial device.
-   
+
    Description;
    This API sets the configuration of the SPI module in USB Serial device.
-   
+
    NOTE: Using this API during an active transaction of SPI may result in data loss.
 
    Return Value
-   * CY_SUCCESS on success 
+   * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
    * CY_ERROR_IO_TIMEOUT if the request is timed out.
-   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is 
+   * CY_ERROR_REQUEST_FAILED when request is failed by USB Serial device or when device type is
      not SPI.
-   
+
    See Also
    * CY_SPI_CONFIG
    * CyGetSpiConfig
@@ -1614,14 +1614,14 @@ CYWINEXPORT CY_RETURN_STATUS CySetSpiConfig(
 /*
    Summary
    This API reads and writes data to SPI device connected to USB Serial device.
-   
+
    Description
    This API provides an interface to do data transfer with the SPI slave/master
-   connected to USB Serial device. 
+   connected to USB Serial device.
    To perform read only operation, pass NULL as argument for writeBuffer and to perform
    write only operation pass NULL as an argument for readBuffer.
    On return, the transferCount field will contain the number of bytes read and/or written.
-   
+
    Return Value
    * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid in case of Linux/Mac.
@@ -1632,7 +1632,7 @@ CYWINEXPORT CY_RETURN_STATUS CySetSpiConfig(
    * CY_ERROR_PIPE_HALTED if pipe was stalled during data transfer.
    * CY_ERROR_DEVICE_NOT_FOUND if device was disconnected.
    * CY_ERROR_BUFFER_OVERFLOW if data received from USB Serial device is more than requested.
-   
+
    See Also
    * CY_DATA_BUFFER
    * CyGetSpiConfig
@@ -1658,19 +1658,19 @@ CYWINEXPORT CY_RETURN_STATUS CySpiReadWrite(
 /*
    Summary
    This API enables JTAG module.
-   
+
    Description
    This API enables JTAG module in USB Serial device and the function disables all other functionality
    till CyJtagDisable is invoked.
-   
+
    Return Value
    * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid in case of Linux/Mac.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
-   * CY_ERROR_IO_TIMEOUT if request was timed out.   
-   * CY_ERROR_REQUEST_FAILED if request was failed by device or if device type 
+   * CY_ERROR_IO_TIMEOUT if request was timed out.
+   * CY_ERROR_REQUEST_FAILED if request was failed by device or if device type
      is not JTAG.
-   
+
    See Also
    * CyJtagDisable
 */
@@ -1681,19 +1681,19 @@ CYWINEXPORT CY_RETURN_STATUS CyJtagEnable(
 /*
    Summary
    This API disables JTAG module.
-   
+
    Description
-   This API disables Jtag interface in USB Serial device. This API must be invoked before exiting the 
+   This API disables Jtag interface in USB Serial device. This API must be invoked before exiting the
    application if CyJtagEnable was previously invoked.
-   
+
    Return Value
    * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid in case of Linux/Mac.
    * CY_ERROR_INVALID_PARAMETER if specified parameters are invalid or out of range.
-   * CY_ERROR_IO_TIMEOUT if request was timed out.   
-   * CY_ERROR_REQUEST_FAILED if request was failed by device or if device type 
+   * CY_ERROR_IO_TIMEOUT if request was timed out.
+   * CY_ERROR_REQUEST_FAILED if request was failed by device or if device type
      is not JTAG.
-   
+
    See Also
    * CyJtagEnable
 */
@@ -1704,14 +1704,14 @@ CYWINEXPORT CY_RETURN_STATUS CyJtagDisable(
 /*
    Summary
    This API can be used to write data to JTAG module.
-   
+
    Description
    This API provides an interface to write data to JTAG device connected to USB Serial device.
-   The writeBuffer need to be initialized with buffer and length of data to be written before invoking 
-   the API. Upon return, transferCount field in CY_DATA_BUFFER is updated with actual number of bytes written.  
-   
+   The writeBuffer need to be initialized with buffer and length of data to be written before invoking
+   the API. Upon return, transferCount field in CY_DATA_BUFFER is updated with actual number of bytes written.
+
    Note: CyJtagEnable must be called before invoking this API.
-   
+
    Return Value
    * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid in case of Linux/Mac.
@@ -1721,7 +1721,7 @@ CYWINEXPORT CY_RETURN_STATUS CyJtagDisable(
    * CY_ERROR_PIPE_HALTED if there was any pipe error during transaction.
    * CY_ERROR_IO_TIMEOUT if transfer was timed out.
    * CY_ERROR_DEVICE_NOT_FOUND if device was disconnected.
-   
+
    See Also
    * CY_DATA_BUFFER
    * CyJtagRead
@@ -1736,15 +1736,15 @@ CYWINEXPORT CY_RETURN_STATUS CyJtagWrite(
 /*
    Summary
    This API reads data from JTAG device.
-   
+
    Description
    This API provides an interface to read data from JTAG device.
-   The readBuffer need to be initialized with buffer and length of data to be written before invoking 
+   The readBuffer need to be initialized with buffer and length of data to be written before invoking
    the API. Upon return, transferCount field in CY_DATA_BUFFER structure
-   is updated with actual number of bytes read. 
-   
+   is updated with actual number of bytes read.
+
    Note: CyJtagEnable must be called before invoking this API.
-   
+
    Return Value
    * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle is invalid in case of Linux/Mac.
@@ -1754,7 +1754,7 @@ CYWINEXPORT CY_RETURN_STATUS CyJtagWrite(
    * CY_ERROR_IO_TIMEOUT if transfer was timed out.
    * CY_ERROR_DEVICE_NOT_FOUND if device was disconnected.
    * CY_ERROR_BUFFER_OVERFLOW if data received from USB Serial device is more than requested.
-   
+
    See Also
    * CY_DATA_BUFFER
    * CyJtagWrite
@@ -1772,24 +1772,24 @@ CYWINEXPORT CY_RETURN_STATUS CyJtagRead(
 
 /*@@PHDC API
   Set of PHDC class request APIs. The PHDC class requests include set, clear feature and
-  PHDC get status. 
+  PHDC get status.
 */
 
 /*
    Summary
    This API sends a PHDC clear feature command.
-   
+
    Description
    This API sends a PHDC clear feature command.
 
    Note: Meta data feature is not supported by USB Serial device.
-   
+
    Return Value
    * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle was invalid.
    * CY_ERROR_IO_TIMEOUT if request timed out.
    * CY_ERROR_REQUEST_FAILED if request was failed by device.
-   
+
    See Also
    * CyPhdcSetFeature
    * CyPhdcGetStatus
@@ -1801,18 +1801,18 @@ CYWINEXPORT CY_RETURN_STATUS CyPhdcClrFeature(
 /*
    Summary
    This API sends a PHDC set feature command.
-   
+
    Description
    This API sends a PHDC set feature command.
 
    Note: Meta data feature is not supported by USB Serial device.
-   
+
    Return Value
    * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle was invalid.
    * CY_ERROR_IO_TIMEOUT if request timed out.
    * CY_ERROR_REQUEST_FAILED if request was failed by device.
-   
+
    See Also
    * CyPhdcClrFeature
    * CyPhdcGetStatus
@@ -1824,17 +1824,17 @@ CYWINEXPORT CY_RETURN_STATUS CyPhdcSetFeature(
 /*
    Summary
    This API retrieves the endpoint status of PHDC transaction.
-   
+
    Description
    The API retrieves the status of PHDC transaction. It returns 2 bytes of data pending bit map
    which is defined as per PHDC spec.
-   
+
    Return Value
    * CY_SUCCESS on success
    * CY_ERROR_INVALID_HANDLE if handle was invalid.
    * CY_ERROR_IO_TIMEOUT if request timed out.
    * CY_ERROR_REQUEST_FAILED if request was failed by device.
-   
+
    See Also
    * CyPhdcClrFeature
    * CyPhdcSetFeature
