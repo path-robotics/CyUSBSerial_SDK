@@ -21,17 +21,16 @@
 #include <mutex>
 #include <iostream>
 
-libusb_context* glContext = NULL;
 static bool glDriverInit = false;
 static libusb_device** glDeviceList;
-static int glNumDevices;
+static UINT32 glNumDevices;
 /*The API initializes the Libusb library
 */
 static std::mutex criticalSection;
 CY_RETURN_STATUS CyLibraryInit()
 {
   UINT32 rStatus;
-  rStatus = libusb_init(&glContext);
+  rStatus = libusb_init(NULL);
 
   if (glDriverInit != true)
   {
@@ -40,14 +39,13 @@ CY_RETURN_STATUS CyLibraryInit()
       CY_DEBUG_PRINT_ERROR("CY:Driver Init Failed ...\n");
       return CY_ERROR_DRIVER_INIT_FAILED;
     }
-    glNumDevices = libusb_get_device_list(glContext, &glDeviceList);
+    glNumDevices = libusb_get_device_list(NULL, &glDeviceList);
     if (glNumDevices < 0)
     {
       CY_DEBUG_PRINT_ERROR("CY:Building device list Failed ...\n");
       glNumDevices = -1;
       return CY_ERROR_DRIVER_INIT_FAILED;
     }
-    //        pthread_mutex_init (&criticalSection, NULL);
     glDriverInit = true;
     return CY_SUCCESS;
   }
@@ -62,28 +60,22 @@ CY_RETURN_STATUS CyLibraryInit()
  */
 CY_RETURN_STATUS CyLibraryExit()
 {
-  std::unique_lock<std::mutex> ul(criticalSection);
+  std::lock_guard<std::mutex> lock(criticalSection);
   if (glDriverInit == true)
   {
     if (glNumDevices >= 0)
       libusb_free_device_list(glDeviceList, 1);
     //This is to avoid loss of device handle issue with respect to libusb context.
-    if (glContext)
-    {
-      libusb_exit(glContext);
-      glContext = NULL;
-    }
     //libusb_exit (NULL);
     glDriverInit = false;
-    //        pthread_mutex_destroy (&criticalSection);
     return CY_SUCCESS;
   }
   CY_DEBUG_PRINT_ERROR("CY:Error ... Library not initialized \n");
   return CY_ERROR_REQUEST_FAILED;
 }
 /*
- * This function Gets the number of all the devices currently 
- * Connected to the host (It includes Cypress Device as well as 
+ * This function Gets the number of all the devices currently
+ * Connected to the host (It includes Cypress Device as well as
  * no Cypress Devices connected)
  */
 CY_RETURN_STATUS CyGetListofDevices(
@@ -97,11 +89,10 @@ CY_RETURN_STATUS CyGetListofDevices(
     CY_DEBUG_PRINT_ERROR("CY:Error Library not initialised ...function is %s\n", __func__);
     return CY_ERROR_REQUEST_FAILED;
   }
-  //    pthread_mutex_lock (&criticalSection);
-  std::unique_lock<std::mutex> uniqueLock(criticalSection);
+  std::unique_lock<std::mutex> unique_lock(criticalSection);
   libusb_free_device_list(glDeviceList, 1);
-  glNumDevices = *numDevices = libusb_get_device_list(glContext, &glDeviceList);
-  uniqueLock.unlock();
+  glNumDevices = (*numDevices) = libusb_get_device_list(NULL, &glDeviceList);
+  unique_lock.unlock();
   if (glNumDevices < 0)
   {
     CY_DEBUG_PRINT_ERROR("CY:Building device list Failed ...function is %s\n", __func__);
@@ -112,7 +103,7 @@ CY_RETURN_STATUS CyGetListofDevices(
   return CY_SUCCESS;
 }
 /* This function gets all the neccessary info such as VID,PID,
-   String Descriptors and if is a cypress serial device you will 
+   String Descriptors and if is a cypress serial device you will
    get the info on class and device type
  */
 CY_RETURN_STATUS CyGetDeviceInfo(
@@ -135,12 +126,10 @@ CY_RETURN_STATUS CyGetDeviceInfo(
   }
   if (deviceInfo == NULL)
     return CY_ERROR_INVALID_PARAMETER;
-
-  std::unique_lock<std::mutex> uniqueLock(criticalSection);
+  std::lock_guard<std::mutex> lock(criticalSection);
   if (deviceNumber >= glNumDevices)
   {
     CY_DEBUG_PRINT_ERROR("CY:Error invalid device number... \n");
-    uniqueLock.unlock();
     return CY_ERROR_INVALID_PARAMETER;
   }
   usbDevice = glDeviceList[deviceNumber];
@@ -167,13 +156,11 @@ CY_RETURN_STATUS CyGetDeviceInfo(
   if (rStatus == LIBUSB_ERROR_ACCESS)
   {
     CY_DEBUG_PRINT_ERROR("CY:Error ...Insufficient permission... Libusb error is %d \n", rStatus);
-    //        pthread_mutex_unlock (&criticalSection);
     return CY_ERROR_ACCESS_DENIED;
   }
   else if (rStatus != CY_SUCCESS)
   {
     CY_DEBUG_PRINT_ERROR("CY:Error in opening the device... Libusb error is %d \n", rStatus);
-    //        pthread_mutex_unlock (&criticalSection);
     return CY_ERROR_DEVICE_INFO_FETCH_FAILED;
   }
   if (iManufacturer > 0)
@@ -213,7 +200,8 @@ CY_RETURN_STATUS CyGetDeviceInfo(
       deviceInfo->deviceClass[index_i] = (CY_DEVICE_CLASS)interface->altsetting->bInterfaceClass;
       if (deviceInfo->deviceClass[index_i] == CY_CLASS_VENDOR)
       {
-        deviceInfo->deviceType[index_i] = static_cast<CY_DEVICE_TYPE>(interface->altsetting->bInterfaceSubClass);
+        deviceInfo->deviceType[index_i] = static_cast<CY_DEVICE_TYPE>(
+            (CY_DEVICE_CLASS)interface->altsetting->bInterfaceSubClass);
       }
       else
         deviceInfo->deviceType[index_i] = CY_TYPE_DISABLED;
@@ -228,16 +216,14 @@ CY_RETURN_STATUS CyGetDeviceInfo(
     CY_DEBUG_PRINT_ERROR("CY: Error in Getting config descriptor ...Libusb error is %d \n", rStatus);
     if (devHandle)
       libusb_close(devHandle);
-    //        pthread_mutex_unlock (&criticalSection);
     return CY_ERROR_DEVICE_INFO_FETCH_FAILED;
   }
   if (devHandle)
     libusb_close(devHandle);
-  //    pthread_mutex_unlock (&criticalSection);
   return CY_SUCCESS;
 }
 /* This function gets all the neccessary info such as VID,PID,
-   String Descriptors and if is a cypress serial device you will 
+   String Descriptors and if is a cypress serial device you will
    get the info on class and device type
  */
 CY_RETURN_STATUS CyGetDeviceInfoVidPid(
@@ -269,8 +255,7 @@ CY_RETURN_STATUS CyGetDeviceInfoVidPid(
     return CY_ERROR_INVALID_PARAMETER;
   // Get the list of descriptor info for the device
   (*deviceCount) = 0;
-  //    pthread_mutex_lock (&criticalSection);
-  std::unique_lock<std::mutex> uniqueLock(criticalSection);
+  std::lock_guard<std::mutex> lock(criticalSection);
   for (devNum = 0; devNum < glNumDevices; devNum++)
   {
     //We are making sure that we do not overrun
@@ -281,7 +266,6 @@ CY_RETURN_STATUS CyGetDeviceInfoVidPid(
     if (rStatus != LIBUSB_SUCCESS)
     {
       CY_DEBUG_PRINT_ERROR("CY:Error in getting device descriptor for device-%d... Libusb Error is %d \n", devNum, rStatus);
-      //            pthread_mutex_unlock (&criticalSection);
       return CY_ERROR_DEVICE_INFO_FETCH_FAILED;
     }
     if ((deviceDesc.idVendor != vidPid.vid) || (deviceDesc.idProduct != vidPid.pid))
@@ -297,13 +281,11 @@ CY_RETURN_STATUS CyGetDeviceInfoVidPid(
     if (rStatus == LIBUSB_ERROR_ACCESS)
     {
       CY_DEBUG_PRINT_ERROR("CY:Insufficient permission ... Libusb error is %d \n", rStatus);
-      //            pthread_mutex_unlock (&criticalSection);
       return CY_ERROR_ACCESS_DENIED;
     }
     else if (rStatus != LIBUSB_SUCCESS)
     {
       CY_DEBUG_PRINT_ERROR("CY:Error in Opening the Device ...Error is %d \n", rStatus);
-      //            pthread_mutex_unlock (&criticalSection);
       return CY_ERROR_DEVICE_INFO_FETCH_FAILED;
     }
     deviceNumber[index] = devNum;
@@ -361,7 +343,8 @@ CY_RETURN_STATUS CyGetDeviceInfoVidPid(
       {
         deviceInfo->deviceClass[index_i] = (CY_DEVICE_CLASS)interfaceDesc->altsetting->bInterfaceClass;
         if (deviceInfo->deviceClass[index_i] == CY_CLASS_VENDOR)
-          deviceInfo->deviceType[index_i] = static_cast<CY_DEVICE_TYPE>(interfaceDesc->altsetting->bInterfaceSubClass);
+          deviceInfo->deviceType[index_i] = static_cast<CY_DEVICE_TYPE>(
+              (CY_DEVICE_CLASS)interfaceDesc->altsetting->bInterfaceSubClass);
         else
           deviceInfo->deviceType[index_i] = CY_TYPE_DISABLED;
 
@@ -373,7 +356,6 @@ CY_RETURN_STATUS CyGetDeviceInfoVidPid(
     else
     {
       CY_DEBUG_PRINT_ERROR("CY: Error in Getting config descriptor ... Libusb Error is %d\n", rStatus);
-      //            pthread_mutex_unlock (&criticalSection);
       return CY_ERROR_DEVICE_INFO_FETCH_FAILED;
     }
     libusb_free_config_descriptor(configDesc);
@@ -381,7 +363,6 @@ CY_RETURN_STATUS CyGetDeviceInfoVidPid(
   }
   if ((*deviceCount) == 0)
     rStatus = CY_ERROR_DEVICE_NOT_FOUND;
-  //    pthread_mutex_unlock (&criticalSection);
   return static_cast<CY_RETURN_STATUS>(rStatus);
 }
 /*
@@ -504,7 +485,8 @@ void CySelectDeviceType(CY_DEVICE* device, libusb_device* libUsbdev, unsigned ch
       interfaceDesc++;
     }
     if (interfaceDesc->altsetting->bInterfaceClass == CY_CLASS_VENDOR)
-      device->deviceType = (CY_DEVICE_TYPE)interfaceDesc->altsetting->bInterfaceSubClass;
+      device->deviceType = static_cast<CY_DEVICE_TYPE>(
+          (CY_DEVICE_CLASS)interfaceDesc->altsetting->bInterfaceSubClass);
     libusb_free_config_descriptor(configDesc);
   }
   CY_DEBUG_PRINT_INFO("CY:Info The device type is %d \n", device->deviceType);
@@ -530,14 +512,12 @@ CY_RETURN_STATUS CyOpen(
     CY_DEBUG_PRINT_ERROR("CY:Error Library not initialised ...function is %s\n", __func__);
     return CY_ERROR_REQUEST_FAILED;
   }
-  //    pthread_mutex_lock (&criticalSection);
-  std::unique_lock<std::mutex> uniqueLock(criticalSection);
+  std::lock_guard<std::mutex> lock(criticalSection);
   if (glDriverInit == true)
   {
     if (deviceNumber >= glNumDevices)
     {
       CY_DEBUG_PRINT_ERROR("CY:Error ... Invalid device number ... \n");
-      //	    pthread_mutex_unlock (&criticalSection);
       return CY_ERROR_INVALID_PARAMETER;
     }
     dev = glDeviceList[deviceNumber];
@@ -546,20 +526,17 @@ CY_RETURN_STATUS CyOpen(
     {
       CY_DEBUG_PRINT_ERROR("CY:Error in opening the device ..Access denied \n");
       handle = NULL;
-      //            pthread_mutex_unlock (&criticalSection);
       return CY_ERROR_ACCESS_DENIED;
     }
     if (rStatus != LIBUSB_SUCCESS)
     {
       CY_DEBUG_PRINT_ERROR("CY:Error in Opening the Device ...Error is %d \n", rStatus);
       handle = NULL;
-      //            pthread_mutex_unlock (&criticalSection);
       return CY_ERROR_DRIVER_OPEN_FAILED;
     }
     device = (CY_DEVICE*)malloc(sizeof(CY_DEVICE));
     if (device == NULL)
     {
-      //            pthread_mutex_unlock (&criticalSection);
       return CY_ERROR_ALLOCATION_FAILED;
     }
     device->devHandle = devHandle;
@@ -569,7 +546,6 @@ CY_RETURN_STATUS CyOpen(
     {
       libusb_close(devHandle);
       free(device);
-      //            pthread_mutex_unlock (&criticalSection);
       return CY_ERROR_DRIVER_OPEN_FAILED;
     }
     CySelectDeviceType(device, dev, interfaceNum);
@@ -592,7 +568,6 @@ CY_RETURN_STATUS CyOpen(
       CY_DEBUG_PRINT_ERROR("CY:Error initializing the read mutex .. Function is %s \n", __func__);
       libusb_close(devHandle);
       free(device);
-      //            pthread_mutex_unlock (&criticalSection);
       return CY_ERROR_DRIVER_OPEN_FAILED;
     }
     if (pthread_mutex_init(&device->writeLock, NULL))
@@ -600,7 +575,6 @@ CY_RETURN_STATUS CyOpen(
       CY_DEBUG_PRINT_ERROR("CY:Error initializing the write mutex .. Function is %s \n", __func__);
       libusb_close(devHandle);
       free(device);
-      //            pthread_mutex_unlock (&criticalSection);
       return CY_ERROR_DRIVER_OPEN_FAILED;
     }
     if (pthread_mutex_init(&device->notificationLock, NULL))
@@ -608,10 +582,8 @@ CY_RETURN_STATUS CyOpen(
       CY_DEBUG_PRINT_ERROR("CY:Error initializing the write mutex .. Function is %s \n", __func__);
       libusb_close(devHandle);
       free(device);
-      //            pthread_mutex_unlock (&criticalSection);
       return CY_ERROR_DRIVER_OPEN_FAILED;
     }
-    //        pthread_mutex_unlock (&criticalSection);
     return CY_SUCCESS;
   }
   else
@@ -695,7 +667,7 @@ CY_RETURN_STATUS CyResetPipe(
 }
 /*
    This Api will get the library version,patch
-   and build number 
+   and build number
  */
 CY_RETURN_STATUS CyGetLibraryVersion(
     CY_HANDLE handle,

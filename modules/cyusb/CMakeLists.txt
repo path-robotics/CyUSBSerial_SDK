@@ -3,10 +3,6 @@ set(components ${components} ${component} PARENT_SCOPE)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/" ${CMAKE_MODULE_PATH})
 
-message(WARNING "current mod path ${CMAKE_MODULE_PATH}")
-
-message(WARNING "current list dir ${CMAKE_CURRENT_LIST_DIR}")
-
 find_package(libusb-1.0 ${MIN_LIBUSB_VERSION} REQUIRED)
 
 add_library(${component} SHARED
@@ -65,8 +61,6 @@ install(
     DESTINATION lib/cmake/${PROJECT_NAME}
     COMPONENT ${component}
 )
-
-#message(WARNING "current list dir ${CMAKE_CURRENT_LIST_DIR}")
 
 install(
     FILES

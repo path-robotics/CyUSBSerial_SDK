@@ -1,5 +1,4 @@
 if(NOT @PROJECT_NAME@-@component@_FOUND)
-    message(WARNING "Test1")
     include(CMakeFindDependencyMacro)
     set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}" ${CMAKE_MODULE_PATH})
 #    This should be needed, but it breaks things
@@ -23,7 +22,6 @@ if(NOT @PROJECT_NAME@-@component@_FOUND)
             set(@PROJECT_NAME@_@component@_FOUND FALSE)
         endif()
     endforeach()
-    message(WARNING "Test2")
 
     # Pull in the exported targets
     include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-@component@Targets.cmake")
