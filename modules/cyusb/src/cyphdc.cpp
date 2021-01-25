@@ -22,10 +22,10 @@
 */
 CY_RETURN_STATUS CyPhdcClrFeature(CY_HANDLE handle)
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
 
@@ -60,8 +60,8 @@ CY_RETURN_STATUS CyPhdcClrFeature(CY_HANDLE handle)
 */
 CY_RETURN_STATUS CyPhdcSetFeature(CY_HANDLE handle)
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus, ioTimeout = CY_USB_SERIAL_TIMEOUT;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
@@ -94,12 +94,12 @@ CY_RETURN_STATUS CyPhdcSetFeature(CY_HANDLE handle)
 /*
     PHDC clear feature
 */
-CY_RETURN_STATUS CyPhdcGetStatus(CY_HANDLE handle, UINT16* dataStatus)
+CY_RETURN_STATUS CyPhdcGetStatus(CY_HANDLE handle, uint16_t* dataStatus)
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
 

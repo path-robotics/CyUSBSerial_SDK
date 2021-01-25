@@ -59,7 +59,7 @@ typedef struct CY_DEVICE
 } CY_DEVICE, *PCY_DEVICE;
 #pragma pack()
 
-CY_RETURN_STATUS CyResetPipe(CY_HANDLE handl, UINT8);
+CY_RETURN_STATUS CyResetPipe(CY_HANDLE handl, uint8_t);
 #define CY_DEBUG_PRINT_INFO(...)  //User need to enable this
 #define CY_DEBUG_PRINT_ERROR(...)  //printf
 #define DUMP_DATA 1

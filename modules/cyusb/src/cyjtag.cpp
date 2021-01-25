@@ -24,12 +24,12 @@
 CY_RETURN_STATUS CyJtagEnable(
     CY_HANDLE handle)
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT16 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint16_t bmRequestType, bmRequest;
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
 
   if (handle == NULL)
   {
@@ -71,12 +71,12 @@ CY_RETURN_STATUS CyJtagEnable(
 CY_RETURN_STATUS CyJtagDisable(
     CY_HANDLE handle)
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT16 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint16_t bmRequestType, bmRequest;
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
 
   if (handle == NULL)
   {
@@ -118,13 +118,13 @@ CY_RETURN_STATUS CyJtagDisable(
 CY_RETURN_STATUS CyJtagWrite(
     CY_HANDLE handle,
     CY_DATA_BUFFER* writeBuffer,
-    UINT32 ioTimeout)
+    uint32_t ioTimeout)
 {
   int rStatus = 0;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT16 wValue, wIndex, wLength;
-  UINT16 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint16_t bmRequestType, bmRequest;
 
   if (handle == NULL)
   {
@@ -194,13 +194,13 @@ CY_RETURN_STATUS CyJtagWrite(
 CY_RETURN_STATUS CyJtagRead(
     CY_HANDLE handle,
     CY_DATA_BUFFER* readBuffer,
-    UINT32 ioTimeout)
+    uint32_t ioTimeout)
 {
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT16 wValue, wIndex, wLength;
-  UINT16 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint16_t bmRequestType, bmRequest;
 
   bmRequestType = CY_VENDOR_REQUEST_HOST_TO_DEVICE;
   bmRequest = CY_JTAG_READ_CMD;

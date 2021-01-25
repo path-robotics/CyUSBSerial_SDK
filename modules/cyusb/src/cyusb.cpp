@@ -24,13 +24,13 @@
 static libusb_context* glContext = NULL;
 static bool glDriverInit = false;
 static libusb_device** glDeviceList;
-static UINT32 glNumDevices;
+static uint32_t glNumDevices;
 /*The API initializes the Libusb library
 */
 static std::mutex criticalSection;
 CY_RETURN_STATUS CyLibraryInit()
 {
-  UINT32 rStatus;
+  uint32_t rStatus;
 
   // TODO: Get everything working with handles. FR-958
   //  All that should be needed is passing the glContext here instead of NULL,
@@ -86,7 +86,7 @@ CY_RETURN_STATUS CyLibraryExit()
  * no Cypress Devices connected)
  */
 CY_RETURN_STATUS CyGetListofDevices(
-    UINT8* numDevices)
+    uint8_t* numDevices)
 {
   // Use this variable to call libusb_close and exit of the application
   if (numDevices == NULL)
@@ -114,12 +114,12 @@ CY_RETURN_STATUS CyGetListofDevices(
    get the info on class and device type
  */
 CY_RETURN_STATUS CyGetDeviceInfo(
-    UINT8 deviceNumber,
+    uint8_t deviceNumber,
     CY_DEVICE_INFO* deviceInfo)
 {
   struct libusb_device_descriptor deviceDesc;
-  UINT32 rStatus, numInterfaces;
-  UINT8 iManufacturer, iProduct, iSerial;
+  uint32_t rStatus, numInterfaces;
+  uint8_t iManufacturer, iProduct, iSerial;
   libusb_device* usbDevice;
   ;
   struct libusb_config_descriptor* configDesc;
@@ -197,7 +197,7 @@ CY_RETURN_STATUS CyGetDeviceInfo(
   rStatus = libusb_get_config_descriptor(usbDevice, 0, &configDesc);
   if (rStatus == LIBUSB_SUCCESS)
   {
-    UINT32 index_i = 0;
+    uint32_t index_i = 0;
     const struct libusb_interface* interface;
     numInterfaces = configDesc->bNumInterfaces;
     deviceInfo->numInterfaces = numInterfaces;
@@ -235,13 +235,13 @@ CY_RETURN_STATUS CyGetDeviceInfo(
  */
 CY_RETURN_STATUS CyGetDeviceInfoVidPid(
     CY_VID_PID vidPid,
-    UINT8* deviceNumber,
+    uint8_t* deviceNumber,
     PCY_DEVICE_INFO deviceInfoList,
-    UINT8* deviceCount,
-    UINT8 infoListLength)
+    uint8_t* deviceCount,
+    uint8_t infoListLength)
 {
   struct libusb_device_descriptor deviceDesc;
-  UINT32 rStatus = CY_ERROR_DRIVER_INIT_FAILED, numInterfaces, index = 0, devNum;
+  uint32_t rStatus = CY_ERROR_DRIVER_INIT_FAILED, numInterfaces, index = 0, devNum;
   uint8_t iManufacturer, iProduct, iSerial;
   libusb_device* usbDevice;
   struct libusb_config_descriptor* configDesc;
@@ -378,9 +378,9 @@ CY_RETURN_STATUS CyGetDeviceInfoVidPid(
  */
 CY_RETURN_STATUS CySelectInterface(
     CY_HANDLE handle,
-    UINT8 interfaceNum)
+    uint8_t interfaceNum)
 {
-  UINT32 rStatus, numEP;
+  uint32_t rStatus, numEP;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
   libusb_device* usbDev;
@@ -512,7 +512,7 @@ CY_RETURN_STATUS CyOpen(
   libusb_device_handle* devHandle;
   libusb_device* dev;
   CY_DEVICE* device;
-  UINT32 rStatus;
+  uint32_t rStatus;
 
   if (glDriverInit == false)
   {
@@ -653,9 +653,9 @@ CY_RETURN_STATUS CyClose(
  */
 CY_RETURN_STATUS CyResetPipe(
     CY_HANDLE handle,
-    UINT8 endPointAddress)
+    uint8_t endPointAddress)
 {
-  UINT32 rStatus;
+  uint32_t rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
 

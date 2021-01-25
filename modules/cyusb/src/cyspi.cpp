@@ -24,27 +24,27 @@
 typedef struct args
 {
   CY_HANDLE handle;
-  UCHAR* readBuffer;
-  UINT32 length;
-  UINT32 ioTimeout;
+  u_char* readBuffer;
+  uint32_t length;
+  uint32_t ioTimeout;
   CY_RETURN_STATUS rStatus;
-  UINT32 transferCount;
+  uint32_t transferCount;
 } args;
 
 typedef struct
 {
-  UINT32 frequency;
-  UINT8 dataWidth;
-  UCHAR mode;
-  UCHAR xferMode;
-  BOOL isMsbFirst;
-  BOOL isMaster;
-  BOOL isContinuous;
-  BOOL isSelectPrecede;
-  BOOL cpha;
-  BOOL cpol;
-  BOOL isLoopback;
-  UCHAR reserver[2];
+  uint32_t frequency;
+  uint8_t dataWidth;
+  u_char mode;
+  u_char xferMode;
+  bool isMsbFirst;
+  bool isMaster;
+  bool isContinuous;
+  bool isSelectPrecede;
+  bool cpha;
+  bool cpol;
+  bool isLoopback;
+  u_char reserver[2];
 } CyUsSpiConfig_t;
 #pragma pack()
 
@@ -58,7 +58,7 @@ void startSpiTick(bool isWrite)
     gettimeofday(&startSpiTimeRead, NULL);
 }
 
-UINT32 getSpiLapsedTime(bool isWrite)
+uint32_t getSpiLapsedTime(bool isWrite)
 {
   signed int currentTime_sec, currentTime_usec, currentTime;
   if (isWrite)
@@ -86,14 +86,14 @@ CY_RETURN_STATUS CyGetSpiConfig(
     CY_HANDLE handle,
     CY_SPI_CONFIG* spiConfig)
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT16 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint16_t bmRequestType, bmRequest;
   CyUsSpiConfig_t localSpiConfig;
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
-  UINT8 scbIndex = 0;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint8_t scbIndex = 0;
 
   if (handle == NULL)
   {
@@ -156,14 +156,14 @@ CY_RETURN_STATUS CySetSpiConfig(
     CY_HANDLE handle,
     CY_SPI_CONFIG* spiConfig)
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   CyUsSpiConfig_t localSpiConfig;
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
-  UINT8 scbIndex = 0;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint8_t scbIndex = 0;
 
   if (handle == NULL)
   {
@@ -256,10 +256,10 @@ CY_RETURN_STATUS CySpiReset(CY_HANDLE handle)
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT16 wValue, wIndex, wLength, bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength, bmRequestType, bmRequest;
   ;
-  UINT16 scbIndex = 0;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint16_t scbIndex = 0;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
 
   if (handle == NULL)
     return CY_ERROR_INVALID_HANDLE;
@@ -293,7 +293,7 @@ CY_RETURN_STATUS CySpiReset(CY_HANDLE handle)
 
 static void LIBUSB_CALL spi_read_cb(struct libusb_transfer* transfer)
 {
-  UINT32* completed = reinterpret_cast<UINT32*>(transfer->user_data);
+  uint32_t* completed = reinterpret_cast<uint32_t*>(transfer->user_data);
   *completed = 1;
 }
 //We adopted for async method here because there are 2 thread polling same fd
@@ -302,7 +302,7 @@ static void LIBUSB_CALL spi_read_cb(struct libusb_transfer* transfer)
 CY_RETURN_STATUS CySpiRead(
     CY_HANDLE handle,
     CY_DATA_BUFFER* readBuffer,
-    UINT32 ioTimeout)
+    uint32_t ioTimeout)
 {
   struct libusb_transfer* readTransfer;
   CY_DEVICE* device;
@@ -392,10 +392,10 @@ CY_RETURN_STATUS CyGetSpiStatus(CY_HANDLE handle,
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT16 wValue, wIndex, wLength, bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength, bmRequestType, bmRequest;
   ;
-  UINT16 scbIndex = 0;
-  UINT32 ioTimeout = 0;
+  uint16_t scbIndex = 0;
+  uint32_t ioTimeout = 0;
 
   if (handle == NULL)
     return CY_ERROR_INVALID_HANDLE;
@@ -414,7 +414,7 @@ CY_RETURN_STATUS CyGetSpiStatus(CY_HANDLE handle,
   wValue = ((scbIndex << CY_SCB_INDEX_POS));
   wIndex = 0;
   wLength = CY_SPI_GET_STATUS_LEN;
-  rStatus = libusb_control_transfer(devHandle, bmRequestType, bmRequest, wValue, wIndex, (UCHAR*)spiStatus, wLength, ioTimeout);
+  rStatus = libusb_control_transfer(devHandle, bmRequestType, bmRequest, wValue, wIndex, (u_char*)spiStatus, wLength, ioTimeout);
   if (rStatus < CY_SPI_GET_STATUS_LEN)
   {
     CY_DEBUG_PRINT_INFO("CY:Error in sending spi Get Status command...Libusb error is %d\n", rStatus);
@@ -426,13 +426,13 @@ CY_RETURN_STATUS CyGetSpiStatus(CY_HANDLE handle,
 CY_RETURN_STATUS CySpiWrite(
     CY_HANDLE handle,
     CY_DATA_BUFFER* writeBuffer,
-    UINT32 ioTimeout)
+    uint32_t ioTimeout)
 {
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
   int spiStatus = 1;
-  UINT32 newIoTimeout = ioTimeout, elapsedTime = 0, loopCount = 1;
+  uint32_t newIoTimeout = ioTimeout, elapsedTime = 0, loopCount = 1;
   if (handle == NULL)
     return CY_ERROR_INVALID_HANDLE;
   device = (CY_DEVICE*)handle;
@@ -513,10 +513,10 @@ CY_RETURN_STATUS CySpiWrite(
   */
 void* spiCollectData(void* inputParameters)
 {
-  UINT32 readLength = 0, length;
+  uint32_t readLength = 0, length;
   CY_DATA_BUFFER readBuffer;
   args* inputData = (args*)inputParameters;
-  UCHAR* buffer;
+  u_char* buffer;
   CY_RETURN_STATUS rStatus = CY_SUCCESS;
   buffer = readBuffer.buffer = inputData->readBuffer;
   length = readBuffer.length = inputData->length;
@@ -567,17 +567,17 @@ void* spiCollectData(void* inputParameters)
 CY_RETURN_STATUS CySpiReadWrite(CY_HANDLE handle,
                                 CY_DATA_BUFFER* readBuffer,
                                 CY_DATA_BUFFER* writeBuffer,
-                                UINT32 ioTimeout)
+                                uint32_t ioTimeout)
 {
   struct args threadParameter;
-  UINT32 ret;
+  uint32_t ret;
   pthread_t readThreadID = (pthread_t)0;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
   CY_RETURN_STATUS rStatus;
   unsigned short spiTransferMode = 0, scbIndex = 0;
-  UINT16 wValue, wIndex = 0, wLength;
-  UINT16 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex = 0, wLength;
+  uint16_t bmRequestType, bmRequest;
 
   if (handle == NULL)
   {

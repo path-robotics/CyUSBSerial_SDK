@@ -43,9 +43,6 @@
 #define CYWINEXPORT CppCALLCONVEN
 #define WINCALLCONVEN
 #define LINUXCALLCONVEN
-#ifndef BOOL
-typedef bool BOOL;
-#endif
 #endif
 /*************************************************************************************/
 /*******************************Constants*********************************************/
@@ -83,26 +80,6 @@ This section contains USB Serial library version information.
 /****************************Data Type Definitions************************************/
 /*************************************************************************************/
 
-/*@@Data Types
-This section defines the data types that are used by
-Cypress USB Serial driver library.
-*/
-#ifndef UINT32
-typedef unsigned int UINT32;
-#endif
-#ifndef UINT8
-typedef unsigned char UINT8;
-#endif
-#ifndef UINT16
-typedef unsigned short UINT16;
-#endif
-#ifndef CHAR
-typedef char CHAR;
-#endif
-#ifndef UCHAR
-typedef unsigned char UCHAR;
-#endif
-
 /* Summary
    CyUSB Device Handle.
 
@@ -127,7 +104,7 @@ The bit map is defined in CY_CALLBACK_EVENTS.
 See also
 * CY_CALLBACK_EVENTS
 */
-typedef void (*CY_EVENT_NOTIFICATION_CB_FN)(UINT16 eventsNotified);
+typedef void (*CY_EVENT_NOTIFICATION_CB_FN)(uint16_t eventsNotified);
 
 /*
 Summary
@@ -142,8 +119,8 @@ See Also
 */
 typedef struct _CY_VID_PID
 {
-  UINT16 vid; /*Holds the VID of the device*/
-  UINT16 pid; /*Holds the PID of the device*/
+  uint16_t vid; /*Holds the VID of the device*/
+  uint16_t pid; /*Holds the PID of the device*/
 
 } CY_VID_PID, *PCY_VID_PID;
 
@@ -158,10 +135,10 @@ See Also
 */
 typedef struct _CY_LIBRARY_VERSION
 {
-  UINT8 majorVersion; /*The major version of the library*/
-  UINT8 minorVersion; /*The minor version of the library*/
-  UINT16 patch;       /*The patch number of the library*/
-  UINT8 buildNumber;  /*The build number of the library*/
+  uint8_t majorVersion; /*The major version of the library*/
+  uint8_t minorVersion; /*The minor version of the library*/
+  uint16_t patch;       /*The patch number of the library*/
+  uint8_t buildNumber;  /*The build number of the library*/
 
 } CY_LIBRARY_VERSION, *PCY_LIBRARY_VERSION;
 
@@ -178,10 +155,10 @@ See Also
 */
 typedef struct _CY_FIRMWARE_VERSION
 {
-  UINT8 majorVersion; /*Major version of the Firmware*/
-  UINT8 minorVersion; /*Minor version of the Firmware*/
-  UINT16 patchNumber; /*Patch Number of the Firmware*/
-  UINT32 buildNumber; /*Build Number of the Firmware*/
+  uint8_t majorVersion; /*Major version of the Firmware*/
+  uint8_t minorVersion; /*Minor version of the Firmware*/
+  uint16_t patchNumber; /*Patch Number of the Firmware*/
+  uint32_t buildNumber; /*Build Number of the Firmware*/
 
 } CY_FIRMWARE_VERSION, *PCY_FIRMWARE_VERSION;
 
@@ -280,11 +257,11 @@ CyGetDeviceInfoVidPid
 typedef struct _CY_DEVICE_INFO
 {
   CY_VID_PID vidPid;                                    /*VID and PID*/
-  UCHAR numInterfaces;                                  /*Number of interfaces supported*/
-  UCHAR manufacturerName[CY_STRING_DESCRIPTOR_SIZE];    /*Manufacturer name*/
-  UCHAR productName[CY_STRING_DESCRIPTOR_SIZE];         /*Product name*/
-  UCHAR serialNum[CY_STRING_DESCRIPTOR_SIZE];           /*Serial number*/
-  UCHAR deviceFriendlyName[CY_STRING_DESCRIPTOR_SIZE];  /*Device friendly name : Windows only*/
+  u_char numInterfaces;                                  /*Number of interfaces supported*/
+  u_char manufacturerName[CY_STRING_DESCRIPTOR_SIZE];    /*Manufacturer name*/
+  u_char productName[CY_STRING_DESCRIPTOR_SIZE];         /*Product name*/
+  u_char serialNum[CY_STRING_DESCRIPTOR_SIZE];           /*Serial number*/
+  u_char deviceFriendlyName[CY_STRING_DESCRIPTOR_SIZE];  /*Device friendly name : Windows only*/
   CY_DEVICE_TYPE deviceType[CY_MAX_DEVICE_INTERFACE];   /*Type of the device each interface has(Valid only
                                                             for USB Serial Device) and interface in vendor class*/
   CY_DEVICE_CLASS deviceClass[CY_MAX_DEVICE_INTERFACE]; /*Interface class of each interface*/
@@ -316,9 +293,9 @@ See Also
 */
 typedef struct _CY_DATA_BUFFER
 {
-  UCHAR* buffer;        /*Pointer to the buffer from where the data is read/written */
-  UINT32 length;        /*Length of the buffer */
-  UINT32 transferCount; /*Number of bytes actually read/written*/
+  u_char* buffer;        /*Pointer to the buffer from where the data is read/written */
+  uint32_t length;        /*Length of the buffer */
+  uint32_t transferCount; /*Number of bytes actually read/written*/
 
 } CY_DATA_BUFFER, *PCY_DATA_BUFFER;
 
@@ -371,10 +348,10 @@ See Also
 */
 typedef struct _CY_I2C_CONFIG
 {
-  UINT32 frequency;    /* I2C clock frequency 1KHz to 400KHz*/
-  UINT8 slaveAddress;  /* Slave address of the I2C module, when it is configured as slave*/
-  BOOL isMaster;       /* true- Master , false- slave*/
-  BOOL isClockStretch; /* true- Stretch clock in case of no data availability
+  uint32_t frequency;    /* I2C clock frequency 1KHz to 400KHz*/
+  uint8_t slaveAddress;  /* Slave address of the I2C module, when it is configured as slave*/
+  bool isMaster;       /* true- Master , false- slave*/
+  bool isClockStretch; /* true- Stretch clock in case of no data availability
                                         (Valid only for slave mode)
                                        false- Do not Stretch clock*/
 } CY_I2C_CONFIG, *PCY_I2C_CONFIG;
@@ -394,9 +371,9 @@ See Also
 */
 typedef struct _CY_I2C_DATA_CONFIG
 {
-  UCHAR slaveAddress; /*Slave address the master will communicate with*/
-  BOOL isStopBit;     /*Set when stop bit is used*/
-  BOOL isNakBit;      /*Set when I2C master wants to NAK the slave after read
+  u_char slaveAddress; /*Slave address the master will communicate with*/
+  bool isStopBit;     /*Set when stop bit is used*/
+  bool isNakBit;      /*Set when I2C master wants to NAK the slave after read
                               Applicable only when doing I2C read*/
 } CY_I2C_DATA_CONFIG, *PCY_I2C_DATA_CONFIG;
 
@@ -449,32 +426,32 @@ See Also
 */
 typedef struct _CY_SPI_CONFIG
 {
-  UINT32 frequency; /*SPI clock frequency.
+  uint32_t frequency; /*SPI clock frequency.
                                                      ** IMPORTANT: The frequency range supported by SPI module is
                                                         1000(1KHz) to 3000000(3MHz)
                                                      */
 
-  UCHAR dataWidth; /*Data width in bits. The valid values are from 4 to 16.*/
+  u_char dataWidth; /*Data width in bits. The valid values are from 4 to 16.*/
 
   CY_SPI_PROTOCOL protocol; /*SPI Protocols to be used as defined in CY_SPI_PROTOCOL*/
 
-  BOOL isMsbFirst; /*false -> least significant bit is sent out first
+  bool isMsbFirst; /*false -> least significant bit is sent out first
                                                     true -> most significant bit is sent out first */
 
-  BOOL isMaster; /*false --> Slave mode selected:
+  bool isMaster; /*false --> Slave mode selected:
                                                      true --> Master mode selected*/
 
-  BOOL isContinuousMode; /*true - Slave select line is not asserted i.e
+  bool isContinuousMode; /*true - Slave select line is not asserted i.e
                                                     de-asserted for every word.
                                                     false- Slave select line is always asserted*/
 
-  BOOL isSelectPrecede; /*Valid only in TI mode.
+  bool isSelectPrecede; /*Valid only in TI mode.
                                                     true - The start pulse precedes the first data
                                                     false - The start pulse is in sync with first data. */
 
-  BOOL isCpha; /*false - Clock phase is 0; true - Clock phase is 1. */
+  bool isCpha; /*false - Clock phase is 0; true - Clock phase is 1. */
 
-  BOOL isCpol; /*false - Clock polarity is 0;true - Clock polarity is 1.*/
+  bool isCpol; /*false - Clock polarity is 0;true - Clock polarity is 1.*/
 
 } CY_SPI_CONFIG, *PCY_SPI_CONFIG;
 
@@ -590,10 +567,10 @@ See Also
 typedef struct _CY_UART_CONFIG
 {
   CY_UART_BAUD_RATE baudRate;     /*Baud rate as defined in CY_UART_BAUD_RATE*/
-  UINT8 dataWidth;                /*Data width: valid values 7 or 8*/
+  uint8_t dataWidth;                /*Data width: valid values 7 or 8*/
   CY_UART_STOP_BIT stopBits;      /*Number of stop bits to be used 1 or 2*/
   CY_UART_PARITY_MODE parityMode; /*UART parity mode as defined in CY_UART_PARITY_MODE*/
-  BOOL isDropOnRxErrors;          /*Whether to ignore framing as well as parity errors and receive data */
+  bool isDropOnRxErrors;          /*Whether to ignore framing as well as parity errors and receive data */
 
 } CY_UART_CONFIG, *PCY_UART_CONFIG;
 
@@ -706,7 +683,7 @@ CYWINEXPORT CY_RETURN_STATUS LINUXCALLCONVEN CyLibraryExit();
    * CyClose
 */
 CYWINEXPORT CY_RETURN_STATUS CyGetListofDevices(
-    UINT8* numDevices /*Number of Devices connected*/
+    uint8_t* numDevices /*Number of Devices connected*/
 );
 
 /*
@@ -737,7 +714,7 @@ CYWINEXPORT CY_RETURN_STATUS CyGetListofDevices(
    * CyClose
 */
 CYWINEXPORT CY_RETURN_STATUS CyGetDeviceInfo(
-    UINT8 deviceNumber,        /*Device number of the device of interest*/
+    uint8_t deviceNumber,        /*Device number of the device of interest*/
     CY_DEVICE_INFO* deviceInfo /*Info of device returned*/
 );
 
@@ -771,10 +748,10 @@ CYWINEXPORT CY_RETURN_STATUS CyGetDeviceInfo(
 */
 CYWINEXPORT CY_RETURN_STATUS CyGetDeviceInfoVidPid(
     CY_VID_PID vidPid,              /*VID and PID of device of interest*/
-    UINT8* deviceIdList,            /*Array of device ID's returned*/
+    uint8_t* deviceIdList,            /*Array of device ID's returned*/
     CY_DEVICE_INFO* deviceInfoList, /*Array of pointers to device info list*/
-    UINT8* deviceCount,             /*Count of devices with specified VID PID*/
-    UINT8 infoListLength            /*Total length of the deviceInfoList allocated
+    uint8_t* deviceCount,             /*Count of devices with specified VID PID*/
+    uint8_t infoListLength            /*Total length of the deviceInfoList allocated
                                                  (Size of deviceInfoList array)*/
 );
 
@@ -804,8 +781,8 @@ CYWINEXPORT CY_RETURN_STATUS CyGetDeviceInfoVidPid(
    * CyClose
 */
 CYWINEXPORT CY_RETURN_STATUS CyOpen(
-    UINT8 deviceNumber, /*Device number of device that needs to be opened*/
-    UINT8 interfaceNum, /*Interface Number*/
+    uint8_t deviceNumber, /*Device number of device that needs to be opened*/
+    uint8_t interfaceNum, /*Interface Number*/
     CY_HANDLE* handle   /*Handle returned by the API*/
 );
 
@@ -883,8 +860,8 @@ CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CyCyclePort(
 */
 CYWINEXPORT CY_RETURN_STATUS CySetGpioValue(
     CY_HANDLE handle, /*Valid device handle*/
-    UINT8 gpioNumber, /*GPIO number*/
-    UINT8 value       /*Value that needs to be set*/
+    uint8_t gpioNumber, /*GPIO number*/
+    uint8_t value       /*Value that needs to be set*/
 );
 
 /*
@@ -907,8 +884,8 @@ CYWINEXPORT CY_RETURN_STATUS CySetGpioValue(
 */
 CYWINEXPORT CY_RETURN_STATUS CyGetGpioValue(
     CY_HANDLE handle, /*Valid device handle*/
-    UINT8 gpioNumber, /*GPIO number*/
-    UINT8* value      /*Current state of the GPIO*/
+    uint8_t gpioNumber, /*GPIO number*/
+    uint8_t* value      /*Current state of the GPIO*/
 );
 
 /*
@@ -1046,8 +1023,8 @@ CYWINEXPORT CY_RETURN_STATUS CyResetDevice(
 CYWINEXPORT CY_RETURN_STATUS CyProgUserFlash(
     CY_HANDLE handle,           /*Valid device handle*/
     CY_DATA_BUFFER* progBuffer, /*Data buffer containing buffer address, length to write*/
-    UINT32 flashAddress,        /*Address to the data is written*/
-    UINT32 timeout              /*Timeout value of the API*/
+    uint32_t flashAddress,        /*Address to the data is written*/
+    uint32_t timeout              /*Timeout value of the API*/
 );
 
 /*
@@ -1076,8 +1053,8 @@ CYWINEXPORT CY_RETURN_STATUS CyProgUserFlash(
 CYWINEXPORT CY_RETURN_STATUS CyReadUserFlash(
     CY_HANDLE handle,           /*Valid device handle*/
     CY_DATA_BUFFER* readBuffer, /*data buffer containing buffer address, length to read*/
-    UINT32 flashAddress,        /*Address from which the data is read*/
-    UINT32 timeout              /*Timeout value of the API*/
+    uint32_t flashAddress,        /*Address from which the data is read*/
+    uint32_t timeout              /*Timeout value of the API*/
 );
 
 /*
@@ -1096,7 +1073,7 @@ CYWINEXPORT CY_RETURN_STATUS CyReadUserFlash(
  */
 CYWINEXPORT CY_RETURN_STATUS CyGetSignature(
     CY_HANDLE handle, /*Valid device handle*/
-    UCHAR* pSignature /*Signature returned*/
+    u_char* pSignature /*Signature returned*/
 );
 
 /****************************************************************************************/
@@ -1185,7 +1162,7 @@ CYWINEXPORT CY_RETURN_STATUS CySetUartConfig(
 CYWINEXPORT CY_RETURN_STATUS CyUartRead(
     CY_HANDLE handle,           /*Valid device handle*/
     CY_DATA_BUFFER* readBuffer, /*Read buffer details*/
-    UINT32 timeout              /*API timeout value*/
+    uint32_t timeout              /*API timeout value*/
 );
 
 /*
@@ -1216,7 +1193,7 @@ CYWINEXPORT CY_RETURN_STATUS CyUartRead(
 CYWINEXPORT CY_RETURN_STATUS CyUartWrite(
     CY_HANDLE handle,            /*Valid device handle*/
     CY_DATA_BUFFER* writeBuffer, /*Write buffer details*/
-    UINT32 timeout               /*API timeout value*/
+    uint32_t timeout               /*API timeout value*/
 );
 
 /*
@@ -1381,7 +1358,7 @@ CYWINEXPORT CY_RETURN_STATUS CyUartClearDtr(
 */
 CYWINEXPORT CY_RETURN_STATUS CyUartSetBreak(
     CY_HANDLE handle, /*Valid device handle*/
-    UINT16 timeout    /*Break timeout value in milliseconds */
+    uint16_t timeout    /*Break timeout value in milliseconds */
 );
 
 /***********************************************************************************************/
@@ -1482,7 +1459,7 @@ CYWINEXPORT CY_RETURN_STATUS CyI2cRead(
     CY_HANDLE handle,               /*Valid device handle*/
     CY_I2C_DATA_CONFIG* dataConfig, /*I2C data config*/
     CY_DATA_BUFFER* readBuffer,     /*Read buffer details*/
-    UINT32 timeout                  /*API timeout value*/
+    uint32_t timeout                  /*API timeout value*/
 );
 
 /*
@@ -1522,7 +1499,7 @@ CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CyI2cWrite(
     CY_HANDLE handle,               /*Valid device handle*/
     CY_I2C_DATA_CONFIG* dataConfig, /*I2C Slave address */
     CY_DATA_BUFFER* writeBuffer,    /*Write buffer details*/
-    UINT32 timeout                  /*API timeout value*/
+    uint32_t timeout                  /*API timeout value*/
 );
 
 /*
@@ -1549,7 +1526,7 @@ CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CyI2cWrite(
 */
 CYWINEXPORT CY_RETURN_STATUS CyI2cReset(
     CY_HANDLE handle, /*Valid device handle*/
-    BOOL resetMode    /*Reset mode*/
+    bool resetMode    /*Reset mode*/
 );
 
 /***********************************************************************************************/
@@ -1642,7 +1619,7 @@ CYWINEXPORT CY_RETURN_STATUS CySpiReadWrite(
     CY_HANDLE handle,            /*Valid device handle*/
     CY_DATA_BUFFER* readBuffer,  /*Read data buffer*/
     CY_DATA_BUFFER* writeBuffer, /*Write data buffer*/
-    UINT32 timeout               /*Time out value of the API*/
+    uint32_t timeout               /*Time out value of the API*/
 );
 
 /**************************************************************************************/
@@ -1730,7 +1707,7 @@ CYWINEXPORT CY_RETURN_STATUS CyJtagDisable(
 CYWINEXPORT CY_RETURN_STATUS CyJtagWrite(
     CY_HANDLE handle,            /*Valid device handle*/
     CY_DATA_BUFFER* writeBuffer, /*Write buffer details*/
-    UINT32 timeout               /*API timeout value*/
+    uint32_t timeout               /*API timeout value*/
 );
 
 /*
@@ -1763,7 +1740,7 @@ CYWINEXPORT CY_RETURN_STATUS CyJtagWrite(
 CYWINEXPORT CY_RETURN_STATUS CyJtagRead(
     CY_HANDLE handle,           /*Valid device handle*/
     CY_DATA_BUFFER* readBuffer, /*Read buffer parameters*/
-    UINT32 timeout              /*API timeout value*/
+    uint32_t timeout              /*API timeout value*/
 );
 
 /**************************************************************************************/
@@ -1841,7 +1818,7 @@ CYWINEXPORT CY_RETURN_STATUS CyPhdcSetFeature(
 */
 CYWINEXPORT CY_RETURN_STATUS CyPhdcGetStatus(
     CY_HANDLE handle,  /*Valid device handle*/
-    UINT16* dataStatus /*Data pending status bit map*/
+    uint16_t* dataStatus /*Data pending status bit map*/
 );
 
 #endif /*_INCLUDED_Cypress USB Serial_H_*/

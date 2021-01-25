@@ -21,18 +21,18 @@
 #pragma pack(1)
 typedef struct
 {
-  UINT32 frequency;  /* Frequency of operation. Only valid values are
+  uint32_t frequency;  /* Frequency of operation. Only valid values are
                                    100KHz and 400KHz. */
-  UINT8 sAddress;    /* Slave address to be used when in slave mode. */
-  BOOL isMsbFirst;   /* Whether to transmit most significant bit first. */
-  BOOL isMaster;     /* Whether to block is to be configured as a master:
+  uint8_t sAddress;    /* Slave address to be used when in slave mode. */
+  bool isMsbFirst;   /* Whether to transmit most significant bit first. */
+  bool isMaster;     /* Whether to block is to be configured as a master:
                                    CyTrue - The block functions as I2C master;
                                    CyFalse - The block functions as I2C slave. */
-  BOOL sIgnore;      /* Ignore general call in slave mode. */
-  BOOL clockStretch; /* Wheteher to stretch clock in case of no FIFO availability. */
-  BOOL isLoopback;   /* Whether to loop back TX data to RX. Valid only
+  bool sIgnore;      /* Ignore general call in slave mode. */
+  bool clockStretch; /* Wheteher to stretch clock in case of no FIFO availability. */
+  bool isLoopback;   /* Whether to loop back TX data to RX. Valid only
                                    for debug purposes. */
-  UCHAR reserved[6]; /*Reserved for future use*/
+  u_char reserved[6]; /*Reserved for future use*/
 } CyUsI2cConfig_t;
 #pragma pack()
 #ifdef CY_I2C_ENABLE_PRECISE_TIMING
@@ -46,7 +46,7 @@ void startI2cTick(bool isWrite)
     gettimeofday(&startTimeRead, NULL);
 }
 
-UINT32 getI2cLapsedTime(bool isWrite)
+uint32_t getI2cLapsedTime(bool isWrite)
 {
   signed int currentTime_sec, currentTime_usec, currentTime;
   if (isWrite)
@@ -67,7 +67,7 @@ UINT32 getI2cLapsedTime(bool isWrite)
   }
 }
 #endif
-CY_RETURN_STATUS handleI2cError(UINT8 i2cStatus)
+CY_RETURN_STATUS handleI2cError(uint8_t i2cStatus)
 {
   if (i2cStatus & CY_I2C_NAK_ERROR_BIT)
   {
@@ -97,8 +97,8 @@ CY_RETURN_STATUS handleI2cError(UINT8 i2cStatus)
   }
 }
 //Used internally by read and write API to check if data is received at the I2C end.
-CY_RETURN_STATUS CyI2cGetStatus(CY_HANDLE handle, bool mode, UCHAR* i2cStatus);
-CY_RETURN_STATUS waitForNotification(CY_HANDLE handle, UINT16* bytesPending, UINT32 ioTimeout);
+CY_RETURN_STATUS CyI2cGetStatus(CY_HANDLE handle, bool mode, u_char* i2cStatus);
+CY_RETURN_STATUS waitForNotification(CY_HANDLE handle, uint16_t* bytesPending, uint32_t ioTimeout);
 /*
    This API gets the current I2C config
    for the particluar interface of the device
@@ -107,14 +107,14 @@ CY_RETURN_STATUS CyGetI2cConfig(
     CY_HANDLE handle,
     CY_I2C_CONFIG* i2cConfig)
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus;
   CyUsI2cConfig_t localI2cConfig;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT16 scbIndex = 0;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint16_t scbIndex = 0;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
 
   if (handle == NULL)
   {
@@ -176,14 +176,14 @@ CY_RETURN_STATUS CySetI2cConfig(
     CY_HANDLE handle,
     CY_I2C_CONFIG* i2cConfig)
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   CyUsI2cConfig_t localI2cConfig;
   int rStatus;
   CY_DEVICE* device = NULL;
   libusb_device_handle* devHandle;
-  UINT16 scbIndex = 0;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint16_t scbIndex = 0;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
 
   if (handle == NULL)
   {
@@ -259,17 +259,17 @@ CY_RETURN_STATUS CyI2cRead(
     CY_HANDLE handle,
     CY_I2C_DATA_CONFIG* i2cDataConfig,
     CY_DATA_BUFFER* readBuffer,
-    UINT32 ioTimeout)
+    uint32_t ioTimeout)
 {
   int rStatus;
   CY_DEVICE* device = NULL;
   libusb_device_handle* devHandle;
-  UINT16 wValue = 0, wIndex, wLength, bytesPending = 0;
-  UINT8 bmRequestType, bmRequest;
-  UCHAR i2cStatus[CY_I2C_GET_STATUS_LEN];
-  UINT16 scbIndex = 0;
+  uint16_t wValue = 0, wIndex, wLength, bytesPending = 0;
+  uint8_t bmRequestType, bmRequest;
+  u_char i2cStatus[CY_I2C_GET_STATUS_LEN];
+  uint16_t scbIndex = 0;
   bool mode = CY_I2C_MODE_READ;
-  UINT32 elapsedTime;
+  uint32_t elapsedTime;
   if (handle == NULL)
   {
     CY_DEBUG_PRINT_ERROR("CY:Error invalid handle.. Function is %s \n", __func__);
@@ -300,7 +300,7 @@ CY_RETURN_STATUS CyI2cRead(
     wValue |= (((i2cDataConfig->slaveAddress) << 8));
     wIndex = readBuffer->length;
     wLength = 0;
-    rStatus = CyI2cGetStatus(handle, mode, (UCHAR*)i2cStatus);
+    rStatus = CyI2cGetStatus(handle, mode, (u_char*)i2cStatus);
     if (rStatus == CY_SUCCESS)
     {
       if ((i2cStatus[0] & CY_I2C_ERROR_BIT))
@@ -364,7 +364,7 @@ CY_RETURN_STATUS CyI2cRead(
       else
         CY_DEBUG_PRINT_INFO("Reset pipe succeded \n");
 
-      rStatus = CyI2cGetStatus(handle, mode, (UCHAR*)i2cStatus);
+      rStatus = CyI2cGetStatus(handle, mode, (u_char*)i2cStatus);
       if (rStatus == CY_SUCCESS)
       {
         CyI2cReset(handle, mode);
@@ -410,17 +410,17 @@ CY_RETURN_STATUS CyI2cWrite(
     CY_HANDLE handle,
     CY_I2C_DATA_CONFIG* i2cDataConfig,
     CY_DATA_BUFFER* writeBuffer,
-    UINT32 ioTimeout)
+    uint32_t ioTimeout)
 {
   int rStatus;
-  UCHAR i2cStatus[CY_I2C_GET_STATUS_LEN];
+  u_char i2cStatus[CY_I2C_GET_STATUS_LEN];
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT16 wValue = 0, wIndex, wLength, bytesPending = 0;
-  UINT8 bmRequestType, bmRequest;
-  UINT16 scbIndex = 0;
-  BOOL mode = CY_I2C_MODE_WRITE;
-  UINT32 elapsedTime;
+  uint16_t wValue = 0, wIndex, wLength, bytesPending = 0;
+  uint8_t bmRequestType, bmRequest;
+  uint16_t scbIndex = 0;
+  bool mode = CY_I2C_MODE_WRITE;
+  uint32_t elapsedTime;
   if (handle == NULL)
   {
     CY_DEBUG_PRINT_ERROR("CY:Error invalid handle.. Function is %s \n", __func__);
@@ -449,11 +449,11 @@ CY_RETURN_STATUS CyI2cWrite(
     i2cDataConfig->slaveAddress = ((i2cDataConfig->slaveAddress & 0x7F) | (scbIndex << 7));
     wValue = ((i2cDataConfig->isStopBit));
     wValue |= (((i2cDataConfig->slaveAddress) << 8));
-    wIndex = (UINT16)(writeBuffer->length);
+    wIndex = (uint16_t)(writeBuffer->length);
     wLength = 0;
     CY_DEBUG_PRINT_INFO("wValue is %x \n", wValue);
     //Send I2C write vendor command before actually sending the data over bulk ep
-    rStatus = CyI2cGetStatus(handle, mode, (UCHAR*)i2cStatus);
+    rStatus = CyI2cGetStatus(handle, mode, (u_char*)i2cStatus);
     if (rStatus == CY_SUCCESS)
     {
       if ((i2cStatus[0] & CY_I2C_ERROR_BIT))
@@ -521,7 +521,7 @@ CY_RETURN_STATUS CyI2cWrite(
       else
         CY_DEBUG_PRINT_INFO("Reset pipe succeded \n");
 
-      rStatus = CyI2cGetStatus(handle, mode, (UCHAR*)i2cStatus);
+      rStatus = CyI2cGetStatus(handle, mode, (u_char*)i2cStatus);
       if (rStatus == CY_SUCCESS)
       {
         CyI2cReset(handle, mode);
@@ -562,15 +562,15 @@ CY_RETURN_STATUS CyI2cWrite(
 CY_RETURN_STATUS CyI2cGetStatus(
     CY_HANDLE handle,
     bool mode,
-    UCHAR* i2cStatus)
+    u_char* i2cStatus)
 {
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT16 wValue, wIndex, wLength, bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength, bmRequestType, bmRequest;
   ;
-  UINT16 scbIndex = 0;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint16_t scbIndex = 0;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
 
   if (handle == NULL)
     return CY_ERROR_INVALID_HANDLE;
@@ -592,7 +592,7 @@ CY_RETURN_STATUS CyI2cGetStatus(
   wIndex = 0;
   wLength = CY_I2C_GET_STATUS_LEN;
 
-  rStatus = libusb_control_transfer(devHandle, bmRequestType, bmRequest, wValue, wIndex, (UCHAR*)i2cStatus, wLength, ioTimeout);
+  rStatus = libusb_control_transfer(devHandle, bmRequestType, bmRequest, wValue, wIndex, (u_char*)i2cStatus, wLength, ioTimeout);
   if (rStatus < CY_I2C_GET_STATUS_LEN)
   {
     CY_DEBUG_PRINT_INFO("CY:Error in sending I2C Get Status command...Libusb error is %d\n", rStatus);
@@ -605,14 +605,14 @@ CY_RETURN_STATUS CyI2cGetStatus(
  */
 CY_RETURN_STATUS CyI2cReset(
     CY_HANDLE handle,
-    BOOL resetMode)
+    bool resetMode)
 {
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT16 wValue, wIndex, wLength, bmRequestType, bmRequest;
-  UINT16 scbIndex = 0;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint16_t wValue, wIndex, wLength, bmRequestType, bmRequest;
+  uint16_t scbIndex = 0;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
 
   if (handle == NULL)
     return CY_ERROR_INVALID_HANDLE;
@@ -641,18 +641,18 @@ CY_RETURN_STATUS CyI2cReset(
 }
 static void LIBUSB_CALL i2c_notification_cb(struct libusb_transfer* transfer)
 {
-  UINT32* completed = reinterpret_cast<UINT32*>(transfer->user_data);
+  uint32_t* completed = reinterpret_cast<uint32_t*>(transfer->user_data);
   *completed = 1;
 }
 
-CY_RETURN_STATUS waitForNotification(CY_HANDLE handle, UINT16* bytesPending, UINT32 ioTimeout)
+CY_RETURN_STATUS waitForNotification(CY_HANDLE handle, uint16_t* bytesPending, uint32_t ioTimeout)
 {
-  UINT32 transferCompleted = 0, length = CY_I2C_EVENT_NOTIFICATION_LEN;
+  uint32_t transferCompleted = 0, length = CY_I2C_EVENT_NOTIFICATION_LEN;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
   struct libusb_transfer* transfer;
   CY_RETURN_STATUS errorStatus, rStatus;
-  UCHAR i2cStatus[CY_I2C_EVENT_NOTIFICATION_LEN];
+  u_char i2cStatus[CY_I2C_EVENT_NOTIFICATION_LEN];
   struct timeval time;
 
   device = (CY_DEVICE*)handle;
@@ -733,7 +733,7 @@ CY_RETURN_STATUS waitForNotification(CY_HANDLE handle, UINT16* bytesPending, UIN
     if (transfer->status == LIBUSB_TRANSFER_TIMED_OUT)
     {
       CY_DEBUG_PRINT_ERROR("CY:Error Timeout in getting i2c transfer status ....\n");
-      CyI2cGetStatus(handle, 1, (UCHAR*)&errorStatus);
+      CyI2cGetStatus(handle, 1, (u_char*)&errorStatus);
       errorStatus = CY_ERROR_IO_TIMEOUT;
     }
     if (transfer->status == LIBUSB_TRANSFER_OVERFLOW)

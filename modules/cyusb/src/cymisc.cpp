@@ -32,8 +32,8 @@ CY_RETURN_STATUS CyGetFirmwareVersion(
     CY_HANDLE handle,
     CY_FIRMWARE_VERSION* firmwareVersion)
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus, ioTimeout = CY_USB_SERIAL_TIMEOUT;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
@@ -73,12 +73,12 @@ CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CyResetDevice(
     CY_HANDLE handle /*Valid device handle*/
 )
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
 
   if (handle == NULL)
   {
@@ -112,14 +112,14 @@ CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CyResetDevice(
 
 CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CySetGpioValue(
     CY_HANDLE handle, /*Valid device handle*/
-    UINT8 gpioNumber, /*GPIO configuration value*/
-    UINT8 value       /*Value that needs to be set*/
+    uint8_t gpioNumber, /*GPIO configuration value*/
+    uint8_t value       /*Value that needs to be set*/
 )
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest, buffer[CY_GPIO_SET_LEN];
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest, buffer[CY_GPIO_SET_LEN];
   int rStatus;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
 
@@ -155,16 +155,16 @@ CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CySetGpioValue(
 
 CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CyGetGpioValue(
     CY_HANDLE handle, /*Valid device handle*/
-    UINT8 gpioNumber, /*GPIO configuration value*/
-    UINT8* value      /*Value that needs to be set*/
+    uint8_t gpioNumber, /*GPIO configuration value*/
+    uint8_t* value      /*Value that needs to be set*/
 )
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest, buffer[CY_GPIO_GET_LEN];
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest, buffer[CY_GPIO_GET_LEN];
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
 
   if (handle == NULL)
     return CY_ERROR_INVALID_HANDLE;
@@ -203,7 +203,7 @@ CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CyGetGpioValue(
 }
 static void LIBUSB_CALL uart_notification_cb(struct libusb_transfer* transfer)
 {
-  UINT32* completed = reinterpret_cast<UINT32*>(transfer->user_data);
+  uint32_t* completed = reinterpret_cast<uint32_t*>(transfer->user_data);
   *completed = 1;
 }
 
@@ -213,8 +213,8 @@ void* uartSetEventNotifcation(void* inputParameters)
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
   struct libusb_transfer* transfer;
-  UINT16 errorStatus = 0;
-  UCHAR uartStatus[CY_UART_EVENT_NOTIFICATION_LEN];
+  uint16_t errorStatus = 0;
+  u_char uartStatus[CY_UART_EVENT_NOTIFICATION_LEN];
   struct timeval time;
   CY_EVENT_NOTIFICATION_CB_FN callbackFn;
   NOTIFICATION_CB_PARAM* cbParameters = (NOTIFICATION_CB_PARAM*)inputParameters;
@@ -278,7 +278,7 @@ END:
 
 static void LIBUSB_CALL spi_notification_cb(struct libusb_transfer* transfer)
 {
-  UINT32* completed = reinterpret_cast<UINT32*>(transfer->user_data);
+  uint32_t* completed = reinterpret_cast<uint32_t*>(transfer->user_data);
   *completed = 1;
 }
 
@@ -288,8 +288,8 @@ void* spiSetEventNotifcation(void* inputParameters)
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
   struct libusb_transfer* transfer;
-  UINT8 spiStatus = 0;
-  UINT16 errorStatus = 0;
+  uint8_t spiStatus = 0;
+  uint16_t errorStatus = 0;
   struct timeval time;
   CY_EVENT_NOTIFICATION_CB_FN callbackFn;
   NOTIFICATION_CB_PARAM* cbParameters = (NOTIFICATION_CB_PARAM*)inputParameters;
@@ -490,12 +490,12 @@ The API is used to programme user flash area
 CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CyProgUserFlash(
     CY_HANDLE handle,           /*Valid device handle*/
     CY_DATA_BUFFER* progBuffer, /*data buffer containing buffer address, length to write*/
-    UINT32 flashAddress,        /*Address to the data is written*/
-    UINT32 ioTimeout            /*Timeout value of the API*/
+    uint32_t flashAddress,        /*Address to the data is written*/
+    uint32_t ioTimeout            /*Timeout value of the API*/
 )
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
@@ -540,12 +540,12 @@ The API is used to programme user flash area
 CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CyReadUserFlash(
     CY_HANDLE handle,           /*Valid device handle*/
     CY_DATA_BUFFER* readBuffer, /*data buffer containing buffer address, length to write*/
-    UINT32 flashAddress,        /*Address to the data is written*/
-    UINT32 ioTimeout            /*Timeout value of the API*/
+    uint32_t flashAddress,        /*Address to the data is written*/
+    uint32_t ioTimeout            /*Timeout value of the API*/
 )
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
@@ -590,10 +590,10 @@ CYWINEXPORT CY_RETURN_STATUS WINCALLCONVEN CyReadUserFlash(
  */
 CY_RETURN_STATUS CyGetSignature(
     CY_HANDLE handle,
-    UCHAR* signature)
+    u_char* signature)
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus, ioTimeout = CY_USB_SERIAL_TIMEOUT;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;

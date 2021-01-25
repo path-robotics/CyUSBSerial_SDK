@@ -22,19 +22,19 @@
 typedef struct
 {
   CY_UART_BAUD_RATE baudRate;
-  UINT8 pinType;
-  UINT8 dataWidth;
-  UINT8 stopBits;
-  UINT8 mode;
-  UINT8 parity;
-  UINT8 isMsbFirst;
-  UINT8 txRetry;
+  uint8_t pinType;
+  uint8_t dataWidth;
+  uint8_t stopBits;
+  uint8_t mode;
+  uint8_t parity;
+  uint8_t isMsbFirst;
+  uint8_t txRetry;
   ;
-  UINT8 rxInvertPolarity;
-  UINT8 rxIgnoreError;
-  UINT8 isFlowControl;
-  UINT8 isLoopBack;
-  UINT8 flags;
+  uint8_t rxInvertPolarity;
+  uint8_t rxIgnoreError;
+  uint8_t isFlowControl;
+  uint8_t isLoopBack;
+  uint8_t flags;
 } CyUsUartConfig_t;
 #pragma pack()
 #define MAX_DEVICE_EP_SIZE 64
@@ -47,17 +47,17 @@ Data Queue size can exceed 4 Max EP size Pages.
 
 typedef struct dtQueue
 {
-  UINT8 cyDataQueue[NO_DATA_QUEUE_PAGES * MAX_DEVICE_EP_SIZE];
-  UINT8 pHeadPosition;
-  UINT8 pTailPosition;
-  UINT16 nTotalAvailableData;
+  uint8_t cyDataQueue[NO_DATA_QUEUE_PAGES * MAX_DEVICE_EP_SIZE];
+  uint8_t pHeadPosition;
+  uint8_t pTailPosition;
+  uint16_t nTotalAvailableData;
 
 } CyDataQueue;
 
 CyDataQueue gSimpleDataQueue[NUM_MAX_UART_SCB];
 
 //Timer helper functions for proper timing
-UINT32 getUartLapsedTime(struct timeval startTime)
+uint32_t getUartLapsedTime(struct timeval startTime)
 {
   signed int currentTime_sec, currentTime_usec, currentTime;
   struct timeval endTime;
@@ -71,13 +71,13 @@ UINT32 getUartLapsedTime(struct timeval startTime)
 // Queue Helper Functions....
 
 void GetDataFromTheQueue(
-    UINT8 scbIndex,
+    uint8_t scbIndex,
     PCY_DATA_BUFFER cyDataBuffer)
 {
-  UINT16 headPos = gSimpleDataQueue[scbIndex].pHeadPosition;
-  UINT16 nCheckForWrapAround = 0;
-  UINT8* buffer = &gSimpleDataQueue[scbIndex].cyDataQueue[headPos];
-  UINT16 nMaxBufferSize = (NO_DATA_QUEUE_PAGES * MAX_DEVICE_EP_SIZE);
+  uint16_t headPos = gSimpleDataQueue[scbIndex].pHeadPosition;
+  uint16_t nCheckForWrapAround = 0;
+  uint8_t* buffer = &gSimpleDataQueue[scbIndex].cyDataQueue[headPos];
+  uint16_t nMaxBufferSize = (NO_DATA_QUEUE_PAGES * MAX_DEVICE_EP_SIZE);
 
   // Parameter Validation.
   if (gSimpleDataQueue[scbIndex].nTotalAvailableData == 0) return;  // No data in the queue to return.
@@ -101,8 +101,8 @@ void GetDataFromTheQueue(
     else
     {
       // Queue Wrap around occurred.
-      UINT16 bufferLen1 = nMaxBufferSize - (gSimpleDataQueue[scbIndex].pHeadPosition);
-      UINT16 bufferLen2 = gSimpleDataQueue[scbIndex].pTailPosition;
+      uint16_t bufferLen1 = nMaxBufferSize - (gSimpleDataQueue[scbIndex].pHeadPosition);
+      uint16_t bufferLen2 = gSimpleDataQueue[scbIndex].pTailPosition;
       memcpy(cyDataBuffer->buffer, buffer, bufferLen1);
       buffer = &gSimpleDataQueue[scbIndex].cyDataQueue[0];
       memcpy(cyDataBuffer->buffer + bufferLen1, buffer, bufferLen2);
@@ -130,26 +130,26 @@ void GetDataFromTheQueue(
   else
   {
     // Queue Wrap around occurred.
-    UINT16 bufferLen1 = nMaxBufferSize - (gSimpleDataQueue[scbIndex].pHeadPosition);
-    UINT16 bufferLen2 = cyDataBuffer->length - bufferLen1;
+    uint16_t bufferLen1 = nMaxBufferSize - (gSimpleDataQueue[scbIndex].pHeadPosition);
+    uint16_t bufferLen2 = cyDataBuffer->length - bufferLen1;
     memcpy(cyDataBuffer->buffer, buffer, bufferLen1);
     buffer = &gSimpleDataQueue[scbIndex].cyDataQueue[0];
     memcpy(cyDataBuffer->buffer + bufferLen1, buffer, bufferLen2);
     cyDataBuffer->transferCount = (bufferLen1 + bufferLen2);
-    gSimpleDataQueue[scbIndex].pHeadPosition = (UINT8)bufferLen2;
+    gSimpleDataQueue[scbIndex].pHeadPosition = (uint8_t)bufferLen2;
   }
 
   gSimpleDataQueue[scbIndex].nTotalAvailableData -= cyDataBuffer->length;
 }
 
 void AddDataToQueue(
-    UINT8 scbIndex,
-    UINT8* buffer,
-    UINT8 length)
+    uint8_t scbIndex,
+    uint8_t* buffer,
+    uint8_t length)
 {
-  UINT16 tailPos = gSimpleDataQueue[scbIndex].pTailPosition;
-  UINT8* bufQueue = &gSimpleDataQueue[scbIndex].cyDataQueue[tailPos];
-  UINT16 nMaxBufferSize = (NO_DATA_QUEUE_PAGES * MAX_DEVICE_EP_SIZE);
+  uint16_t tailPos = gSimpleDataQueue[scbIndex].pTailPosition;
+  uint8_t* bufQueue = &gSimpleDataQueue[scbIndex].cyDataQueue[tailPos];
+  uint16_t nMaxBufferSize = (NO_DATA_QUEUE_PAGES * MAX_DEVICE_EP_SIZE);
 
   // Parameter Validation.
   if (gSimpleDataQueue[scbIndex].nTotalAvailableData >= nMaxBufferSize) return;  // No space in the queue.
@@ -169,12 +169,12 @@ void AddDataToQueue(
   else
   {
     // Queue Wrap around occurred.
-    UINT16 bufferLen1 = nMaxBufferSize - (gSimpleDataQueue[scbIndex].pTailPosition);
-    UINT16 bufferLen2 = length - bufferLen1;
+    uint16_t bufferLen1 = nMaxBufferSize - (gSimpleDataQueue[scbIndex].pTailPosition);
+    uint16_t bufferLen2 = length - bufferLen1;
     memcpy(bufQueue, buffer, bufferLen1);
     bufQueue = &gSimpleDataQueue[scbIndex].cyDataQueue[0];
     memcpy(bufQueue, buffer + bufferLen1, bufferLen2);
-    gSimpleDataQueue[scbIndex].pTailPosition = (UINT8)bufferLen2;
+    gSimpleDataQueue[scbIndex].pTailPosition = (uint8_t)bufferLen2;
     gSimpleDataQueue[scbIndex].nTotalAvailableData += length;
   }
 }
@@ -188,14 +188,14 @@ CY_RETURN_STATUS CyGetUartConfig(
     CY_HANDLE handle,
     PCY_UART_CONFIG uartConfig)
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus;
   CY_DEVICE* device;
   CyUsUartConfig_t localUartConfig;
   libusb_device_handle* devHandle;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
-  UINT8 scbIndex = 0;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint8_t scbIndex = 0;
 
   if (handle == NULL)
   {
@@ -252,14 +252,14 @@ CY_RETURN_STATUS CySetUartConfig(
     CY_HANDLE handle,
     CY_UART_CONFIG* uartConfig)
 {
-  UINT16 wValue, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus;
   CyUsUartConfig_t localUartConfig;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
-  UINT8 scbIndex = 0;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint8_t scbIndex = 0;
 
   if (handle == NULL)
   {
@@ -304,7 +304,7 @@ CY_RETURN_STATUS CySetUartConfig(
   localUartConfig.baudRate = uartConfig->baudRate;
   localUartConfig.dataWidth = uartConfig->dataWidth;
   localUartConfig.stopBits = uartConfig->stopBits;
-  localUartConfig.parity = (UCHAR)uartConfig->parityMode;
+  localUartConfig.parity = (u_char)uartConfig->parityMode;
   localUartConfig.rxIgnoreError = uartConfig->isDropOnRxErrors;
   rStatus = libusb_control_transfer(devHandle, bmRequestType, bmRequest, wValue, wIndex, (unsigned char*)&localUartConfig, wLength, ioTimeout);
   if (rStatus == CY_UART_CONFIG_LEN)
@@ -396,12 +396,12 @@ CY_RETURN_STATUS CyUartRead(
   int rStatus;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
-  UINT32 length, totalRead = 0, newIoTimeout = ioTimeOut, elapsedTime;
+  uint32_t length, totalRead = 0, newIoTimeout = ioTimeOut, elapsedTime;
   int transferCount;
-  UCHAR* buffer;
+  u_char* buffer;
   struct timeval startTime;
-  UINT8 scbIndex = 0;
-  UINT8 cyTempBuffer[64];
+  uint8_t scbIndex = 0;
+  uint8_t cyTempBuffer[64];
 
   if (handle == NULL)
   {
@@ -514,8 +514,8 @@ CY_RETURN_STATUS CyUartSetHwFlowControl(
     CY_FLOW_CONTROL_MODES mode)
 
 {
-  UINT16 wValue = 0, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue = 0, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus, ioTimeout = CY_USB_SERIAL_TIMEOUT;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
@@ -583,11 +583,11 @@ CY_RETURN_STATUS CyUartGetHwFlowControl(
 */
 CYWINEXPORT CY_RETURN_STATUS CyUartSetBreak(
     CY_HANDLE handle, /*Valid handle to communicate with device*/
-    UINT16 timeout    /*Break timeout value in milliseconds */
+    uint16_t timeout    /*Break timeout value in milliseconds */
 )
 {
-  UINT16 wValue = 0, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue = 0, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus, ioTimeout = CY_USB_SERIAL_TIMEOUT;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
@@ -623,10 +623,10 @@ CYWINEXPORT CY_RETURN_STATUS CyUartSetBreak(
 CY_RETURN_STATUS CyUartSetRts(
     CY_HANDLE handle)
 {
-  UINT16 wValue = 0, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue = 0, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus;
-  UINT32 ioTimeout = CY_USB_SERIAL_TIMEOUT;
+  uint32_t ioTimeout = CY_USB_SERIAL_TIMEOUT;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
 
@@ -665,8 +665,8 @@ CY_RETURN_STATUS CyUartSetRts(
 CY_RETURN_STATUS CyUartClearRts(
     CY_HANDLE handle)
 {
-  UINT16 wValue = 0, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue = 0, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus, ioTimeout = CY_USB_SERIAL_TIMEOUT;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
@@ -708,8 +708,8 @@ CY_RETURN_STATUS CyUartSetDtr(
     CY_HANDLE handle)
 
 {
-  UINT16 wValue = 0, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue = 0, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus, ioTimeout = CY_USB_SERIAL_TIMEOUT;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
@@ -751,8 +751,8 @@ CY_RETURN_STATUS CyUartSetDtr(
 CY_RETURN_STATUS CyUartClearDtr(
     CY_HANDLE handle)
 {
-  UINT16 wValue = 0, wIndex, wLength;
-  UINT8 bmRequestType, bmRequest;
+  uint16_t wValue = 0, wIndex, wLength;
+  uint8_t bmRequestType, bmRequest;
   int rStatus, ioTimeout = CY_USB_SERIAL_TIMEOUT;
   CY_DEVICE* device;
   libusb_device_handle* devHandle;
