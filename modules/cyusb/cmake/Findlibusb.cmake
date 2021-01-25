@@ -1,10 +1,50 @@
+#[=======================================================================[.rst:
+Findlibusb
+-------
+
+Finds the libusb library. Specifically finds libusb-1.0
+
+Imported Targets
+^^^^^^^^^^^^^^^^
+
+This module provides the following imported targets, if found:
+
+``libusb::libusb``
+  The libusb library
+
+Result Variables
+^^^^^^^^^^^^^^^^
+
+This will define the following variables:
+
+``libusb_FOUND``
+  True if the system has the Foo library.
+``libusb_INCLUDE_DIRS``
+  Include directories needed to use Foo.
+``libusb_LIBRARIES``
+  Libraries needed to link to Foo.
+
+Cache Variables
+^^^^^^^^^^^^^^^
+
+The following cache variables may also be set:
+
+``libusb_INCLUDE_DIR``
+  The directory containing ``foo.h``.
+``libusb_LIBRARY``
+  The path to the Foo library.
+
+#]=======================================================================]
+
+
+
 # - Try to find libusb-1.0
 # Once done this will define
 #
-#  LIBUSB_1_FOUND - system has libusb
-#  LIBUSB_1_INCLUDE_DIRS - the libusb include directory
-#  LIBUSB_1_LIBRARIES - Link these to use libusb
-#  LIBUSB_1_DEFINITIONS - Compiler switches required for using libusb
+#  libusb_FOUND - system has libusb
+#  libusb_INCLUDE_DIRS - the libusb include directory
+#  libusb_LIBRARIES - Link these to use libusb
+#  libusb_DEFINITIONS - Compiler switches required for using libusb
 #
 #  Adapted from cmake-modules Google Code project
 #
@@ -53,11 +93,18 @@ if (extern_file)
   MESSAGE(STATUS "Found libusb in 'extern' subfolder: ${extern_lib_path}")
 endif (extern_file)
 
-if (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
+if (libusb_LIBRARIES AND libusb_INCLUDE_DIRS)
   # in cache already
-  set(LIBUSB_FOUND TRUE)
-else (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
-  find_path(LIBUSB_1_INCLUDE_DIR
+  set(libusb_FOUND TRUE)
+  if (libusb_FOUND AND NOT TARGET libusb::libusb)
+    add_library(libusb::libusb UNKNOWN IMPORTED)
+    set_target_properties(libusb::libusb PROPERTIES
+      IMPORTED_LOCATION "${libusb_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${libusb_INCLUDE_DIR}"
+      )
+  endif ()
+else (libusb_LIBRARIES AND libusb_INCLUDE_DIRS)
+  find_path(libusb_INCLUDE_DIR
     NAMES
     libusb.h
     PATHS
@@ -76,9 +123,9 @@ else (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
     set(bitness 64)
   endif ()
 
-  find_library(LIBUSB_1_LIBRARY
+  find_library(libusb_LIBRARY
     NAMES
-    usb-1.0 usb libusb-1.0
+    usb-1.0 libusb-1.0
     PATHS
     /usr/lib
     /usr/local/lib
@@ -88,45 +135,53 @@ else (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
     )
 
   # set path to DLL for later installation
-  IF (WIN32 AND LIBUSB_1_LIBRARY)
+  IF (WIN32 AND libusb_LIBRARY)
     # strip file name
-    get_filename_component(libusb_lib_path ${LIBUSB_1_LIBRARY} PATH)
+    get_filename_component(libusb_lib_path ${libusb_LIBRARY} PATH)
     if (EXISTS ${libusb_lib_path}/libusb-1.0.dll)
-      SET(LIBUSB_1_DLL ${libusb_lib_path}/libusb-1.0.dll)
+      SET(libusb_DLL ${libusb_lib_path}/libusb-1.0.dll)
     else ()
       #strip last directory level
       get_filename_component(libusb_lib_path ${libusb_lib_path} PATH)
       if (EXISTS ${libusb_lib_path}/dll/libusb-1.0.dll)
-        SET(LIBUSB_1_DLL ${libusb_lib_path}/dll/libusb-1.0.dll)
+        SET(libusb_DLL ${libusb_lib_path}/dll/libusb-1.0.dll)
       endif (EXISTS ${libusb_lib_path}/dll/libusb-1.0.dll)
     endif (EXISTS ${libusb_lib_path}/libusb-1.0.dll)
-  endif (WIN32 AND LIBUSB_1_LIBRARY)
+  endif (WIN32 AND libusb_LIBRARY)
 
 
-  set(LIBUSB_1_INCLUDE_DIRS
-    ${LIBUSB_1_INCLUDE_DIR}
+  set(libusb_INCLUDE_DIRS
+    ${libusb_INCLUDE_DIR}
     )
-  set(LIBUSB_1_LIBRARIES
-    ${LIBUSB_1_LIBRARY}
+  set(libusb_LIBRARIES
+    ${libusb_LIBRARY}
     )
 
-  if (LIBUSB_1_INCLUDE_DIRS AND LIBUSB_1_LIBRARIES)
-    set(LIBUSB_1_FOUND TRUE)
-  endif (LIBUSB_1_INCLUDE_DIRS AND LIBUSB_1_LIBRARIES)
+  if (libusb_INCLUDE_DIRS AND libusb_LIBRARIES)
+    set(libusb_FOUND TRUE)
+  endif (libusb_INCLUDE_DIRS AND libusb_LIBRARIES)
 
-  if (LIBUSB_1_FOUND)
-    if (NOT libusb_1_FIND_QUIETLY)
+  if (libusb_FOUND AND NOT TARGET libusb::libusb)
+    add_library(libusb::libusb UNKNOWN IMPORTED)
+    set_target_properties(libusb::libusb PROPERTIES
+      IMPORTED_LOCATION "${libusb_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${libusb_INCLUDE_DIR}"
+      )
+  endif ()
+
+  if (libusb_FOUND)
+    if (NOT libusb_FIND_QUIETLY)
       message(STATUS "Found libusb-1.0:")
-      message(STATUS " - Includes: ${LIBUSB_1_INCLUDE_DIRS}")
-      message(STATUS " - Libraries: ${LIBUSB_1_LIBRARIES}")
-    endif (NOT libusb_1_FIND_QUIETLY)
-  else (LIBUSB_1_FOUND)
-    if (libusb_1_FIND_REQUIRED)
+      message(STATUS " - Includes: ${libusb_INCLUDE_DIRS}")
+      message(STATUS " - Libraries: ${libusb_LIBRARIES}")
+    endif (NOT libusb_FIND_QUIETLY)
+  else (libusb_FOUND)
+    if (libusb_FIND_REQUIRED)
       message(FATAL_ERROR "Could not find libusb")
-    endif (libusb_1_FIND_REQUIRED)
-  endif (LIBUSB_1_FOUND)
+    endif (libusb_FIND_REQUIRED)
+  endif (libusb_FOUND)
 
-  # show the LIBUSB_1_INCLUDE_DIRS and LIBUSB_1_LIBRARIES variables only in the advanced view
-  mark_as_advanced(LIBUSB_1_INCLUDE_DIRS LIBUSB_1_LIBRARIES)
+  # show the libusb_INCLUDE_DIRS and libusb_LIBRARIES variables only in the advanced view
+  mark_as_advanced(libusb_INCLUDE_DIRS libusb_LIBRARIES)
 
-endif (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
+endif (libusb_LIBRARIES AND libusb_INCLUDE_DIRS)
