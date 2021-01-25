@@ -51,7 +51,7 @@ if (extern_file)
   # strip down to main lib dir
   get_filename_component(extern_lib_path ${extern_lib_include_path} PATH)
   MESSAGE(STATUS "Found libusb in 'extern' subfolder: ${extern_lib_path}")
-endif(extern_file)
+endif (extern_file)
 
 if (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
   # in cache already
@@ -72,10 +72,10 @@ else (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
 
   # determine if we run a 64bit compiler or not
   set(bitness 32)
-  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(bitness 64)
-  endif()
-  
+  endif ()
+
   find_library(LIBUSB_1_LIBRARY
     NAMES
     usb-1.0 usb libusb-1.0
@@ -86,23 +86,23 @@ else (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
     /sw/lib
     ${extern_lib_path}/MS${bitness}/dll
     )
-  
+
   # set path to DLL for later installation
-  IF(WIN32 AND LIBUSB_1_LIBRARY)
+  IF (WIN32 AND LIBUSB_1_LIBRARY)
     # strip file name
     get_filename_component(libusb_lib_path ${LIBUSB_1_LIBRARY} PATH)
-    if(EXISTS ${libusb_lib_path}/libusb-1.0.dll)
+    if (EXISTS ${libusb_lib_path}/libusb-1.0.dll)
       SET(LIBUSB_1_DLL ${libusb_lib_path}/libusb-1.0.dll)
-    else()
+    else ()
       #strip last directory level
       get_filename_component(libusb_lib_path ${libusb_lib_path} PATH)
-      if(EXISTS ${libusb_lib_path}/dll/libusb-1.0.dll)
-	SET(LIBUSB_1_DLL ${libusb_lib_path}/dll/libusb-1.0.dll)
-      endif(EXISTS ${libusb_lib_path}/dll/libusb-1.0.dll)
-    endif(EXISTS ${libusb_lib_path}/libusb-1.0.dll)
-  endif(WIN32 AND LIBUSB_1_LIBRARY)
-  
-  
+      if (EXISTS ${libusb_lib_path}/dll/libusb-1.0.dll)
+        SET(LIBUSB_1_DLL ${libusb_lib_path}/dll/libusb-1.0.dll)
+      endif (EXISTS ${libusb_lib_path}/dll/libusb-1.0.dll)
+    endif (EXISTS ${libusb_lib_path}/libusb-1.0.dll)
+  endif (WIN32 AND LIBUSB_1_LIBRARY)
+
+
   set(LIBUSB_1_INCLUDE_DIRS
     ${LIBUSB_1_INCLUDE_DIR}
     )
@@ -111,14 +111,14 @@ else (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
     )
 
   if (LIBUSB_1_INCLUDE_DIRS AND LIBUSB_1_LIBRARIES)
-     set(LIBUSB_1_FOUND TRUE)
+    set(LIBUSB_1_FOUND TRUE)
   endif (LIBUSB_1_INCLUDE_DIRS AND LIBUSB_1_LIBRARIES)
 
   if (LIBUSB_1_FOUND)
     if (NOT libusb_1_FIND_QUIETLY)
       message(STATUS "Found libusb-1.0:")
-	  message(STATUS " - Includes: ${LIBUSB_1_INCLUDE_DIRS}")
-	  message(STATUS " - Libraries: ${LIBUSB_1_LIBRARIES}")
+      message(STATUS " - Includes: ${LIBUSB_1_INCLUDE_DIRS}")
+      message(STATUS " - Libraries: ${LIBUSB_1_LIBRARIES}")
     endif (NOT libusb_1_FIND_QUIETLY)
   else (LIBUSB_1_FOUND)
     if (libusb_1_FIND_REQUIRED)
