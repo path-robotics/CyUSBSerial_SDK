@@ -21,6 +21,7 @@
 #include <mutex>
 #include <iostream>
 
+static libusb_context* glContext = NULL;
 static bool glDriverInit = false;
 static libusb_device** glDeviceList;
 static UINT32 glNumDevices;
@@ -30,6 +31,11 @@ static std::mutex criticalSection;
 CY_RETURN_STATUS CyLibraryInit()
 {
   UINT32 rStatus;
+
+  // TODO: Get everything working with handles. FR-958
+  //  All that should be needed is passing the glContext here instead of NULL,
+  //  and another T0D0 lower down in this file.
+  // Maybe this should be inside the if statement just below?
   rStatus = libusb_init(NULL);
 
   if (glDriverInit != true)
@@ -39,7 +45,7 @@ CY_RETURN_STATUS CyLibraryInit()
       CY_DEBUG_PRINT_ERROR("CY:Driver Init Failed ...\n");
       return CY_ERROR_DRIVER_INIT_FAILED;
     }
-    glNumDevices = libusb_get_device_list(NULL, &glDeviceList);
+    glNumDevices = libusb_get_device_list(glContext, &glDeviceList);
     if (glNumDevices < 0)
     {
       CY_DEBUG_PRINT_ERROR("CY:Building device list Failed ...\n");
@@ -66,7 +72,8 @@ CY_RETURN_STATUS CyLibraryExit()
     if (glNumDevices >= 0)
       libusb_free_device_list(glDeviceList, 1);
     //This is to avoid loss of device handle issue with respect to libusb context.
-    //libusb_exit (NULL);
+    // TODO: Actually use this when handles work correctly. FR-958.
+    // libusb_exit (glContext);
     glDriverInit = false;
     return CY_SUCCESS;
   }
@@ -91,7 +98,7 @@ CY_RETURN_STATUS CyGetListofDevices(
   }
   std::unique_lock<std::mutex> unique_lock(criticalSection);
   libusb_free_device_list(glDeviceList, 1);
-  glNumDevices = (*numDevices) = libusb_get_device_list(NULL, &glDeviceList);
+  glNumDevices = (*numDevices) = libusb_get_device_list(glContext, &glDeviceList);
   unique_lock.unlock();
   if (glNumDevices < 0)
   {

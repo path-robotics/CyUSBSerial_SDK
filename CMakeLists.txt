@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14.0)
-project(CyUSBSerial VERSION 1.0.5 LANGUAGES C CXX)
+project(CyUSBSerial VERSION 1.1.0 LANGUAGES C CXX)
 
 set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 option(BUILD_EXAMPLES "Build the examples" OFF)
