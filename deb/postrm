@@ -2,6 +2,12 @@
 
 set -e
 
+# Do nothing on purge, currently all files are removed with a standard remove.
+if [ $1 = 'purge' ]
+then
+  exit 0
+fi
+
 #=============================================================================
 echo "Removing udev rules for access to usb lasers"
 
