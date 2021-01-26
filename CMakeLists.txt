@@ -47,6 +47,13 @@ install(
   DESTINATION lib/cmake/${PROJECT_NAME}
 )
 
+install(
+  FILES
+  "${CMAKE_CURRENT_SOURCE_DIR}/license.txt"
+  DESTINATION share/doc/${PROJECT_NAME}
+  RENAME copyright
+)
+
 # CPack Options for generating installers
 set(CPACK_GENERATOR DEB)
 set(CPACK_PACKAGE_VENDOR "Path Robotics")

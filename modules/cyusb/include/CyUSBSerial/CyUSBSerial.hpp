@@ -12,10 +12,12 @@
 ##  Use of this file is governed
 ##  by the license agreement included in the file
 ##
-##     <install>/license/license.txt
+##     <install>/license.txt
 ##
 ##  where <install> is the Cypress software
 ##  installation root directory path.
+##
+##  Or in share/doc/CyUSBSerial/copyright if installed with apt
 ##
 ## ===========================
 */
