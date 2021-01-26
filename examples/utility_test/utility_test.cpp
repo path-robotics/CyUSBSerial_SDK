@@ -28,7 +28,7 @@ CY_DEVICE_STRUCT *glDevice;
 int i2cDeviceIndex[CY_MAX_DEVICES][CY_MAX_INTERFACES];
 unsigned char *deviceNumber = NULL;
 int cyDevices, i2cDevices = 0;
-UINT8 numDevices = 0;
+uint8_t numDevices = 0;
 int selectedDeviceNum = -1, selectedInterfaceNum = -1;
 bool exitApp = false;
 short pageAddress = -1;

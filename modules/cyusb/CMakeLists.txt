@@ -1,7 +1,9 @@
 set(component cyusb)
 set(components ${components} ${component} PARENT_SCOPE)
 
-find_package(libusb-1.0 ${MIN_LIBUSB_VERSION} REQUIRED)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/" ${CMAKE_MODULE_PATH})
+
+find_package(libusb ${MIN_LIBUSB_VERSION} REQUIRED)
 
 add_library(${component} SHARED
         src/cyusb.cpp
@@ -16,19 +18,21 @@ add_library(${component} SHARED
 
 add_library(${PROJECT_NAME}::${component} ALIAS ${component})
 target_compile_options(${component} PRIVATE -fPIC)
-target_compile_definitions(${component} PRIVATE ${LIBUSB_1_DEFINITIONS})
 target_include_directories(${component}
-    PRIVATE
-    ${LIBUSB_1_INCLUDE_DIRs}
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     )
 
 target_link_libraries(${component}
-    PRIVATE
-    ${LIBUSB_1_LIBRARIES}
+    PUBLIC
+    libusb::libusb
     )
+
+target_link_directories(${component}
+    PUBLIC
+    $<INSTALL_INTERFACE:lib/${PROJECT_NAME}>
+)
 
 install(TARGETS ${component} EXPORT ${component}Targets
     COMPONENT ${component}
@@ -52,6 +56,13 @@ configure_file("${component}Config.cmake.in"
 install(
     FILES
     "${CMAKE_BINARY_DIR}/${PROJECT_NAME}-${component}Config.cmake"
+    DESTINATION lib/cmake/${PROJECT_NAME}
+    COMPONENT ${component}
+)
+
+install(
+    FILES
+    "${CMAKE_CURRENT_LIST_DIR}/cmake/Findlibusb.cmake"
     DESTINATION lib/cmake/${PROJECT_NAME}
     COMPONENT ${component}
 )

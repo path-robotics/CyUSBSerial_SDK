@@ -1,10 +1,8 @@
 cmake_minimum_required(VERSION 3.14.0)
-project(CyUSBSerial VERSION 1.0.5 LANGUAGES C CXX)
+project(CyUSBSerial VERSION 1.1.0 LANGUAGES C CXX)
 
 set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 option(BUILD_EXAMPLES "Build the examples" OFF)
-
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -49,13 +47,21 @@ install(
   DESTINATION lib/cmake/${PROJECT_NAME}
 )
 
+install(
+  FILES
+  "${CMAKE_CURRENT_SOURCE_DIR}/license.txt"
+  DESTINATION share/doc/${PROJECT_NAME}
+  RENAME copyright
+)
+
 # CPack Options for generating installers
 set(CPACK_GENERATOR DEB)
 set(CPACK_PACKAGE_VENDOR "Path Robotics")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/deb/doc")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Library for Cypress USB Serial Drivers.")
-set(CPACK_PACKAGE_CONTACT "developers@path-robotics.com")
+set(CPACK_PACKAGE_CONTACT "dylan@path-robotics.com")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "/usr")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/license.txt")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libusb-1.0-0-dev (>= 2:1.0.9), udev")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/deb/postinst;${CMAKE_CURRENT_SOURCE_DIR}/deb/postrm")
 

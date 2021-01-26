@@ -2,6 +2,12 @@
 
 set -e
 
+# Do nothing on purge, currently all files are removed with a standard remove.
+if [ $1 = 'purge' ]
+then
+  exit 0
+fi
+
 #=============================================================================
 echo "Removing udev rules for access to usb lasers"
 
@@ -10,6 +16,10 @@ RULES_FILE=/etc/udev/rules.d/90-cyusb.rules
 rm ${RULES_FILE}
 
 echo "Removed ${RULES_FILE}"
+
+echo "Removing ldconf file."
+rm /etc/ld.so.conf.d/cyusbserial.conf
+ldconfig
 
 #=============================================================================
 #echo "Removing blacklist for ftdi_sio and usbserial"
