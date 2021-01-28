@@ -637,6 +637,8 @@ fetching information about the device connected.
    * CyLibraryExit
 */
 CYWINEXPORT CY_RETURN_STATUS LINUXCALLCONVEN CyLibraryInit();
+CYWINEXPORT CY_RETURN_STATUS LINUXCALLCONVEN CyLibraryInitWithLoggers (int (*print_info_fun_ptr) (const char * format, ...), int (*print_error_fun_ptr) (const char * format, ...));
+
 
 /*
    Summary
