@@ -19,6 +19,13 @@
 
 #include <CyUSBSerial/CyUSBCommon.hpp>
 
+int noop_logger (const char * format, ...)
+{
+  return true;
+}
+int (*print_info_fun_ptr)(const char * format, ...) = &noop_logger;
+int (*print_error_fun_ptr)(const char * format, ...) = &noop_logger;
+
 typedef struct NOTIFICATION_CB_PARAM
 {
   CY_HANDLE handle;

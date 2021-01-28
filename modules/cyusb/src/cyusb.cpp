@@ -25,6 +25,14 @@ static libusb_context* glContext = NULL;
 static bool glDriverInit = false;
 static libusb_device** glDeviceList;
 static uint32_t glNumDevices;
+
+CY_RETURN_STATUS CyLibraryInitWithLoggers (int (*print_info)(const char * format, ...), int (*print_error)(const char * format, ...))
+{
+  print_info_fun_ptr = print_info;
+  print_error_fun_ptr = print_error;
+  return CyLibraryInit();
+}
+
 /*The API initializes the Libusb library
 */
 static std::mutex criticalSection;
