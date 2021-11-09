@@ -5,7 +5,7 @@ pushd build > /dev/null 2>&1 || exit 1
 
 # now build with the intent to test
 cmake -DCMAKE_BUILD_TYPE=Release ..
-make -j$(nproc) package
-ls *.deb > .deb
+make -j"$(nproc)" package
+ls ./*.deb > .deb
 
-popd > /dev/null 2>&1
+popd > /dev/null 2>&1 || exit

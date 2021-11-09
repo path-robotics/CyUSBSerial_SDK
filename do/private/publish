@@ -2,6 +2,7 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 pushd "${SCRIPT_DIR}/../.." > /dev/null 2>&1 || exit 1
+# shellcheck source=do/private/script_utils
 source "${SCRIPT_DIR}/script_utils"
 
 mkdir -p build
@@ -24,11 +25,11 @@ if [ -z ${DEBIANS[0]} ]; then
 fi
 
 echo "+++ :debian: Push to apt repo"
-for DEBIAN_FILE in ${DEBIANS[@]}; do
+for DEBIAN_FILE in "${DEBIANS[@]}"; do
     DEBIAN_NAME="$( basename ${DEBIAN_FILE} )"
     echo "Pushing '${DEBIAN_NAME}' to ${INSTALLER_BUCKET_URL}"
     echo "aws s3 cp ${DEBIAN_FILE} ${INSTALLER_BUCKET_URL}/${DEBIAN_NAME}"
     exit_on_fail "$?"
 done
 
-popd > /dev/null 2>&1
+popd > /dev/null 2>&1 || exit

@@ -30,7 +30,7 @@ function aws_login() {
   if [[ "${user_os}" == "Darwin" ]]; then
         aws ecr get-login-password --region ${aws_region} | docker login --username AWS --password-stdin "335509591822.dkr.ecr.${aws_region}.amazonaws.com"
   else
-        $(aws ecr get-login --no-include-email --region ${aws_region})
+        eval "$(aws ecr get-login --no-include-email --region ${aws_region})"
   fi
 
   exit_on_fail $?
@@ -47,9 +47,9 @@ function check_env_var_with_pop() {
 function configure_environment() {
   aws_region=${1:-"us-east-2"}
 
-  PROJECT_REPO=$(basename `git config --get remote.origin.url` .git | tr '[:upper:]' '[:lower:]')
+  PROJECT_REPO=$(basename "$(git config --get remote.origin.url)" .git | tr '[:upper:]' '[:lower:]')
   PROJECT_REPO_URL=$(git config --get remote.origin.url)
-  PROJECT_VERSION=$(git describe --tags `git rev-list --tags --max-count=1` > /dev/null 2>&1 || echo 0.0)
+  PROJECT_VERSION=$(git describe --tags "$(git rev-list --tags --max-count=1)" > /dev/null 2>&1 || echo 0.0)
   DEFAULT_BRANCH=$(git remote show ${PROJECT_REPO_URL} | grep 'HEAD branch' | cut -d' ' -f5)
 
   IMAGE_REPO_URL="335509591822.dkr.ecr.${aws_region}.amazonaws.com"

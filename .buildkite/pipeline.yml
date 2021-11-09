@@ -4,6 +4,10 @@ env:
   INSTALLER_BUCKET_URL: "s3://buildkite-spike/bionic"
 
 steps:
+  - id: "lint"
+    name: ":bash: Lint"
+    command: do/private/lint
+
   - label: ":gear: Build"
     commands:
       - "do/build"
@@ -46,6 +50,7 @@ steps:
     allow_dependency_failure: false
     key: "publish"
 
+    
   - label: ":rocket: Test Results"
     plugins:
       - junit-annotate#v1.9.0:
