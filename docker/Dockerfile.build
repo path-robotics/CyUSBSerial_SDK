@@ -1,6 +1,6 @@
 ARG PROJECT_REPO
 ARG GIT_TAG
-FROM ${PROJECT_REPO}:thirdparty-${GIT_TAG}
+FROM ${PROJECT_REPO}:testdeps-${GIT_TAG}
 
 ARG USER_ID
 ARG GROUP_ID
@@ -19,4 +19,4 @@ RUN if ! id ${USER_ID} >/dev/null 2>&1; then \
 
 USER ${USER_ID}
 
-WORKDIR /app
+WORKDIR /app/build

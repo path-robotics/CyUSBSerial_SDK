@@ -1,0 +1,13 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "${SCRIPT_DIR}/script_utils"
+
+echo "--- Build with Tests"
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DCMAKE_CXX_FLAGS=--coverage ..
+
+exit_on_fail_no_pop $?
+
+make -j$(nproc)
+
+exit_on_fail_no_pop $?

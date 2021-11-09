@@ -1,0 +1,20 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+pushd "${SCRIPT_DIR}/.." > /dev/null 2>&1 || exit 1
+source "${SCRIPT_DIR}/private/script_utils"
+
+configure_environment
+
+echo "Testing repo '${PROJECT_REPO}', branch '${GIT_BRANCH}', commit '${GIT_COMMIT}'"
+
+echo "+++ Test project"
+docker run \
+      --rm  \
+      --tty \
+      --volume "$(pwd):/app" \
+      "${PROJECT_REPO}:build-${GIT_TAG}" \
+      "../do/private/docker_test"
+exit_on_fail $?
+
+popd > /dev/null 2>&1

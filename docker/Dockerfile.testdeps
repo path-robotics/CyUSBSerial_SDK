@@ -5,6 +5,7 @@ FROM ${PROJECT_REPO}:thirdparty-${GIT_TAG}
 ARG SONAR_TOKEN
 ARG SONAR_SCANNER_VERSION=4.6.2.2472
 ARG SONAR_SCANNER_HOME=/sonar/sonar-scanner-${SONAR_SCANNER_VERSION}-linux
+ARG SONAR_SCANNER_OPTS="-server"
 
 RUN apt update -qq \
     && apt install -y -qq --no-install-recommends --autoremove \
