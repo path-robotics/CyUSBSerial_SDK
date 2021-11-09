@@ -21,7 +21,7 @@ popd > /dev/null 2>&1 || exit 1
 
 rm -rf "build/test/results/cpp"
 mkdir -p "build/test/results/cpp"
-mapfile -t TEST_LOGS < <(find build -maxdepth 1 -type f -name "*.cmake")
+mapfile -t TEST_LOGS < <(find test/results -maxdepth 1 -type f -name "*.xml")
 
 for LOG in "${TEST_LOGS[@]}"; do
   OUTPUT="build/test/results/cpp/$(basename "${LOG}")"

@@ -10,7 +10,7 @@ local development environment.
 Running these scripts will modify the contents of your CyUSBSerial directory.  
 Because the contents of this repository will be volume mounted into a Docker container and your
 code will be built and tested, any changes that you wish to preserve in your `build`
-or `logs` directory should be copied elsewhere prior to running these scripts.
+directory should be copied elsewhere prior to running these scripts.
 
 ## Using the scripts
 
