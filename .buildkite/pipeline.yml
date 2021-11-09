@@ -1,13 +1,13 @@
+agents:
+  queue: "aws"
+env:
+  INSTALLER_BUCKET_URL: "s3://buildkite-spike/bionic"
+
 steps:
   - label: ":gear: Build"
     commands:
-      - "pwd"
-      - "ls -la"
-      - "ls -la do"
       - "do/build"
     key: "build"
-    agents:
-      queue: "aws"
 
   - label: ":hammer: Unit Test"
     commands:
@@ -18,8 +18,6 @@ steps:
     key: "test"
     artifact_paths:
       - "build/test/results/*.xml"
-    agents:
-      queue: "aws"
 
   - label: ":microscope: Sonar Scan"
     commands:
@@ -28,8 +26,25 @@ steps:
       - "test"
     allow_dependency_failure: false
     key: "scan"
-    agents:
-      queue: "aws"
+
+  - label: ":gear: :debian: Build Debian"
+    commands:
+      - "./do/private/package"
+    depends_on:
+      - "build"
+    allow_dependency_failure: false
+    key: "package"
+    artifact_paths:
+      - "build/CyUSBSerial-*-Linux.deb"
+
+  - label: ":shipit: Publish to APT Repo"
+    commands:
+      - "./do/private/publish"
+    branches: "master develop"
+    depends_on:
+      - "scan"
+    allow_dependency_failure: false
+    key: "publish"
 
   - label: ":rocket: Test Results"
     plugins:
@@ -41,5 +56,3 @@ steps:
     allow_dependency_failure: true
     soft_fail:
       - exit_status: 1
-    agents:
-      queue: "aws"

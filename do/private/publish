@@ -1,0 +1,34 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+pushd "${SCRIPT_DIR}/../.." > /dev/null 2>&1 || exit 1
+source "${SCRIPT_DIR}/script_utils"
+
+mkdir -p build
+
+check_env_var_with_pop INSTALLER_BUCKET_URL
+
+echo "--- :aws: Log into AWS Elastic Container Registry..."
+aws_login "us-east-2"
+
+BUILDKITE=${BUILDKITE:="false"}
+if [[ "${BUILDKITE}" == "true" ]]; then
+    buildkite-agent artifact download build/*.deb build/
+    exit_on_fail "$?"
+fi
+
+DEBIANS=( build/*Linux.deb )
+if [ -z ${DEBIANS[0]} ]; then
+    echo "Can't publish, debian package not found"
+    exit_on_fail 1
+fi
+
+echo "+++ :debian: Push to apt repo"
+for DEBIAN_FILE in ${DEBIANS[@]}; do
+    DEBIAN_NAME="$( basename ${DEBIAN_FILE} )"
+    echo "Pushing '${DEBIAN_NAME}' to ${INSTALLER_BUCKET_URL}"
+    echo "aws s3 cp ${DEBIAN_FILE} ${INSTALLER_BUCKET_URL}/${DEBIAN_NAME}"
+    exit_on_fail "$?"
+done
+
+popd > /dev/null 2>&1

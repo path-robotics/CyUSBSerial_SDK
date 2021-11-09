@@ -1,0 +1,18 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "${SCRIPT_DIR}/script_utils"
+
+pushd build > /dev/null 2>&1 || exit 1
+
+echo "--- Build Debian Package"
+cmake ..
+exit_on_fail_no_pop $?
+
+make -j$(nproc) package
+exit_on_fail_no_pop $?
+
+ls *.deb > .deb
+exit_on_fail_no_pop $?
+
+popd > /dev/null 2>&1 || exit 1
