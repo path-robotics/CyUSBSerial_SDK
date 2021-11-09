@@ -40,4 +40,4 @@ docker build . \
       --tag ${PROJECT_REPO}:build-${GIT_TAG}
 exit_on_fail $?
 
-popd
+popd > /dev/null 2>&1

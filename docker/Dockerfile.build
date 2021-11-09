@@ -19,4 +19,4 @@ RUN if ! id ${USER_ID} >/dev/null 2>&1; then \
 
 USER ${USER_ID}
 
-WORKDIR /app/build
+WORKDIR /app

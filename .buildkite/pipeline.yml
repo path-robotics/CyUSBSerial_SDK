@@ -1,6 +1,7 @@
 steps:
   - label: ":gear: Build"
     commands:
+      - "pwd"
       - "do/build"
     key: "build"
     agents:

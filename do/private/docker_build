@@ -8,6 +8,6 @@ if [ -z "$SONAR_TOKEN" ]; then
   exit $?
 else
   echo "Building with sonar wrapper"
-  build-wrapper-linux-x86-64 --out-dir "bw-output" ${SCRIPT_DIR}/build_for_test_cmd
+  build-wrapper-linux-x86-64 --out-dir "build/bw-output" ${SCRIPT_DIR}/build_for_test_cmd
   exit $?
 fi

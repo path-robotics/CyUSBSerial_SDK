@@ -14,7 +14,7 @@ docker run \
       --tty \
       --volume "$(pwd):/app" \
       "${PROJECT_REPO}:build-${GIT_TAG}" \
-      "../do/private/docker_scan"
+      "do/private/docker_scan"
 
 exit_on_fail $?
 

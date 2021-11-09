@@ -8,6 +8,7 @@ cmake-build-*/
 
 # File-based project format
 *.iws
+bw-output/
 
 # IntelliJ
 out/
