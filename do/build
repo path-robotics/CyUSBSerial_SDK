@@ -1,0 +1,25 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+pushd "${SCRIPT_DIR}/.." > /dev/null 2>&1 || exit 1
+source "${SCRIPT_DIR}/private/script_utils"
+
+rm -rf build
+mkdir -p build
+
+configure_environment
+do/private/build_docker_images
+
+echo "+++ :gear: Building project '${PROJECT_REPO}', branch '${GIT_BRANCH}', commit '${GIT_COMMIT}'"
+docker run \
+      --tty \
+      --rm \
+      --volume "$(pwd):/app" \
+      ${PROJECT_REPO}:build-${GIT_TAG} \
+      do/private/docker_build
+
+TEST_RESULTS=$?
+
+popd > /dev/null 2>&1
+
+exit ${TEST_RESULTS}

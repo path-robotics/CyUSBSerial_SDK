@@ -57,7 +57,7 @@ _deps
 
 # build/install
 **/install
-**/build
+build/
 
 # doxygen build
 docs/doxygen/

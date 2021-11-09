@@ -2,6 +2,8 @@ steps:
   - label: ":gear: Build"
     commands:
       - "pwd"
+      - "ls -la"
+      - "ls -la do"
       - "do/build"
     key: "build"
     agents:

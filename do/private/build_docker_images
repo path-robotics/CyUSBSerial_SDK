@@ -24,6 +24,7 @@ docker build . \
       --build-arg GIT_TAG=${GIT_TAG} \
       --build-arg SONAR_TOKEN=${SONAR_TOKEN} \
       --build-arg PROJECT_REPO=${PROJECT_REPO} \
+      --build-arg GIT_BRANCH=${GIT_BRANCH} \
       --file docker/Dockerfile.testdeps \
       --tag ${PROJECT_REPO}:testdeps-${GIT_TAG}
 exit_on_fail $?
@@ -33,7 +34,6 @@ docker build . \
       --build-arg GIT_TAG=${GIT_TAG} \
       --build-arg PROJECT_REPO=${PROJECT_REPO} \
       --build-arg PROJECT_VERSION=${PROJECT_VERSION} \
-      --build-arg BRANCH_NAME=${GIT_BRANCH} \
       --build-arg USER_ID=${USER_ID} \
       --build-arg GROUP_ID=${GROUP_ID} \
       --file docker/Dockerfile.build \

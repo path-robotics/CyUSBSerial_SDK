@@ -6,7 +6,7 @@ CORES=$(nproc)
 THREADS=$((${CORES} - 4))
 if [ ${THREADS} -lt 1 ]; then THREADS=1; fi
 VERSION=${PROJECT_VERSION:="0.0"}
-BRANCH=${BRANCH_NAME:="Unknown"}
+BRANCH=${GIT_BRANCH:="Unknown"}
 
 rm -rf "build/test/coverage"
 mkdir -p "build/test/coverage"
