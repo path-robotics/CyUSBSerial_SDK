@@ -8,6 +8,7 @@ cmake-build-*/
 
 # File-based project format
 *.iws
+bw-output/
 
 # IntelliJ
 out/
@@ -56,7 +57,7 @@ _deps
 
 # build/install
 **/install
-**/build
+build/
 
 # doxygen build
 docs/doxygen/

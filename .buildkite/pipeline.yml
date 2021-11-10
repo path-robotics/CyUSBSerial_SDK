@@ -1,0 +1,63 @@
+agents:
+  queue: "aws"
+env:
+  INSTALLER_BUCKET_URL: "s3://buildkite-spike/bionic"
+
+steps:
+  - id: "lint"
+    name: ":bash: Lint"
+    command: do/private/lint
+
+  - label: ":gear: Build"
+    commands:
+      - "do/build"
+    key: "build"
+
+  - label: ":hammer: Unit Test"
+    commands:
+      - "do/test"
+    depends_on:
+      - "build"
+    allow_dependency_failure: false
+    key: "test"
+    artifact_paths:
+      - "build/test/results/*.xml"
+
+  - label: ":microscope: Sonar Scan"
+    commands:
+      - "do/private/scan"
+    depends_on:
+      - "test"
+    allow_dependency_failure: false
+    key: "scan"
+
+  - label: ":gear: :debian: Build Debian"
+    commands:
+      - "./do/private/package"
+    depends_on:
+      - "build"
+    allow_dependency_failure: false
+    key: "package"
+    artifact_paths:
+      - "build/CyUSBSerial-*-Linux.deb"
+
+  - label: ":shipit: Publish to APT Repo"
+    commands:
+      - "./do/private/publish"
+    branches: "master develop"
+    depends_on:
+      - "scan"
+    allow_dependency_failure: false
+    key: "publish"
+
+    
+  - label: ":rocket: Test Results"
+    plugins:
+      - junit-annotate#v1.9.0:
+          artifacts: build/test/results/*.xml
+          report-slowest: 6
+    depends_on:
+      - "test"
+    allow_dependency_failure: true
+    soft_fail:
+      - exit_status: 1

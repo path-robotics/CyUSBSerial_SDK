@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -e
+
+CORES=$(nproc)
+THREADS=$((CORES - 4))
+if [ ${THREADS} -lt 1 ]; then THREADS=1; fi
+VERSION=${PROJECT_VERSION:="0.0"}
+BRANCH=${GIT_BRANCH:="Unknown"}
+
+rm -rf "build/test/coverage"
+mkdir -p "build/test/coverage"
+
+pushd "build/test/coverage" > /dev/null 2>&1 || exit 1
+
+COVERAGE_FOUND=$(find ../.. -name '*.gcda')
+[[ -n "${COVERAGE_FOUND}" ]] && echo "${COVERAGE_FOUND}" | xargs gcov &> /dev/null
+find . -type f ! -name "*.gcov" -exec rm {} \;
+
+popd > /dev/null 2>&1 || exit 1
+
+rm -rf "build/test/results/cpp"
+mkdir -p "build/test/results/cpp"
+mapfile -t TEST_LOGS < <(find test/results -maxdepth 1 -type f -name "*.xml")
+
+for LOG in "${TEST_LOGS[@]}"; do
+  OUTPUT="build/test/results/cpp/$(basename "${LOG}")"
+  xmlstarlet tr do/private/test_result_transform.xslt "${LOG}" > "${OUTPUT}"
+done
+
+sonar-scanner \
+  -Dsonar.branch.name=${BRANCH} \
+  -Dsonar.projectVersion=${VERSION} \
+  -Dsonar.cfamily.threads=${THREADS}

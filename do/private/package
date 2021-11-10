@@ -1,0 +1,24 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+pushd "${SCRIPT_DIR}/../.." > /dev/null 2>&1 || exit 1
+# shellcheck source=do/private/script_utils
+source "${SCRIPT_DIR}/script_utils"
+
+rm -rf build
+mkdir -p build
+
+configure_environment "us-east-2"
+do/private/build_docker_images
+
+echo "+++ :debian: Build debian"
+docker run \
+      --rm  \
+      --tty \
+      --volume "$(pwd):/app" \
+      "${PROJECT_REPO}:build-${GIT_TAG}" \
+      "do/private/build_debian_cmd"
+
+exit_on_fail $?
+
+popd > /dev/null 2>&1 || exit
