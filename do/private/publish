@@ -28,7 +28,8 @@ echo "+++ :debian: Push to apt repo"
 for DEBIAN_FILE in "${DEBIANS[@]}"; do
     DEBIAN_NAME="$( basename ${DEBIAN_FILE} )"
     echo "Pushing '${DEBIAN_NAME}' to ${INSTALLER_BUCKET_URL}"
-    echo "aws s3 cp ${DEBIAN_FILE} ${INSTALLER_BUCKET_URL}/${DEBIAN_NAME}"
+    aws s3 cp ${DEBIAN_FILE} ${INSTALLER_BUCKET_URL}/${DEBIAN_NAME}
+    
     exit_on_fail "$?"
 done
 
