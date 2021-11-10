@@ -23,11 +23,15 @@ phases:
     commands:
       - |
         if expr "${GIT_BRANCH}" : "${INSTALLER_BRANCH}"; then
-          id=$(docker create docker-image)
-          docker cp $id:/app/build/.deb .
-          INSTALLER=$(cat .deb)
-          docker cp $id:/app/build/${INSTALLER} .
-          docker rm -v $id
-          $(aws ecr get-login --no-include-email --region us-east-2)
-          aws s3 cp ${INSTALLER} ${INSTALLER_BUCKET_URL}/${INSTALLER}
+          BUCKET_URL=${INSTALLER_BUCKET_URL}
+        else
+          BUCKET_URL=${CACHE_BUCKET_URL}/${GIT_BRANCH}
         fi
+        $(aws ecr get-login --no-include-email --region us-east-2)
+        id=$(docker create docker-image)
+        docker cp $id:/app/build/.deb .
+        for deb in $(cat .deb); do
+          docker cp $id:/app/build/${deb} .
+          aws s3 cp ${deb} ${BUCKET_URL}/${deb}
+        done
+        docker rm -v $id
