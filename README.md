@@ -31,3 +31,6 @@ After doing so you should be able to include and use files such as
 ```c++
 #include <CyUSBSerial/CyUSBSerial.hpp>
 ```
+
+To uninstall
+`sudo apt remove cyusbserial`
