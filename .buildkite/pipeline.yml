@@ -47,6 +47,7 @@ steps:
     branches: "master develop"
     depends_on:
       - "scan"
+      - "package"
     allow_dependency_failure: false
     key: "publish"
 
