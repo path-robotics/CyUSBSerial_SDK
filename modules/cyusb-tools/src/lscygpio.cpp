@@ -1,6 +1,6 @@
 #include <CyUSBSerial/CyController.hpp>
+#include <CyUSBSerial/CyUSBSerial.hpp>
 #include <iostream>
-#include <type_traits>
 #include <getopt.h>
 
 enum class ExitCodeEnum : int
@@ -14,7 +14,7 @@ enum class ExitCodeEnum : int
   CMDLINE_PARSE_ERROR
 };
 
-struct CommandLineOptions
+struct AppSettings
 {
   bool a{};
   bool X{};
@@ -39,17 +39,33 @@ static ExitCodeEnum parse_arg_as_integer(char argname, const char* p_argvalue, i
   return ExitCodeEnum::SUCCESS;
 }
 
-static ExitCodeEnum parse_cmdline_args(int argc, char* argv[], CommandLineOptions& r_command_line_options_out)
+static ExitCodeEnum parse_cmdline_args(int argc, char* argv[], AppSettings& r_app_settings_out)
 {
   ExitCodeEnum enum_exit_code = ExitCodeEnum::SUCCESS;
 
-  static constexpr char aOptions[] = "-:aXc:d:";
-  int opt = ::getopt(argc, argv, aOptions);
+  static constexpr char a_short_options[] = "-:aXc:d:";
+
+  int option_index = 0;  // O
+  static struct option a_long_options[] = {
+    { "help", no_argument, nullptr, 0 },
+    { nullptr, 0, nullptr, 0 }
+  };
+
+  int opt = ::getopt_long(argc, argv, a_short_options, a_long_options, &option_index);
 
   while (opt != -1)
   {
     switch (opt)
     {
+      case 0:  // long option
+        std::cout << "[ INFO] Option " << a_long_options[option_index].name << " was provided";
+        if(::optarg != nullptr)
+        {
+          std::cout << " with argument " << ::optarg;
+        }
+        std::cout << std::endl;
+        break;
+
       case 1:
         std::cout << "[ERROR] Argument " << ::optarg << " unrecognized--Aborting!" << std::endl;
         enum_exit_code = ExitCodeEnum::UNKNOWN_CMDLINE_ARG;
@@ -57,22 +73,22 @@ static ExitCodeEnum parse_cmdline_args(int argc, char* argv[], CommandLineOption
 
       case 'a':
         std::cout << "[ INFO] Option a was provided" << std::endl;
-        r_command_line_options_out.a = true;
+        r_app_settings_out.a = true;
         break;
 
       case 'X':
         std::cout << "[ INFO] Option X was provided" << std::endl;
-        r_command_line_options_out.X = true;
+        r_app_settings_out.X = true;
         break;
 
       case 'c':
         std::cout << "[ INFO] Option c has argument " << ::optarg << std::endl;
-        enum_exit_code = ::parse_arg_as_integer(opt, ::optarg, r_command_line_options_out.c);
+        enum_exit_code = ::parse_arg_as_integer(opt, ::optarg, r_app_settings_out.c);
         break;
 
       case 'd':
         std::cout << "[ INFO] Option d has argument " << ::optarg << std::endl;
-        enum_exit_code = ::parse_arg_as_integer(opt, ::optarg, r_command_line_options_out.d);
+        enum_exit_code = ::parse_arg_as_integer(opt, ::optarg, r_app_settings_out.d);
         break;
 
       case '?':
@@ -111,18 +127,27 @@ static ExitCodeEnum parse_cmdline_args(int argc, char* argv[], CommandLineOption
       return enum_exit_code;
     }
 
-    opt = ::getopt(argc, argv, aOptions);
+        opt = ::getopt_long(argc, argv, a_short_options, a_long_options, &option_index);
   }
 
   return enum_exit_code;
 }
 
+static void print_usage()
+{
+  std::cout << "Usage: lscygpio [options]...\n"
+               "List CyUSB GPIO chips, lines and states\n"
+               "  -n <name>    List GPIOs on a named device\n"
+               "  -?, --help   This helptext"
+            << std::endl;
+}
+
 int main(int argc, char* argv[])
 {
-  CommandLineOptions command_line_options;  // O
+  AppSettings r_app_settings;  // O
 
   {
-    ExitCodeEnum exit_code = ::parse_cmdline_args(argc, argv, command_line_options);
+    ExitCodeEnum exit_code = ::parse_cmdline_args(argc, argv, r_app_settings);
     if (exit_code != ExitCodeEnum::SUCCESS)
     {
       return static_cast<int>(exit_code);
@@ -132,10 +157,10 @@ int main(int argc, char* argv[])
   cyusb::CyController cyusb_controller;
 
   std::cout << "[ INFO] Command-line options: {"
-            << (command_line_options.a ? " a," : " !a,")
-            << (command_line_options.X ? " X," : " !X,")
-            << " c=" << command_line_options.c
-            << ", d=" << command_line_options.d
+            << (r_app_settings.a ? " a," : " !a,")
+            << (r_app_settings.X ? " X," : " !X,")
+            << " c=" << r_app_settings.c
+            << ", d=" << r_app_settings.d
             << " }" << std::endl;
 
   if (!cyusb_controller.initialize())
@@ -149,15 +174,48 @@ int main(int argc, char* argv[])
     return static_cast<int>(ExitCodeEnum::FAILED_TO_INITIALIZE);
   }
 
-  const std::string str_serial = "RTF001";
-  cyusb_controller.set_working_device_by_serial(str_serial);
+  {
+    int gpiochip_count{};
 
-  std::cout << "::::::::::::::::::::::::GPIO Value for GPIO 5 ::::::::::::::::::::::::::::::::" << std::endl;
-  std::cout << cyusb_controller.get_gpio_value(5) << std::endl;
+    uint8_t device_count;  // O
+    CY_RETURN_STATUS status = ::CyGetListofDevices(&device_count);
+    if(status == CY_SUCCESS)
+    {
+      for (uint8_t i = 0; i < device_count; ++i)
+      {
+        // TODO: Get device info directly from CyUSB API
 
-  cyusb_controller.switch_gpio_state(5);
-  std::cout << "::::::::::::::::::::::::GPIO Value for GPIO 5 ::::::::::::::::::::::::::::::::" << std::endl;
-  std::cout << cyusb_controller.get_gpio_value(5) << std::endl;
+        CY_DEVICE_INFO device_info;  // O
+        status = ::CyGetDeviceInfo(i, &device_info);
 
-  return 0;
+        if(status == CY_SUCCESS)
+        {
+          for(uint8_t n = 0; n < device_info.numInterfaces; ++ n)
+          {
+            if(device_info.deviceType[n] == CY_TYPE_I2C)
+            {
+              const char* p_cstr_serial_number = reinterpret_cast<const char*>(device_info.serialNum);
+
+              std::cout << "GPIO chip: gpiochip" << gpiochip_count << ", \""
+                        << p_cstr_serial_number << "\", ? GPIO lines" << std::endl;
+              ++gpiochip_count;
+
+              /*
+              cyusb_controller.set_working_device_by_serial(p_cstr_serial_number);
+
+              std::cout << "::::::::::::::::::::::::GPIO Value for GPIO 5 ::::::::::::::::::::::::::::::::" << std::endl;
+              std::cout << cyusb_controller.get_gpio_value(5) << std::endl;
+
+              cyusb_controller.switch_gpio_state(5);
+              std::cout << "::::::::::::::::::::::::GPIO Value for GPIO 5 ::::::::::::::::::::::::::::::::" << std::endl;
+              std::cout << cyusb_controller.get_gpio_value(5) << std::endl;
+              */
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return static_cast<int>(ExitCodeEnum::SUCCESS);
 }

@@ -34,21 +34,6 @@ target_link_directories(${component}
         $<INSTALL_INTERFACE:lib/${PROJECT_NAME}>
         )
 
-add_executable(${component}cli
-        src/cyusbcli.cpp
-        )
-
-target_include_directories(${component}cli
-        PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
-        )
-
-target_link_libraries(${component}cli
-        PUBLIC
-        ${PROJECT_NAME}::cyusb
-        )
-
 install(TARGETS ${component} EXPORT ${component}Targets
         COMPONENT ${component}
         LIBRARY DESTINATION lib/${PROJECT_NAME}

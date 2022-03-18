@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(components)
 
 add_subdirectory(modules/cyusb)
+add_subdirectory(modules/cyusb-tools)
 
 if(BUILD_EXAMPLES)
   add_subdirectory(examples/utility_test)
