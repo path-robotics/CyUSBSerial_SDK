@@ -16,4 +16,6 @@ function(add_tool toolname)
 endfunction()
 
 add_tool(cygpio-hammer)
+add_tool(cygpioget)
+add_tool(cygpioset)
 add_tool(lscygpio)
