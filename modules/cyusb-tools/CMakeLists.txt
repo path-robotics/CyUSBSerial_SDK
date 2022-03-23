@@ -5,6 +5,11 @@ function(add_tool toolname)
     add_executable(${toolname}
             src/${toolname}.cpp
             )
+    target_include_directories(${toolname}
+            PRIVATE
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+            $<INSTALL_INTERFACE:include>
+            )
     target_link_libraries(${toolname}
             PUBLIC
             cyusb
