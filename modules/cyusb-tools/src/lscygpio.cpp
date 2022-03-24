@@ -13,8 +13,9 @@ struct AppSettings
 
 static void print_usage()
 {
-  std::cout << "Usage: lscygpio [options]...\n"
+  std::cout << "Usage: lscygpio [OPTIONS]...\n"
                "List CyUSB GPIO chips, lines and states\n"
+               "Options:\n"
                "  -n <name>    List GPIOs on a named device (gpiochip number)\n"
                "  -h, --help   This helptext"
             << std::endl;
