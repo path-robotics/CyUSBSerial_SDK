@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14.0)
-project(CyUSBSerial VERSION 1.2.0 LANGUAGES C CXX)
+project(CyUSBSerial VERSION 1.3.0 LANGUAGES C CXX)
 
 set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 option(BUILD_EXAMPLES "Build the examples" OFF)
@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(components)
 
 add_subdirectory(modules/cyusb)
+add_subdirectory(modules/cyusb-tools)
 
 if(BUILD_EXAMPLES)
   add_subdirectory(examples/utility_test)
