@@ -1,4 +1,4 @@
-# syntax = docker/dockerfile:1.0-experimental
+# syntax = docker/dockerfile:1
 FROM ubuntu:18.04
 
 ARG DEBIAN_FRONTEND=noninteractive
