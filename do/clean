@@ -1,0 +1,154 @@
+#!/usr/bin/env bash
+set -eu -o pipefail
+
+function usage()
+{
+  cat <<EOF
+
+Usage:
+ do/${SCRIPT_NAME}
+ do/${SCRIPT_NAME} --force|-f
+ do/${SCRIPT_NAME} --artifacts|-a
+ do/${SCRIPT_NAME} --docker|-d
+ do/${SCRIPT_NAME} --force-artifacts
+ do/${SCRIPT_NAME} --force-docker
+
+ do/${SCRIPT_NAME} --help|-h
+ do/${SCRIPT_NAME} --usage
+
+EOF
+}
+
+function help()
+{
+  usage
+  cat <<EOF
+
+Clean - remove all artifacts resulting from the main build process.
+This script will remove the "build-output" and "test-output" directory.
+
+Options:
+ -f, --force              Remove all artifacts and docker images without prompt.
+ -a, --artifacts          Remove only the build artifacts and directories related to the current project.
+ -d, --docker             Remove only the docker images related to the current project.
+     --force-artifacts    Remove only the build artifacts and directories related to the current project without prompt.
+     --force-docker       Remove only the docker images related to the current project without prompt.
+
+ -h, --help               Display this help.
+     --usage              Display only the Usage section of this help.
+
+EOF
+}
+
+function clean_artifacts_with_prompt()
+{
+  echo "Remove the 'build-output' and 'test-output' directories and all its subdirectories and files?"
+  while true; do
+    read -r -p "Do you want to continue? (y/N)" yn
+    case "${yn}" in
+      [Yy]*)
+        clean_artifacts
+        break
+      ;;
+      [Nn]*)
+        break
+      ;;
+      *)
+        echo 'Please answer yes or no.'
+      ;;
+    esac
+  done
+}
+
+function clean_docker_with_prompt()
+{
+  docker images "${PROJECT_REPO}"
+  echo "Remove all Docker images associated with this repo?"
+  while true; do
+    read -r -p "Do you want to continue? (y/N)" yn
+    case "${yn}" in
+      [Yy]*)
+        clean_docker
+        break
+      ;;
+      [Nn]*)
+        break
+      ;;
+      *)
+        echo 'Please answer yes or no.'
+      ;;
+    esac
+  done
+}
+
+function clean_without_prompt()
+{
+  clean_artifacts
+  clean_docker
+}
+
+function clean_docker()
+{
+  # shellcheck disable=SC2046
+  docker rmi -f $(docker images "${PROJECT_REPO}" -q) 2>/dev/null || echo "No docker images to remove"
+}
+
+function clean_artifacts()
+{
+  rm -rf build-output test-output
+}
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_NAME="$( basename "${BASH_SOURCE[0]}" )"
+# shellcheck source=do/private/script_utils.sh
+source "${SCRIPT_DIR}/private/script_utils.sh"
+
+configure_environment
+
+cd "${SCRIPT_DIR}/.."
+
+while [ -n "${1-}" ]; do
+  case "${1}" in
+    '-f'|'--force')
+      clean_without_prompt
+      exit 0
+    ;;
+    '-d'|'--docker')
+      echo "Removing ${PROJECT_REPO} docker images..."
+      clean_docker_with_prompt
+      exit 0
+    ;;
+    '--force-docker')
+      echo "Removing ${PROJECT_REPO} docker images..."
+      clean_docker
+      exit 0
+    ;;
+    '--force-artifacts')
+      echo "Removing ${PROJECT_REPO} build artifacts..."
+      clean_artifacts
+      exit 0
+    ;;
+    '-a'|'--artifacts')
+      echo "Removing ${PROJECT_REPO} build artifacts..."
+      clean_artifacts_with_prompt
+      exit 0
+    ;;
+    '-h'|'-l'|'--help')
+      help
+      exit 0
+    ;;
+    '--usage')
+      usage
+      exit 0
+    ;;
+    *)
+      echo "${1} is an invalid option!" >&2
+      help
+      exit 1
+    ;;
+  esac
+  shift
+done
+
+clean_artifacts_with_prompt
+clean_docker_with_prompt

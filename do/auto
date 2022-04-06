@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+function usage()
+{
+  cat <<EOF
+
+Usage:
+ do/${SCRIPT_NAME} do_script_name
+
+ do/${SCRIPT_NAME} --help|-h
+ do/${SCRIPT_NAME} --usage
+
+EOF
+}
+
+function help()
+{
+  usage
+  cat <<EOF
+
+This script will monitor the current directory for code changes and execute the
+given command do_script_name.  For example, run 'do/auto build' in a terminal 
+window to kick off the 'do/build' script anytime a code file is saved by another
+app.
+
+Note: This script requires the apt package 'entr' which is not installed by
+default on Ubuntu 18.04.
+
+
+Options:
+ -h, --help           Display this help.
+     --usage          Display only the Usage section of this help.
+
+EOF
+}
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_NAME="$( basename "${BASH_SOURCE[0]}" )"
+cd "${SCRIPT_DIR}/.." || exit 1
+
+# shellcheck source=do/private/script_utils.sh
+source "${SCRIPT_DIR}/private/script_utils.sh"
+
+while [ -n "${1-}" ]; do
+  case "${1}" in
+    '-h'|'-l'|'--help')
+      help
+      exit 0
+    ;;
+    '--usage')
+      usage
+      exit 0
+    ;;
+    *)
+      break
+    ;;
+  esac
+done
+
+base_cmd="${1}"
+full_cmd="do/${1}"
+shift
+
+which entr > /dev/null
+exit_on_fail $?
+
+# Increase the maximum number of open files to prevent this error:
+#
+# entr: Too many files listed; the hard limit for your login class is 1024. \
+#       Please consult http://entrproject.org/limits.html
+ulimit -S -n 4096
+
+while true; do
+  git ls-files -co --exclude-standard . | grep -v "^${base_cmd}\$" \
+    | entr -d "${full_cmd}" "$@"
+  if [ "${PIPESTATUS[2]}" = 0 ]; then
+    break
+  fi
+done

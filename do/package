@@ -25,21 +25,20 @@ function pre_docker()
   fi
 }
 
-function do_build_in_docker()
+function do_package_in_docker()
 {
-  echo "--- :gear: Compiling project '${PROJECT_REPO-}' - branch '${GIT_BRANCH-}', commit '${GIT_COMMIT-}'"
+  echo "--- :gear: Packaging project '${PROJECT_REPO-}' - branch '${GIT_BRANCH-}', commit '${GIT_COMMIT-}'"
 
   cd "${OUTPUT_DIR}"
 
-  if [[ ! -f "Makefile" ]]; then
-    cmake -DCMAKE_BUILD_TYPE=Release ..
-  fi
-
-  make -j"$(nproc)"
+  # do not call cmake here - must rely on do/build being called first
+  make -j"$(nproc)" package
 }
 
 function post_docker()
 {
+  # this function is called after the docker container runs
+  # add your commands here and remove the : below
   :
 }
 
@@ -56,7 +55,7 @@ cd "${SCRIPT_DIR}/.."
 # shellcheck source=do/private/parse_options_utils.sh
 source "${SCRIPT_DIR}/private/parse_options_utils.sh"
 
-do_all build -- \
+do_all package -- \
   --volume="$(pwd):${DOCKER_WORKDIR}" \
   --workdir="${DOCKER_WORKDIR}" \
   "${DOCKER_IMAGE_NAME}"

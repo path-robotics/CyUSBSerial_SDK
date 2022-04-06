@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+set -eu -o pipefail
+
+function usage()
+{
+  cat <<EOF
+
+Usage:
+ do/${SCRIPT_NAME}
+ do/${SCRIPT_NAME} --force|-f
+
+ do/${SCRIPT_NAME} --help|-h
+ do/${SCRIPT_NAME} --usage
+
+EOF
+}
+
+function help()
+{
+  usage
+  cat <<EOF
+
+Distribution Clean - restore repository to a state equivalent to a recent new
+checkout or clone.  All local uncommitted file changes in this repo will be
+deleted along with all Docker images associated with the project!
+
+Options:
+ -f, --force          Restore the repository without prompt.
+
+ -h, --help           Display this help.
+     --usage          Display only the Usage section of this help.
+
+EOF
+}
+
+function clean_with_prompt()
+{
+  git clean -dxfn
+  echo 'Reset the index and working tree of this git repo?'
+  while true; do
+    read -r -p "Do you want to continue? (y/N)" yn
+    case "${yn}" in
+      [Yy]*)
+        clean_without_prompt
+        break
+      ;;
+      [Nn]*)
+        break
+      ;;
+      *)
+        echo 'Please answer yes or no.'
+      ;;
+    esac
+  done
+}
+
+function clean_docker_with_prompt()
+{
+  docker images "${PROJECT_REPO}"
+  echo 'Remove all Docker images associated with this repo?'
+  while true; do
+    read -r -p "Do you want to continue? (y/N)" yn
+    case "${yn}" in
+      [Yy]*)
+        clean_docker_without_prompt
+        break
+      ;;
+      [Nn]*)
+        break
+      ;;
+      *)
+        echo 'Please answer yes or no.'
+      ;;
+    esac
+  done
+}
+
+function clean_without_prompt()
+{
+  git clean -dxf
+  git reset --hard
+}
+
+function clean_docker_without_prompt()
+{
+  # shellcheck disable=SC2046
+  docker rmi -f $(docker images "${PROJECT_REPO}" -q) 2>/dev/null || echo "No docker images to remove"
+}
+
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_NAME="$( basename "${BASH_SOURCE[0]}" )"
+cd "${SCRIPT_DIR}/.."
+
+# shellcheck source=do/private/script_utils.sh
+source "${SCRIPT_DIR}/private/script_utils.sh"
+
+configure_environment
+
+while [ -n "${1-}" ]; do
+  case "${1}" in
+    '-f'|'--force')
+      clean_without_prompt
+      clean_docker_without_prompt
+      exit 0
+    ;;
+    '-h'|'-l'|'--help')
+      help
+      exit 0
+    ;;
+    '--usage')
+      usage
+      exit 0
+    ;;
+    *)
+      echo "${1} is an invalid option!" >&2
+      help
+      exit 1
+    ;;
+  esac
+  shift
+done
+
+clean_with_prompt
+clean_docker_with_prompt

@@ -1,0 +1,156 @@
+{
+  "rules": [
+    {
+      "rulePriority": 1,
+      "description": "Expire untagged images",
+      "selection": {
+        "tagStatus": "untagged",
+        "countType": "sinceImagePushed",
+        "countUnit": "days",
+        "countNumber": 1
+      },
+      "action": {
+        "type": "expire"
+      }
+    },
+    {
+      "action": {
+        "type": "expire"
+      },
+      "selection": {
+        "countType": "imageCountMoreThan",
+        "countNumber": 9999999,
+        "tagStatus": "tagged",
+        "tagPrefixList": [
+          "master"
+        ]
+      },
+      "description": "Preserve master image",
+      "rulePriority": 11
+    },
+    {
+      "action": {
+        "type": "expire"
+      },
+      "selection": {
+        "countType": "imageCountMoreThan",
+        "countNumber": 9999999,
+        "tagStatus": "tagged",
+        "tagPrefixList": [
+          "base-master"
+        ]
+      },
+      "description": "Preserve base-master image",
+      "rulePriority": 12
+    },
+    {
+      "action": {
+        "type": "expire"
+      },
+      "selection": {
+        "countType": "imageCountMoreThan",
+        "countNumber": 9999999,
+        "tagStatus": "tagged",
+        "tagPrefixList": [
+          "staging"
+        ]
+      },
+      "description": "Preserve staging images",
+      "rulePriority": 13
+    },
+    {
+      "action": {
+        "type": "expire"
+      },
+      "selection": {
+        "countType": "imageCountMoreThan",
+        "countNumber": 9999999,
+        "tagStatus": "tagged",
+        "tagPrefixList": [
+          "base-staging"
+        ]
+      },
+      "description": "Preserve base-staging images",
+      "rulePriority": 14
+    },
+    {
+      "action": {
+        "type": "expire"
+      },
+      "selection": {
+        "countType": "imageCountMoreThan",
+        "countNumber": 9999999,
+        "tagStatus": "tagged",
+        "tagPrefixList": [
+          "develop"
+        ]
+      },
+      "description": "Preserve develop image",
+      "rulePriority": 15
+    },
+    {
+      "action": {
+        "type": "expire"
+      },
+      "selection": {
+        "countType": "imageCountMoreThan",
+        "countNumber": 9999999,
+        "tagStatus": "tagged",
+        "tagPrefixList": [
+          "base-develop"
+        ]
+      },
+      "description": "Preserve base-develop image",
+      "rulePriority": 16
+    },
+    {
+      "action": {
+        "type": "expire"
+      },
+      "selection": {
+        "countType": "sinceImagePushed",
+        "countUnit": "days",
+        "countNumber": 5,
+        "tagStatus": "tagged",
+        "tagPrefixList": [
+          "base-",
+          "thirdparty-"
+        ]
+      },
+      "description": "Expire branch base images",
+      "rulePriority": 20
+    },
+    {
+      "action": {
+        "type": "expire"
+      },
+      "selection": {
+        "countType": "sinceImagePushed",
+        "countUnit": "days",
+        "countNumber": 5,
+        "tagStatus": "tagged",
+        "tagPrefixList": [
+          "FR-"
+        ]
+      },
+      "description": "Expire branch images",
+      "rulePriority": 30
+    },
+    {
+      "action": {
+        "type": "expire"
+      },
+      "selection": {
+        "countType": "sinceImagePushed",
+        "countUnit": "days",
+        "countNumber": 1,
+        "tagStatus": "tagged",
+        "tagPrefixList": [
+          "git-"
+        ]
+      },
+      "description": "Expire git sha tagged images",
+      "rulePriority": 40
+    }
+  ]
+}
