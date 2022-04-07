@@ -1,10 +1,5 @@
 agents:
   queue: "aws"
-retry:
-  automatic:
-    - exit_status: 1
-      limit: 2
-
 
 steps:
   - label: ":bash: Lint"
@@ -18,6 +13,10 @@ steps:
     artifact_paths:
       - "test-output/test/results/*.xml"
     timeout_in_minutes: ${DEFAULT_TIMEOUT}
+    retry:
+      automatic:
+        - exit_status: 1
+          limit: 2
 
   - label: ":gear: :debian: Build Debian Package"
     commands:
@@ -27,6 +26,10 @@ steps:
     artifact_paths:
       - "build-output/CyUSBSerial-*-Linux.deb"
     timeout_in_minutes: ${DEFAULT_TIMEOUT}
+    retry:
+      automatic:
+        - exit_status: 1
+          limit: 2
 
   - label: ":aws: Publish to S3 APT Repo"
     commands:
@@ -37,6 +40,11 @@ steps:
       - "package"
     allow_dependency_failure: false
     key: "publish"
+    timeout_in_minutes: ${DEFAULT_TIMEOUT}
+    retry:
+      automatic:
+        - exit_status: 1
+          limit: 2
 
   - label: ":rocket: Test Results"
     plugins:
