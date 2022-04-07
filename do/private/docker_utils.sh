@@ -53,8 +53,7 @@ function build_and_tag_docker_image()
 function build_docker_thirdparty()
 {
   local docker_image="${PROJECT_REPO}:thirdparty"
-  local docker_args=(--pull \
-                     --build-arg BUILDKIT_INLINE_CACHE=1 \
+  local docker_args=(--build-arg BUILDKIT_INLINE_CACHE=1 \
                      --progress plain \
                      "$@")
 

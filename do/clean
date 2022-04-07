@@ -25,7 +25,7 @@ function help()
   cat <<EOF
 
 Clean - remove all artifacts resulting from the main build process.
-This script will remove the "build-output" and "test-output" directory.
+This script will remove the "${BUILD_DIRECTORY}" and "${TEST_DIRECTORY}" directory.
 
 Options:
  -f, --force              Remove all artifacts and docker images without prompt.
@@ -42,7 +42,7 @@ EOF
 
 function clean_artifacts_with_prompt()
 {
-  echo "Remove the 'build-output' and 'test-output' directories and all its subdirectories and files?"
+  echo "Remove the '${BUILD_DIRECTORY}' and '${TEST_DIRECTORY}' directories and all its subdirectories and files?"
   while true; do
     read -r -p "Do you want to continue? (y/N)" yn
     case "${yn}" in
@@ -95,8 +95,11 @@ function clean_docker()
 
 function clean_artifacts()
 {
-  rm -rf build-output test-output
+  rm -rf "${BUILD_DIRECTORY}" "${TEST_DIRECTORY}"
 }
+
+BUILD_DIRECTORY="build-output"
+TEST_DIRECTORY="test-output"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SCRIPT_NAME="$( basename "${BASH_SOURCE[0]}" )"
@@ -114,22 +117,22 @@ while [ -n "${1-}" ]; do
       exit 0
     ;;
     '-d'|'--docker')
-      echo "Removing ${PROJECT_REPO} docker images..."
+      echo "Removing ${PROJECT_REPO-} docker images..."
       clean_docker_with_prompt
       exit 0
     ;;
     '--force-docker')
-      echo "Removing ${PROJECT_REPO} docker images..."
+      echo "Removing ${PROJECT_REPO-} docker images..."
       clean_docker
       exit 0
     ;;
     '--force-artifacts')
-      echo "Removing ${PROJECT_REPO} build artifacts..."
+      echo "Removing ${PROJECT_REPO-} build artifacts..."
       clean_artifacts
       exit 0
     ;;
     '-a'|'--artifacts')
-      echo "Removing ${PROJECT_REPO} build artifacts..."
+      echo "Removing ${PROJECT_REPO-} build artifacts..."
       clean_artifacts_with_prompt
       exit 0
     ;;
