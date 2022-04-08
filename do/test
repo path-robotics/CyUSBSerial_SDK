@@ -1,21 +1,102 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eu -o pipefail
+
+function usage()
+{
+  usage_default
+}
+
+function help()
+{
+  help_default
+}
+
+function pre_docker()
+{
+  # this function is called before the docker container runs
+  mkdir -p "${OUTPUT_DIR}"
+
+  if [[ "${BUILD_DOCKER}" -eq 1 ]]; then
+    echo "--- :docker: Building the third-party docker image for '${PROJECT_REPO-}' - branch '${GIT_BRANCH-}', commit '${GIT_COMMIT-}'"
+    build_docker_thirdparty
+
+    echo "--- :docker: Building the testdeps docker image for '${PROJECT_REPO-}' - branch '${GIT_BRANCH-}', commit '${GIT_COMMIT-}'"
+    build_docker_testdeps
+  fi
+}
+
+function do_build_in_docker()
+{
+  echo "--- :gear: Compiling (for test) project '${PROJECT_REPO-}' - branch '${GIT_BRANCH-}', commit '${GIT_COMMIT-}'"
+
+  cd "${OUTPUT_DIR}"
+
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DCMAKE_CXX_FLAGS="--coverage" ..
+
+  if [[ -z "${SONAR_TOKEN-}" ]]; then
+    echo "Compile for testing without sonar wrapper"
+    make -j"$(nproc)"
+  else
+    echo "Compile for testing with sonar wrapper"
+    build-wrapper-linux-x86-64 --out-dir "${BW_DIR}" make -j"$(nproc)"
+  fi
+}
+
+function do_test_in_docker()
+{
+  echo "--- :hammer: Testing project '${PROJECT_REPO-}' - branch '${GIT_BRANCH-}', commit '${GIT_COMMIT-}'"
+
+  cd "${OUTPUT_DIR}"
+
+  TEST_RESULT=0
+
+  mapfile -t TEST_EXECS < <(find test -type f -name "*_tests")
+  if [[ -z "${TEST_EXECS[0]-}" ]]; then
+    echo "No Tests to be found"
+    exit
+  fi
+
+  echo "Running the following tests: ${TEST_EXECS[*]}"
+
+  # If the test command exits with a non-0 exit code, this set +e will prevent this script
+  # from prematurely exiting
+  set +e
+
+  for EXEC in "${TEST_EXECS[@]}"; do
+    echo "Running test '${EXEC}'..."
+    NAME=$(basename "${EXEC}" | sed -r -n "s/(.*)_test/\1/p")
+    "${EXEC}" --gtest_output="xml:test/results/${NAME}.xml" --gtest_shuffle
+    THIS_TEST_RESULT=$?
+    if [[ "${THIS_TEST_RESULT}" -ne 0 ]]; then
+      TEST_RESULT="${THIS_TEST_RESULT}"
+    fi
+  done
+
+  set -e
+
+  exit "${TEST_RESULT}"
+}
+
+function post_docker()
+{
+  :
+}
+
+
+DOCKER_WORKDIR="/app"
+OUTPUT_DIR="test-output"
+BW_DIR="bw-output"
+DOCKER_IMAGE_NAME="cyusbserial_sdk:test"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-pushd "${SCRIPT_DIR}/.." > /dev/null 2>&1 || exit 1
-# shellcheck source=do/private/script_utils
-source "${SCRIPT_DIR}/private/script_utils"
+SCRIPT_SHORT_DIR="$( dirname "${BASH_SOURCE[0]}" )"
+SCRIPT_NAME="$( basename "${BASH_SOURCE[0]}" )"
+cd "${SCRIPT_DIR}/.."
 
-configure_environment "us-east-2"
+# shellcheck source=do/private/parse_options_utils.sh
+source "${SCRIPT_DIR}/private/parse_options_utils.sh"
 
-echo "Testing repo '${PROJECT_REPO}', branch '${GIT_BRANCH}', commit '${GIT_COMMIT}'"
-
-echo "+++ Test project"
-docker run \
-      --rm  \
-      --tty \
-      --volume "$(pwd):/app" \
-      "${PROJECT_REPO}:build-${GIT_TAG}" \
-      "do/private/docker_test"
-exit_on_fail $?
-
-popd > /dev/null 2>&1 || exit 1
+do_all build test -- \
+  --volume="$(pwd):${DOCKER_WORKDIR}" \
+  --workdir="${DOCKER_WORKDIR}" \
+  "${DOCKER_IMAGE_NAME}"

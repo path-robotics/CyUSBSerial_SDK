@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+set -eu -o pipefail
+
+function usage()
+{
+  usage_default
+}
+
+function help()
+{
+  help_default
+}
+
+function pre_docker()
+{
+  :
+}
+
+function do_scan_in_docker()
+{
+  check_env_var_with_exit SONAR_TOKEN
+
+  echo "+++ :sonarcloud: Scanning project '${PROJECT_REPO-}' - branch '${GIT_BRANCH-}', commit '${GIT_COMMIT-}'"
+
+  CORES=$(nproc)
+  THREADS=$((CORES - 4))
+  if [ ${THREADS} -lt 1 ]; then THREADS=1; fi
+  VERSION=${PROJECT_VERSION:="0.0"}
+  BRANCH=${GIT_BRANCH:="Unknown"}
+
+  rm -rf "${COVERAGE_PATH}"
+  mkdir -p "${COVERAGE_PATH}"
+
+  pushd "${COVERAGE_PATH}"
+
+  COVERAGE_FOUND=$(find ../.. -name '*.gcda')
+  [[ -n ${COVERAGE_FOUND} ]] && echo "${COVERAGE_FOUND}" | xargs gcov &> /dev/null
+  find . -type f ! -name "*.gcov" -exec rm {} \;
+
+  popd
+
+  rm -rf "${TEST_RESULTS_CONVERTED_PATH}"
+  mkdir -p "${TEST_RESULTS_CONVERTED_PATH}"
+  mapfile -t TEST_LOGS < <(find "${TEST_RESULTS_PATH}" -maxdepth 1 -type f -name "*.xml")
+
+  for LOG in "${TEST_LOGS[@]}"; do
+    OUTPUT="${TEST_RESULTS_CONVERTED_PATH}/$(basename "${LOG}")"
+    xmlstarlet tr "${SCRIPT_SHORT_DIR}/private/test_result_transform.xslt" "${LOG}" > "${OUTPUT}"
+  done
+
+  sonar-scanner \
+    -Dsonar.organization=path-robotics \
+    -Dsonar.projectKey=path-robotics_CyUSBSerial_SDK \
+    -Dsonar.host.url=https://sonarcloud.io/ \
+    -Dsonar.scm.provider=git \
+    -Dsonar.sourceEncoding="UTF-8" \
+    -Dsonar.projectBaseDir="." \
+    -Dsonar.sources="modules,examples" \
+    -Dsonar.working.directory="${OUTPUT_DIR}/.sonarwork" \
+    -Dsonar.branch.name="${BRANCH}" \
+    -Dsonar.projectVersion="${VERSION}" \
+    -Dsonar.cfamily.cache.enabled=false \
+    -Dsonar.cfamily.build-wrapper-output="${BW_PATH}" \
+    -Dsonar.cfamily.gcov.reportsPath="${COVERAGE_PATH}" \
+    -Dsonar.cfamily.cppunit.reportsPath="${TEST_RESULTS_CONVERTED_PATH}" \
+    -Dsonar.cfamily.threads="${THREADS}"
+}
+
+function post_docker()
+{
+  :
+}
+
+
+DOCKER_WORKDIR="/app"
+OUTPUT_DIR="test-output"
+BW_DIR="bw-output"
+BW_PATH="${OUTPUT_DIR}/${BW_DIR}"
+COVERAGE_PATH="${OUTPUT_DIR}/test/coverage"
+TEST_RESULTS_PATH="${OUTPUT_DIR}/test/results"
+TEST_RESULTS_CONVERTED_PATH="${TEST_RESULTS_PATH}/cpp"
+DOCKER_IMAGE_NAME="cyusbserial_sdk:test"
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_SHORT_DIR="$( dirname "${BASH_SOURCE[0]}" )"
+SCRIPT_NAME="$( basename "${BASH_SOURCE[0]}" )"
+cd "${SCRIPT_DIR}/.."
+
+# shellcheck source=do/private/parse_options_utils.sh
+source "${SCRIPT_DIR}/private/parse_options_utils.sh"
+
+do_all scan -- \
+  --volume="$(pwd):${DOCKER_WORKDIR}" \
+  --workdir="${DOCKER_WORKDIR}" \
+  "${DOCKER_IMAGE_NAME}"

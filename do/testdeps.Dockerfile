@@ -1,21 +1,20 @@
 ARG PROJECT_REPO
-ARG GIT_TAG
-FROM ${PROJECT_REPO}:thirdparty-${GIT_TAG}
+ARG DOCKER_VER_IMG
+FROM ${PROJECT_REPO}:thirdparty-${DOCKER_VER_IMG}
 
-ARG SONAR_TOKEN
+ARG DEBIAN_FRONTEND=noninteractive
 ARG SONAR_SCANNER_VERSION=4.6.2.2472
 ARG SONAR_SCANNER_HOME=/sonar/sonar-scanner-${SONAR_SCANNER_VERSION}-linux
+ARG SONAR_SCANNER_OPTS="-server"
+
+ARG SONAR_TOKEN
 ARG GIT_BRANCH
+ARG PROJECT_VERSION
+ARG PROJECT_REPO
 
-RUN apt update -qq \
-    && apt install -y -qq --no-install-recommends --autoremove \
-       xmlstarlet \
-       unzip
-
-RUN apt install -qq -y libgtest-dev \
-    && cd /usr/src/googletest \
-    && cmake . \
-    && cmake --build . --target install
+RUN apt update -qq && apt install -qq -y --no-install-recommends xmlstarlet unzip libgtest-dev \
+ && rm -rf /var/lib/apt/lists/*
+RUN cd /usr/src/googletest && cmake . && cmake --build . --target install
 
 WORKDIR /sonar
 RUN curl -sSLo build-wrapper-linux-x86.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip \
@@ -23,7 +22,9 @@ RUN curl -sSLo build-wrapper-linux-x86.zip https://sonarcloud.io/static/cpp/buil
     && curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux.zip \
     && unzip -o sonar-scanner.zip > /dev/null
 
-ENV PATH="/sonar/build-wrapper-linux-x86:${PATH}"
+ENV PATH=/sonar/build-wrapper-linux-x86:${PATH}
 ENV PATH=${SONAR_SCANNER_HOME}/bin:${PATH}
 ENV SONAR_TOKEN=${SONAR_TOKEN}
 ENV GIT_BRANCH=${GIT_BRANCH}
+ENV PROJECT_VERSION=${PROJECT_VERSION}
+ENV PROJECT_REPO=${PROJECT_REPO}

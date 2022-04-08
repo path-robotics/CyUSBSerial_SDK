@@ -1,0 +1,7 @@
+# ~/.shellcheckrc
+
+# disable check that causes us to pass empty arguments to functions
+disable=SC2119
+
+# to see additional checks available use --list-optional flag
+#enable=

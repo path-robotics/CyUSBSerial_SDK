@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+set -eu -o pipefail
+
+function usage()
+{
+  cat <<EOF
+
+Usage:
+ do/${SCRIPT_NAME}
+
+ do/${SCRIPT_NAME} --help|-h
+ do/${SCRIPT_NAME} --usage
+
+EOF
+}
+
+function help()
+{
+  usage
+  cat <<EOF
+
+Publish the Debian file to the APT Repo.
+
+Options:
+ -h, --help           Display this help.
+     --usage          Display only the Usage section of this help.
+
+EOF
+}
+
+function publish_deb()
+{
+  echo "--- :debian: Publish Debian file to APT Repo"
+
+  # make sure a git tag exists
+  if [[ -z "${GIT_VER_TAG-}" ]]; then
+    echo "No version tag on repo.  Nothing to do. Exiting early."
+    exit 0
+  fi
+
+  # determine if there are uncommitted changes to tracked files
+  if [[ -n $( git status --porcelain --untracked-files=no ) ]];  then
+    echo "ERROR: Cannot publish Debian due to local changes to tracked files." >&2
+    exit 1 
+  fi
+
+  mkdir -p "${OUTPUT_DIR}"
+
+  # download the Debian file from Buildkite if we are running this script via Buildkite
+  if [[ "${BUILDKITE-}" == "true" ]]; then
+    echo "Download artifacts from Buildkite."
+    buildkite-agent artifact download "${OUTPUT_DIR}/*.deb" "${OUTPUT_DIR}/"
+  fi
+
+  # make sure there is a Debian file to publish
+  local debian_list=( "${OUTPUT_DIR}"/*.deb )
+  local debian
+  debian=$( basename "${debian_list[0]}" )
+  if [[ "${debian}" == "*.deb" ]]; then
+    debian=""
+  fi
+  if [[ -z "${debian}" ]]; then
+    echo "ERROR: Cannot publish Debian. Debian not found." >&2
+    exit 1
+  fi
+
+  if [[ -z "${APT_REPOSITORY_URI-}" ]]; then
+    echo "ERROR: Cannot publish Debian. The APT Repository URI is undefined." >&2
+    exit 1
+  fi
+
+  # make sure the Debian file doesn't already exist on the S3 bucket
+  if [[ -n $( aws --region "${AWS_REGION}" s3 ls "${APT_REPOSITORY_URI}/${debian}" ) ]]; then
+    echo "ERROR: Cannot publish Debian.  File already exists in APT Repo (${APT_REPOSITORY_URI})." >&2
+    exit 1
+  fi
+
+  echo "Pushing '${debian}' to ${APT_REPOSITORY_URI}"
+  aws --region "${AWS_REGION}" s3 cp "${OUTPUT_DIR}/${debian}" "${APT_REPOSITORY_URI}/${debian}"
+}
+
+
+OUTPUT_DIR="build-output"
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_NAME="$( basename "${BASH_SOURCE[0]}" )"
+cd "${SCRIPT_DIR}/.."
+
+# shellcheck source=do/private/script_utils.sh
+source "${SCRIPT_DIR}/private/script_utils.sh"
+
+configure_environment
+
+while [ -n "${1-}" ]; do
+  case "${1}" in
+    '-h'|'-?'|'--help')
+      help
+      exit 0
+    ;;
+    '--usage')
+      usage
+      exit 0
+    ;;
+    *)
+      echo "${1} is an invalid option!" >&2
+      help
+      exit 1
+    ;;
+  esac
+  shift
+done
+
+
+publish_deb

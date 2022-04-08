@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -eu -o pipefail
+
+function usage()
+{
+  cat <<EOF
+
+Usage:
+ do/${SCRIPT_NAME}
+
+ do/${SCRIPT_NAME} --help|-h
+ do/${SCRIPT_NAME} --usage
+
+EOF
+}
+
+function help()
+{
+  usage
+  cat <<EOF
+
+Lints the bash scripts in this repository.
+
+Options:
+ -h, --help           Display this help.
+     --usage          Display only the Usage section of this help.
+
+EOF
+}
+
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_NAME="$( basename "${BASH_SOURCE[0]}" )"
+cd "${SCRIPT_DIR}/.."
+
+# shellcheck source=do/private/script_utils.sh
+source "${SCRIPT_DIR}/private/script_utils.sh"
+
+configure_environment
+
+while [ -n "${1-}" ]; do
+  case "${1}" in
+    '-h'|'-l'|'--help')
+      help
+      exit 0
+    ;;
+    '--usage')
+      usage
+      exit 0
+    ;;
+    *)
+      echo "${1} is an invalid option!" >&2
+      help
+      exit 1
+    ;;
+  esac
+  shift
+done
+
+
+echo "+++ :bash: Linting '${PROJECT_REPO-}' - branch '${GIT_BRANCH-}', commit '${GIT_COMMIT-}'"
+grep -rl '^#!/.*sh' . | while read -r file ; do
+  [[ "${file}" =~ \.git ]] && continue
+  [[ "${file}" =~ init\.d ]] && continue
+  [[ "${file}" =~ vendor ]] && continue
+  [[ "${file}" =~ plugins ]] && continue
+  [[ "${file}" =~ node_modules ]] && continue
+  [[ "${file}" =~ cmake ]] && continue
+  [[ "${file}" =~ deb ]] && continue
+  [[ "${file}" =~ build-output ]] && continue
+  [[ "${file}" =~ test-output ]] && continue
+  [[ "${file}" =~ .idea ]] && continue
+
+  echo "Processing ${file}"
+  docker run --rm -v "${PWD}:/mnt" koalaman/shellcheck --external-sources --shell=bash "${file}"
+  echo -e "Ok.\\n"
+done

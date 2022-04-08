@@ -8,7 +8,6 @@ cmake-build-*/
 
 # File-based project format
 *.iws
-bw-output/
 
 # IntelliJ
 out/
@@ -66,3 +65,7 @@ docs/doxygen/
 #!**/test_data/*
 
 !**/test_data/test_image.jpg
+
+# CI
+build-output/
+test-output/

@@ -1,61 +1,55 @@
 agents:
   queue: "aws"
-env:
-  INSTALLER_BUCKET_URL: "s3://buildkite-spike/bionic"
 
 steps:
-  - id: "lint"
-    name: ":bash: Lint"
-    command: do/private/lint
-
-  - label: ":gear: Build"
-    commands:
-      - "do/build"
-    key: "build"
+  - label: ":bash: Lint"
+    command: "do/lint"
 
   - label: ":hammer: Unit Test"
     commands:
       - "do/test"
-    depends_on:
-      - "build"
-    allow_dependency_failure: false
+      - "do/scan"
     key: "test"
     artifact_paths:
-      - "build/test/results/*.xml"
+      - "test-output/test/results/*.xml"
+    timeout_in_minutes: ${DEFAULT_TIMEOUT}
+    retry:
+      automatic:
+        - exit_status: 1
+          limit: 2
 
-  - label: ":microscope: Sonar Scan"
+  - label: ":gear: :debian: Build Debian Package"
     commands:
-      - "do/private/scan"
-    depends_on:
-      - "test"
-    allow_dependency_failure: false
-    key: "scan"
-
-  - label: ":gear: :debian: Build Debian"
-    commands:
-      - "./do/private/package"
-    depends_on:
-      - "build"
-    allow_dependency_failure: false
+      - "do/build"
+      - "do/package"
     key: "package"
     artifact_paths:
-      - "build/CyUSBSerial-*-Linux.deb"
+      - "build-output/CyUSBSerial-*-Linux.deb"
+    timeout_in_minutes: ${DEFAULT_TIMEOUT}
+    retry:
+      automatic:
+        - exit_status: 1
+          limit: 2
 
-  - label: ":shipit: Publish to APT Repo"
+  - label: ":aws: Publish to S3 APT Repo"
     commands:
-      - "./do/private/publish"
-    branches: "master develop"
+      - "do/publish"
+    branches: "master develop release-*"
     depends_on:
-      - "scan"
+      - "test"
       - "package"
     allow_dependency_failure: false
     key: "publish"
+    timeout_in_minutes: ${DEFAULT_TIMEOUT}
+    retry:
+      automatic:
+        - exit_status: 1
+          limit: 2
 
-    
   - label: ":rocket: Test Results"
     plugins:
       - junit-annotate#v1.9.0:
-          artifacts: build/test/results/*.xml
+          artifacts: test-output/test/results/*.xml
           report-slowest: 6
     depends_on:
       - "test"

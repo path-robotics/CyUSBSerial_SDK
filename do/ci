@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -eu -o pipefail
+
+function usage()
+{
+  cat <<EOF
+
+Usage:
+ do/${SCRIPT_NAME}
+
+ do/${SCRIPT_NAME} --help|-h
+ do/${SCRIPT_NAME} --usage
+
+EOF
+}
+
+function help()
+{
+  usage
+  cat <<EOF
+
+Perform a local build equivalent to the full pipeline executed by the CI
+system.  This script will not perform the 'do/scan' and 'do/publish' that is
+done as part of CI.  Warning: 'do/clean -f' is executed as the first step!
+
+Options:
+ -h, --help           Display this help.
+     --usage          Display only the Usage section of this help.
+
+EOF
+}
+
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_NAME="$( basename "${BASH_SOURCE[0]}" )"
+cd "${SCRIPT_DIR}/.."
+
+while [ -n "${1-}" ]; do
+  case "${1}" in
+    '-h'|'-l'|'--help')
+      help
+      exit 0
+    ;;
+    '--usage')
+      usage
+      exit 0
+    ;;
+    *)
+      echo "${1} is an invalid option!" >&2
+      help
+      exit 1
+    ;;
+  esac
+  shift
+done
+
+
+do/clean -f
+do/lint
+do/test
+do/build
+do/package
+
+cat <<EOF
+
+********************************************************************************
+**                              SUCCESS!                                      **
+**                                                                            **
+** Note: do/scan and do/publish did not run since they only run on Buildkite. **
+********************************************************************************
+EOF
