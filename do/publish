@@ -32,12 +32,6 @@ function publish_deb()
 {
   echo "--- :debian: Publish Debian file to APT Repo"
 
-  # make sure a git tag exists
-  if [[ -z "${GIT_VER_TAG-}" ]]; then
-    echo "No version tag on repo.  Nothing to do. Exiting early."
-    exit 0
-  fi
-
   # determine if there are uncommitted changes to tracked files
   if [[ -n $( git status --porcelain --untracked-files=no ) ]];  then
     echo "ERROR: Cannot publish Debian due to local changes to tracked files." >&2
