@@ -65,8 +65,9 @@ function publish_deb()
 
   # make sure the Debian file doesn't already exist on the S3 bucket
   if [[ -n $( aws --region "${AWS_REGION}" s3 ls "${APT_REPOSITORY_URI}/${debian}" ) ]]; then
-    echo "ERROR: Cannot publish Debian.  File already exists in APT Repo (${APT_REPOSITORY_URI})." >&2
-    exit 1
+    echo "ERROR: Cannot publish ${debian}.  File already exists in APT Repo (${APT_REPOSITORY_URI})." >&2
+    # Specifically using a unique error code so we can soft fail in the pipeline when develop is re-run.
+    exit 123
   fi
 
   echo "Pushing '${debian}' to ${APT_REPOSITORY_URI}"
