@@ -24,7 +24,7 @@ steps:
       - "do/package"
     key: "package"
     artifact_paths:
-      - "build-output/CyUSBSerial-*-Linux.deb"
+      - "build-output/*.deb"
     timeout_in_minutes: ${DEFAULT_TIMEOUT}
     retry:
       automatic:
@@ -45,6 +45,8 @@ steps:
       automatic:
         - exit_status: 1
           limit: 2
+    soft_fail:
+      - exit_status: 123
 
   - label: ":rocket: Test Results"
     plugins:
