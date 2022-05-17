@@ -2,7 +2,7 @@
 # shellcheck disable=SC2034
 # Disable unused variable check for configure_environment function
 
-DEFAULT_AWS_REGION="us-east-1"
+DEFAULT_AWS_REGION="us-east-2"
 
 function show_stack() {
   local frame=0
