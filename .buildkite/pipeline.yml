@@ -33,6 +33,7 @@ steps:
 
   - label: ":aws: Publish to S3 APT Repo"
     commands:
+      - "do/package --docker-only"
       - "do/publish"
     branches: "master develop release-*"
     depends_on:

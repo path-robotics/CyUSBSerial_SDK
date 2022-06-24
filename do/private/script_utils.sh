@@ -22,7 +22,7 @@ function exit_on_fail() {
 function exit_on_fail_with_action() {
   if [ "${1}" -ne 0 ]; then
     show_stack "Exiting due to error code '${1}'" 1>&2
-    "${2}"
+    exec ${2}
     exit "${1}"
   fi
 }
@@ -87,6 +87,43 @@ function remove_s3_auth_file() {
   fi
 }
 
+function write_aws_creds_file() {
+  echo "Writing aws credentials file..."
+  AWS_CREDENTIALS_FILE=~/.aws/credentials
+  if [[ ! -f "${AWS_CREDENTIALS_FILE}" ]]; then
+    check_env_var_with_exit AWS_ACCESS_KEY
+    check_env_var_with_exit AWS_SECRET_ACCESS_KEY
+
+cat <<EOF > credentials
+[default]
+region = us-east-2
+aws_access_key_id = ${AWS_ACCESS_KEY}
+aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
+EOF
+
+    AWS_CREDENTIALS_FILE=$(readlink -f credentials)
+  fi
+}
+
+function remove_aws_creds_file() {
+  # strip off any path since we only want to remove the locally created file and
+  # not the file in .aws
+  local file_name
+  file_name=$( basename "${AWS_CREDENTIALS_FILE}" )
+  if [[ -f "${file_name}" ]]; then
+    echo "Removing ${file_name} file."
+    rm -f "${file_name}"
+  fi
+}
+
+function check_submodules() {
+  set +e
+  for mod in $(git submodule status); do
+    [[ "${mod:0:1}" == "-" ]] && echo "Please initiate the submodules.  git submodule update --init --recursive" && exit 1
+  done
+  set -e
+}
+
 function configure_environment() {
   AWS_REGION=${1:-${DEFAULT_AWS_REGION}}
 
@@ -94,6 +131,7 @@ function configure_environment() {
   PROJECT_REPO_URL=$(git config --get remote.origin.url)
   PROJECT_VERSION=$(git describe --tags "$(git rev-list --tags --max-count=1)" > /dev/null 2>&1 || echo 0.0)
   DEFAULT_BRANCH=$(git remote show "${PROJECT_REPO_URL}" | grep 'HEAD branch' | cut -d' ' -f5)
+  DOCKER_REGISTRY_HOST="${DOCKER_REGISTRY_HOST:=335509591822.dkr.ecr.${AWS_REGION}.amazonaws.com}"
 
   GIT_COMMIT=$(git rev-parse --short HEAD)
   GIT_HASH_TAG=git-${GIT_COMMIT}

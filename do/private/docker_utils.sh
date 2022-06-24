@@ -34,7 +34,7 @@ function build_and_tag_docker_image()
   docker_type="${docker_image##*:}"
   local docker_file="${SCRIPT_DIR}/${docker_type}.Dockerfile"
   args+=(--tag "${docker_image_with_tag}")
-
+  args+=(--build-arg BUILDKIT_INLINE_CACHE=1)
 
   if [[ -f "${docker_file}" ]]; then
     docker_build "${args[@]}" "${docker_file}"
@@ -53,7 +53,11 @@ function build_and_tag_docker_image()
 function build_docker_thirdparty()
 {
   local docker_image="${PROJECT_REPO}:thirdparty"
-  local docker_args=(--build-arg BUILDKIT_INLINE_CACHE=1 \
+  # note: order is important for --cache-from.  use the current git branch tag first
+  #       then fall back to the default branch tag.  this allows release-* branches to use
+  #       the cache associated with the release instead of using the default/develop branch
+  local docker_args=(--cache-from "${DOCKER_REGISTRY_HOST}/${docker_image}-${GIT_BRANCH}" \
+                     --cache-from "${DOCKER_REGISTRY_HOST}/${docker_image}-${DEFAULT_BRANCH}" \
                      --progress plain \
                      "$@")
 

@@ -7,8 +7,11 @@ function usage()
 
 Usage:
  do/${SCRIPT_NAME}
+ do/${SCRIPT_NAME} --deb-only
+ do/${SCRIPT_NAME} --docker-only
+ do/${SCRIPT_NAME} --local-tag-only
 
- do/${SCRIPT_NAME} --help|-h
+ do/${SCRIPT_NAME} --help|-h|-?
  do/${SCRIPT_NAME} --usage
 
 EOF
@@ -20,10 +23,17 @@ function help()
   cat <<EOF
 
 Publish the Debian file to the APT Repo.
+Publish the thirdparty Docker image.
 
 Options:
- -h, --help           Display this help.
-     --usage          Display only the Usage section of this help.
+         --deb-only         This option will only publish the Debian file.
+         --docker-only      This option will only publish the thirdparty Docker
+                            image.
+         --local-tag-only   This option will only locally tag the Docker image.
+                            No images will be publish to the Docker registry.
+
+ -?, -h, --help             Display this help.
+         --usage            Display only the Usage section of this help.
 
 EOF
 }
@@ -74,7 +84,69 @@ function publish_deb()
   aws --region "${AWS_REGION}" s3 cp "${OUTPUT_DIR}/${debian}" "${APT_REPOSITORY_URI}/${debian}"
 }
 
+function tag_images()
+{
+  echo "--- :docker: Tag ${PROJECT_REPO-} images"
 
+  if [[ -z "${DOCKER_REGISTRY_HOST-}" ]]; then
+    echo "ERROR: Cannot tag Docker images. The Docker Registry Host is undefined." >&2
+    exit 1
+  else
+    echo "Docker Registry Host: ${DOCKER_REGISTRY_HOST-}"
+  fi
+
+  # docker version tag the third party docker image with the git hash and git branch
+  docker tag "${THIRDPARTY_DOCKER_IMAGE_NAME}-${GIT_HASH_TAG}" "${DOCKER_REGISTRY_HOST}/${THIRDPARTY_DOCKER_IMAGE_NAME}-${GIT_HASH_TAG}"
+  docker tag "${THIRDPARTY_DOCKER_IMAGE_NAME}-${GIT_HASH_TAG}" "${DOCKER_REGISTRY_HOST}/${THIRDPARTY_DOCKER_IMAGE_NAME}-${GIT_BRANCH}"
+
+
+  # docker version tag with the git version tag if available
+  if [[ -n "${GIT_VER_TAG}" ]]; then
+    docker tag "${THIRDPARTY_DOCKER_IMAGE_NAME}-${GIT_HASH_TAG}" "${DOCKER_REGISTRY_HOST}/${THIRDPARTY_DOCKER_IMAGE_NAME}-${GIT_VER_TAG}"
+  fi
+
+  echo "--- Tagged the following images"
+  docker images "${DOCKER_REGISTRY_HOST}/${REGISTRY_NAME}"*
+}
+
+function publish_docker()
+{
+  echo "+++ :docker: Publish ${PROJECT_REPO-} Docker images"
+
+  # only publish docker images if there are no changes that need to be committed
+  if [[ -n $( git status --porcelain --untracked-files=no ) ]];  then
+    echo "ERROR: Cannot publish Docker image(s) due to local changes to tracked files." >&2
+    git status --porcelain --untracked-files=no
+    exit 1
+  fi
+
+  if [[ -z "${DOCKER_REGISTRY_HOST-}" ]]; then
+    echo "ERROR: Cannot publish Docker images. The Docker Registry Host is undefined." >&2
+    exit 1
+  else
+    echo "Docker Registry Host: ${DOCKER_REGISTRY_HOST-}"
+  fi
+
+  echo "--- :aws: Log into AWS ${AWS_REGION-} Elastic Container Registry..."
+  aws_login
+
+  if ! aws --region "${AWS_REGION}" ecr list-images --repository-name "${REGISTRY_NAME}" > /dev/null 2>&1; then
+    echo "${REGISTRY_NAME} registry does not exist. Creating registry now."
+    create_aws_ecr_repo "${REGISTRY_NAME}"
+  fi
+
+  # push thirdparty docker images
+  docker push "${DOCKER_REGISTRY_HOST}/${THIRDPARTY_DOCKER_IMAGE_NAME}-${GIT_HASH_TAG}"
+  docker push "${DOCKER_REGISTRY_HOST}/${THIRDPARTY_DOCKER_IMAGE_NAME}-${GIT_BRANCH}"
+
+  if [[ -n "${GIT_VER_TAG}" ]]; then
+    docker push "${DOCKER_REGISTRY_HOST}/${THIRDPARTY_DOCKER_IMAGE_NAME}-${GIT_VER_TAG}"
+  fi
+}
+
+
+REGISTRY_NAME="cyusbserial_sdk"
+THIRDPARTY_DOCKER_IMAGE_NAME="${REGISTRY_NAME}:thirdparty"
 OUTPUT_DIR="build-output"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -96,6 +168,19 @@ while [ -n "${1-}" ]; do
       usage
       exit 0
     ;;
+    '--deb-only')
+      publish_deb
+      exit 0
+    ;;
+    '--docker-only')
+      tag_images
+      publish_docker
+      exit 0
+    ;;
+    '--local-tag-only')
+      tag_images
+      exit 0
+    ;;
     *)
       echo "${1} is an invalid option!" >&2
       help
@@ -106,4 +191,11 @@ while [ -n "${1-}" ]; do
 done
 
 
+# use these functions to push the docker images to the Docker Registry
+# publish the docker images first since we will hard fail here in the CI pipeline
+# and still allow the publishing of the Debian package to soft fail when it already exists
+tag_images
+publish_docker
+
+# use this function to push a *.deb file to the APT Repo
 publish_deb

@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 ARG PROJECT_REPO
 ARG DOCKER_VER_IMG
 FROM ${PROJECT_REPO}:testdeps-${DOCKER_VER_IMG}
