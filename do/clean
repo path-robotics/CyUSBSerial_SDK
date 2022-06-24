@@ -13,7 +13,7 @@ Usage:
  do/${SCRIPT_NAME} --force-artifacts
  do/${SCRIPT_NAME} --force-docker
 
- do/${SCRIPT_NAME} --help|-h
+ do/${SCRIPT_NAME} --help|-h|-?
  do/${SCRIPT_NAME} --usage
 
 EOF
@@ -28,14 +28,14 @@ Clean - remove all artifacts resulting from the main build process.
 This script will remove the "${BUILD_DIRECTORY}" and "${TEST_DIRECTORY}" directory.
 
 Options:
- -f, --force              Remove all artifacts and docker images without prompt.
- -a, --artifacts          Remove only the build artifacts and directories related to the current project.
- -d, --docker             Remove only the docker images related to the current project.
-     --force-artifacts    Remove only the build artifacts and directories related to the current project without prompt.
-     --force-docker       Remove only the docker images related to the current project without prompt.
+     -f, --force              Remove all artifacts and docker images without prompt.
+     -a, --artifacts          Remove only the build artifacts and directories related to the current project.
+     -d, --docker             Remove only the docker images related to the current project.
+         --force-artifacts    Remove only the build artifacts and directories related to the current project without prompt.
+         --force-docker       Remove only the docker images related to the current project without prompt.
 
- -h, --help               Display this help.
-     --usage              Display only the Usage section of this help.
+ -?, -h, --help               Display this help.
+         --usage              Display only the Usage section of this help.
 
 EOF
 }
@@ -91,6 +91,7 @@ function clean_docker()
 {
   # shellcheck disable=SC2046
   docker rmi -f $(docker images "${PROJECT_REPO}" -q) 2>/dev/null || echo "No docker images to remove"
+  docker image prune -f
 }
 
 function clean_artifacts()
@@ -136,7 +137,7 @@ while [ -n "${1-}" ]; do
       clean_artifacts_with_prompt
       exit 0
     ;;
-    '-h'|'-l'|'--help')
+    '-h'|'-?'|'--help')
       help
       exit 0
     ;;

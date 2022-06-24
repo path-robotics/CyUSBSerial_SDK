@@ -8,7 +8,7 @@ function usage()
 Usage:
  do/${SCRIPT_NAME}
 
- do/${SCRIPT_NAME} --help|-h
+ do/${SCRIPT_NAME} --help|-h|-?
  do/${SCRIPT_NAME} --usage
 
 EOF
@@ -22,8 +22,8 @@ function help()
 Lints the bash scripts in this repository.
 
 Options:
- -h, --help           Display this help.
-     --usage          Display only the Usage section of this help.
+ -?, -h, --help           Display this help.
+         --usage          Display only the Usage section of this help.
 
 EOF
 }
@@ -40,7 +40,7 @@ configure_environment
 
 while [ -n "${1-}" ]; do
   case "${1}" in
-    '-h'|'-l'|'--help')
+    '-h'|'-?'|'--help')
       help
       exit 0
     ;;
@@ -72,6 +72,6 @@ grep -rl '^#!/.*sh' . | while read -r file ; do
   [[ "${file}" =~ .idea ]] && continue
 
   echo "Processing ${file}"
-  docker run --rm -v "${PWD}:/mnt" koalaman/shellcheck --external-sources --shell=bash "${file}"
+  docker run --rm -v "${PWD}:/mnt" koalaman/shellcheck:v0.8.0 --external-sources --shell=bash "${file}"
   echo -e "Ok.\\n"
 done

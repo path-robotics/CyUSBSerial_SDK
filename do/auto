@@ -7,7 +7,7 @@ function usage()
 Usage:
  do/${SCRIPT_NAME} do_script_name
 
- do/${SCRIPT_NAME} --help|-h
+ do/${SCRIPT_NAME} --help|-h|-?
  do/${SCRIPT_NAME} --usage
 
 EOF
@@ -19,7 +19,7 @@ function help()
   cat <<EOF
 
 This script will monitor the current directory for code changes and execute the
-given command do_script_name.  For example, run 'do/auto build' in a terminal 
+given command do_script_name.  For example, run 'do/auto build' in a terminal
 window to kick off the 'do/build' script anytime a code file is saved by another
 app.
 
@@ -28,8 +28,8 @@ default on Ubuntu 18.04.
 
 
 Options:
- -h, --help           Display this help.
-     --usage          Display only the Usage section of this help.
+ -?, -h, --help           Display this help.
+         --usage          Display only the Usage section of this help.
 
 EOF
 }
@@ -43,7 +43,7 @@ source "${SCRIPT_DIR}/private/script_utils.sh"
 
 while [ -n "${1-}" ]; do
   case "${1}" in
-    '-h'|'-l'|'--help')
+    '-h'|'-?'|'--help')
       help
       exit 0
     ;;
@@ -62,7 +62,7 @@ full_cmd="do/${1}"
 shift
 
 which entr > /dev/null
-exit_on_fail $?
+exit_on_fail_with_action $? "echo You must have entr installed locally to use do/auto. (sudo apt-get install -y entr)"
 
 # Increase the maximum number of open files to prevent this error:
 #

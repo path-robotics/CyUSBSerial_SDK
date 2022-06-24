@@ -14,7 +14,7 @@ function usage_default()
   done
 
   echo " "
-  echo " do/${SCRIPT_NAME} --help|-h"
+  echo " do/${SCRIPT_NAME} --help|-h|-?"
   echo " do/${SCRIPT_NAME} --usage"
   echo " "
 }
@@ -29,24 +29,24 @@ function help_default()
 Compile code and run unit tests.
 
 Options:
-     --docker-only    Create the thirdparty docker, testdeps docker, and build
-                      docker images.  Do not compile code for test or run unit
-                      tests.  Cannot be combined with other options.
-     --no-docker      Do not create any docker images.  If only option then
-                      compile code for test and run unit tests.
-                      Can be combined with --no-build and --no-test.
+         --docker-only    Create the thirdparty docker, testdeps docker, and build
+                          docker images.  Do not compile code for test or run unit
+                          tests.  Cannot be combined with other options.
+         --no-docker      Do not create any docker images.  If only option then
+                          compile code for test and run unit tests.
+                          Can be combined with --no-build and --no-test.
 
-     --build-only     Compiles code for test only.  No docker builds, no
-                      running unit tests.
-     --no-build       Runs unit tests only.  No compile code for test. Default
-                      behavior will create docker images.  If combined with
-                      --no-docker, then docker images are not created.
+         --build-only     Compiles code for test only.  No docker builds, no
+                          running unit tests.
+         --no-build       Runs unit tests only.  No compile code for test. Default
+                          behavior will create docker images.  If combined with
+                          --no-docker, then docker images are not created.
 
-     --test-only      Runs unit tests only.  No docker builds, no compile code
-                      for test.
-     --no-test        Compiles code for test.  No running unit tests.  Default
-                      behavior will create docker images.  If combined with
-                      --no-docker, then docker images are not created.
+         --test-only      Runs unit tests only.  No docker builds, no compile code
+                          for test.
+         --no-test        Compiles code for test.  No running unit tests.  Default
+                          behavior will create docker images.  If combined with
+                          --no-docker, then docker images are not created.
 EOF
   elif [[ "${DOCKER_STEPS[*]}" = "scan" && ${#DOCKER_STEPS[@]} -eq 1 ]]; then
     cat <<EOF
@@ -54,15 +54,15 @@ EOF
 Scan code.
 
 Options:
-     --docker-only    Create the scan docker.  Do not scan the code.
-                      Cannot be combined with other options.
-     --no-docker      Do not create any docker images.  If only option then
-                      scan the code. Can be combined with --no-scan.
+         --docker-only    Create the scan docker.  Do not scan the code.
+                          Cannot be combined with other options.
+         --no-docker      Do not create any docker images.  If only option then
+                          scan the code. Can be combined with --no-scan.
 
-     --scan-only      Scans code only.  No docker builds.
-     --no-scan        No scanning code.  Default behavior will create docker
-                      images.  If combined with --no-docker then no actions
-                      are taken.
+         --scan-only      Scans code only.  No docker builds.
+         --no-scan        No scanning code.  Default behavior will create docker
+                          images.  If combined with --no-docker then no actions
+                          are taken.
 EOF
   elif [[ "${DOCKER_STEPS[*]}" = "build" && ${#DOCKER_STEPS[@]} -eq 1 ]]; then
     cat <<EOF
@@ -70,16 +70,16 @@ EOF
 Compile code.
 
 Options:
-     --docker-only    Create the thirdparty docker and build docker images.
-                      Does not compile code. Cannot be combined with other
-                      options.
-     --no-docker      Do not create any docker images.  If only option then
-                      compile code.  Can be combined with --no-build.
+         --docker-only    Create the thirdparty docker and build docker images.
+                          Does not compile code. Cannot be combined with other
+                          options.
+         --no-docker      Do not create any docker images.  If only option then
+                          compile code.  Can be combined with --no-build.
 
-     --build-only     Compiles code only - no docker builds.
-     --no-build       Does not compile code. Default behavior will create
-                      docker images.  If combined with --no-docker then no
-                      actions are taken (no compile, no docker build).
+         --build-only     Compiles code only - no docker builds.
+         --no-build       Does not compile code. Default behavior will create
+                          docker images.  If combined with --no-docker then no
+                          actions are taken (no compile, no docker build).
 EOF
   elif [[ "${DOCKER_STEPS[*]}" = "package" && ${#DOCKER_STEPS[@]} -eq 1 ]]; then
     cat <<EOF
@@ -87,19 +87,19 @@ EOF
 Compile code for release and package Debian file.
 
 Options:
-     --docker-only    Create the thirdparty docker and build docker images.
-                      Do not compile code for release or package Debian file.
-                      Cannot be combined with other options.
-     --no-docker      Do not create any docker images.  If only option then
-                      compile code for release and package the Debian file.
-                      Can be combined with --no-package.
+         --docker-only    Create the thirdparty docker and build docker images.
+                          Do not compile code for release or package Debian file.
+                          Cannot be combined with other options.
+         --no-docker      Do not create any docker images.  If only option then
+                          compile code for release and package the Debian file.
+                          Can be combined with --no-package.
 
-     --package-only   Compiles code for release only and packages Debian file.
-                      No docker builds.
-     --no-package     Does not compile code or package Debian file. Default
-                      behavior will create docker images.  If combined with
-                      --no-docker then no actions are taken (no compile,
-                      no package, no docker build).
+         --package-only   Compiles code for release only and packages Debian file.
+                          No docker builds.
+         --no-package     Does not compile code or package Debian file. Default
+                          behavior will create docker images.  If combined with
+                          --no-docker then no actions are taken (no compile,
+                          no package, no docker build).
 EOF
   else
     cat <<EOF
@@ -107,19 +107,19 @@ EOF
 Add your specific help message here for your custom step.
 
 Options:
-     --docker-only    Create the docker images only. No step executed.
-     --no-docker      Do not create the docker images.  Only execute the step.
+         --docker-only    Create the docker images only. No step executed.
+         --no-docker      Do not create the docker images.  Only execute the step.
 
-     --<step>-only    Only execute the step. No docker builds.
-     --no-step        Do not execute the step.  Default implementation will
-                      build the docker images.
+         --<step>-only    Only execute the step. No docker builds.
+         --no-step        Do not execute the step.  Default implementation will
+                          build the docker images.
 EOF
   fi
 
   cat <<EOF
 
- -h, --help           Display this help.
-     --usage          Display only the Usage section of this help.
+ -?, -h, --help           Display this help.
+         --usage          Display only the Usage section of this help.
 
 EOF
 }
