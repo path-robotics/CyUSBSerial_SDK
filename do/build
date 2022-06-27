@@ -17,7 +17,7 @@ function pre_docker()
   mkdir -p "${OUTPUT_DIR}"
 
   if [[ "${BUILD_DOCKER}" -eq 1 ]]; then
-    echo "--- :aws: Log into AWS Elastic Container Registry..."
+    echo "--- :aws: Log into AWS ${AWS_REGION-} Elastic Container Registry..."
     aws_login
 
     echo "--- :docker: Building the third-party docker image for '${PROJECT_REPO-}' - branch '${GIT_BRANCH-}', commit '${GIT_COMMIT-}'"

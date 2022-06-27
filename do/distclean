@@ -9,7 +9,7 @@ Usage:
  do/${SCRIPT_NAME}
  do/${SCRIPT_NAME} --force|-f
 
- do/${SCRIPT_NAME} --help|-h
+ do/${SCRIPT_NAME} --help|-h|-?
  do/${SCRIPT_NAME} --usage
 
 EOF
@@ -25,17 +25,17 @@ checkout or clone.  All local uncommitted file changes in this repo will be
 deleted along with all Docker images associated with the project!
 
 Options:
- -f, --force          Restore the repository without prompt.
+     -f, --force          Restore the repository without prompt.
 
- -h, --help           Display this help.
-     --usage          Display only the Usage section of this help.
+ -?, -h, --help           Display this help.
+         --usage          Display only the Usage section of this help.
 
 EOF
 }
 
 function clean_with_prompt()
 {
-  git clean -dxfn
+  git clean -dxffn
   echo 'Reset the index and working tree of this git repo?'
   while true; do
     read -r -p "Do you want to continue? (y/N)" yn
@@ -77,7 +77,7 @@ function clean_docker_with_prompt()
 
 function clean_without_prompt()
 {
-  git clean -dxf
+  git clean -dxff
   git reset --hard
 }
 
@@ -85,6 +85,7 @@ function clean_docker_without_prompt()
 {
   # shellcheck disable=SC2046
   docker rmi -f $(docker images "${PROJECT_REPO}" -q) 2>/dev/null || echo "No docker images to remove"
+  docker image prune -f
 }
 
 
@@ -104,7 +105,7 @@ while [ -n "${1-}" ]; do
       clean_docker_without_prompt
       exit 0
     ;;
-    '-h'|'-l'|'--help')
+    '-h'|'-?'|'--help')
       help
       exit 0
     ;;

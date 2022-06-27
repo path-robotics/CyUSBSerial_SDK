@@ -8,7 +8,7 @@ function usage()
 Usage:
  do/${SCRIPT_NAME}
 
- do/${SCRIPT_NAME} --help|-h
+ do/${SCRIPT_NAME} --help|-h|-?
  do/${SCRIPT_NAME} --usage
 
 EOF
@@ -24,8 +24,8 @@ system.  This script will not perform the 'do/scan' and 'do/publish' that is
 done as part of CI.  Warning: 'do/clean -f' is executed as the first step!
 
 Options:
- -h, --help           Display this help.
-     --usage          Display only the Usage section of this help.
+ -?, -h, --help           Display this help.
+         --usage          Display only the Usage section of this help.
 
 EOF
 }
@@ -37,7 +37,7 @@ cd "${SCRIPT_DIR}/.."
 
 while [ -n "${1-}" ]; do
   case "${1}" in
-    '-h'|'-l'|'--help')
+    '-h'|'-?'|'--help')
       help
       exit 0
     ;;
